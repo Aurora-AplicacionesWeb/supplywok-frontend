@@ -1,8 +1,14 @@
 <script setup>
-defineProps({
+import { computed } from 'vue';
+
+const props = defineProps({
     icon: {
         type: String,
-        required: true
+        default: ''
+    },
+    iconSrc: {
+        type: String,
+        default: ''
     },
     value: {
         type: [String, Number],
@@ -23,18 +29,38 @@ defineProps({
     badgeClass: {
         type: String,
         default: ''
+    },
+    badgeSeverity: {
+        type: String,
+        default: 'info'
+    },
+    showBadge: {
+        type: Boolean,
+        default: true
     }
+});
+
+const displayValue = computed(() => {
+    return props.value !== null && props.value !== undefined ? String(props.value) : '—';
 });
 </script>
 
 <template>
     <article class="stat-card">
         <div class="stat-card__header">
-            <i class="pi stat-card__icon" :class="[icon, iconClass]"></i>
-            <span v-if="badge" class="stat-card__badge" :class="badgeClass">{{ badge }}</span>
+            <template v-if="iconSrc">
+                <img :src="iconSrc" alt="icon" class="stat-card__image" />
+            </template>
+            <template v-else-if="icon">
+                <i class="pi stat-card__icon" :class="[icon, iconClass]"></i>
+            </template>
+            
+            <span v-if="showBadge && (badge || badgeClass)" class="stat-card__badge" :class="[badgeClass, 'badge--' + badgeSeverity]">
+                {{ badge }}
+            </span>
         </div>
 
-        <strong class="stat-card__value">{{ value }}</strong>
+        <strong class="stat-card__value">{{ displayValue }}</strong>
         <p class="stat-card__label">{{ label }}</p>
     </article>
 </template>
@@ -58,6 +84,12 @@ defineProps({
 
 .stat-card__icon {
     font-size: 22px;
+}
+
+.stat-card__image {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
 }
 
 .stat-card__value {
@@ -91,19 +123,23 @@ defineProps({
     color: #ff4d4f;
 }
 
-.stat-card__icon--orders {
-    color: #dca11b;
+.badge--urgent {
+  background-color: #fdecea;
+  color: #c0392b;
 }
 
-.stat-card__icon--deliveries {
-    color: #3d73ff;
+.badge--alert {
+  background-color: #e8f4fd;
+  color: #2980b9;
 }
 
-.stat-card__icon--forecast {
-    color: #34a853;
+.badge--ok {
+  background-color: #eafaf1;
+  color: #1e8449;
 }
 
-.stat-card__icon--alerts {
-    color: #d91f26;
+.badge--info {
+  background-color: #f4f4f4;
+  color: #555;
 }
 </style>

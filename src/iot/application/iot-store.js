@@ -2,6 +2,8 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { Alert } from '../domain/model/alert.entity.js';
 import { IotMonitoringApi } from '../infrastructure/iot-monitoring.api.js';
+import { SupplierAlertsApi } from '../infrastructure/supplier-alerts.api.js';
+import { SupplierAlertAssembler } from '../infrastructure/supplier-alert.assembler.js';
 
 /**
  * Pinia store for managing IoT Monitoring state.
@@ -9,10 +11,13 @@ import { IotMonitoringApi } from '../infrastructure/iot-monitoring.api.js';
  */
 export const iotStore = defineStore('iot', () => {
   const api = new IotMonitoringApi();
+  const supplierApi = new SupplierAlertsApi();
 
   // --- State ---
   const sensors = ref([]);
   const alertHistory = ref([]);
+  const supplierAlerts = ref([]);
+  const supplierAlertsLoaded = ref(false);
   const loading = ref(false);
   const error = ref(null);
 
@@ -128,10 +133,53 @@ export const iotStore = defineStore('iot', () => {
   };
 
   /**
-   * Marks an alert as acknowledged.
+   * Fetches supplier alerts from backend.
    */
-  const acknowledgeAlert = (alertId) => {
-    const alert = alertHistory.value.find(a => a.id === alertId);
+  const fetchSupplierAlerts = async () => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await supplierApi.getAlerts();
+      supplierAlerts.value = SupplierAlertAssembler.toEntitiesFromResponse(response);
+      supplierAlertsLoaded.value = true;
+    } catch (err) {
+      error.value = formatError(err, 'Failed to fetch supplier alerts');
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  /**
+   * Marks an alert as acknowledged (supports both supplier and sensor alerts).
+   */
+  const acknowledgeAlert = async (alertId) => {
+    const alertIdNum = parseInt(alertId);
+    
+    // 1. Check if it's a supplier alert
+    const existingSupplierAlert = supplierAlerts.value.find(a => a.id === alertIdNum);
+    if (existingSupplierAlert) {
+      if (existingSupplierAlert.status === 'acknowledged') {
+        return;
+      }
+      const updated = {
+        ...existingSupplierAlert,
+        status: 'acknowledged'
+      };
+      try {
+        const response = await supplierApi.updateAlert(alertIdNum, SupplierAlertAssembler.toResourceFromEntity(updated));
+        const persisted = SupplierAlertAssembler.toEntityFromResource(response.data);
+        const index = supplierAlerts.value.findIndex(a => a.id === persisted.id);
+        if (index !== -1) {
+          supplierAlerts.value[index] = persisted;
+        }
+      } catch (err) {
+        error.value = formatError(err, 'Failed to acknowledge supplier alert');
+      }
+      return;
+    }
+
+    // 2. Otherwise treat as sensor alert
+    const alert = alertHistory.value.find(a => a.id === alertIdNum);
     if (alert) {
       alert.acknowledge();
     }
@@ -216,6 +264,8 @@ export const iotStore = defineStore('iot', () => {
   return {
     sensors,
     alertHistory,
+    supplierAlerts,
+    supplierAlertsLoaded,
     loading,
     error,
     sensorsCount,
@@ -229,6 +279,7 @@ export const iotStore = defineStore('iot', () => {
     averageStorageTemperature,
     occupiedTablePercentage,
     loadSensors,
+    fetchSupplierAlerts,
     getSensorById,
     addSensor,
     updateSensor,

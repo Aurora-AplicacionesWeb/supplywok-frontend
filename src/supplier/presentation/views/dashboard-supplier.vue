@@ -3,12 +3,15 @@ import { computed, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import useSupplierManagementStore from '../../application/supply-management.store.js';
-import SupplierDashboardStatCard from '../components/supplier-dashboard-stat-card.vue';
+import { iotStore } from '../../../iot/application/iot-store.js';
+import StatCard from '../../../shared/presentation/components/stat-card.vue';
 import SupplierActiveRoutesPanel from '../components/supplier-active-routes-panel.vue';
 import SupplierAggregateForecastCard from '../components/supplier-aggregate-forecast-card.vue';
 
 const { t } = useI18n();
 const store = useSupplierManagementStore();
+const restaurantIotStore = iotStore();
+
 const {
     purchaseOrders,
     purchaseOrdersLoaded,
@@ -16,18 +19,25 @@ const {
     deliveryRoutesLoaded,
     demandForecast,
     demandForecastLoaded,
-    alerts,
-    alertsLoaded,
     clients,
     clientsLoaded
 } = storeToRefs(store);
+
+const {
+    supplierAlerts: alerts,
+    supplierAlertsLoaded: alertsLoaded
+} = storeToRefs(restaurantIotStore);
+
 const {
     fetchPurchaseOrders,
     fetchDeliveryRoutes,
     fetchDemandForecast,
-    fetchAlerts,
     fetchClients
 } = store;
+
+const {
+    fetchSupplierAlerts: fetchAlerts
+} = restaurantIotStore;
 
 const aggregateSeries = computed(() => demandForecast.value?.aggregate ?? []);
 
@@ -123,25 +133,25 @@ onMounted(() => {
         </header>
 
         <section class="dashboard-page__stats">
-            <SupplierDashboardStatCard
+            <StatCard
                 icon="pi-shopping-bag"
                 icon-class="stat-card__icon--orders"
                 :value="ordersReceived"
                 :label="t('supplier-management.dashboard.stats.orders-received')"
             />
-            <SupplierDashboardStatCard
+            <StatCard
                 icon="pi-truck"
                 icon-class="stat-card__icon--deliveries"
                 :value="scheduledDeliveries"
                 :label="t('supplier-management.dashboard.stats.scheduled-deliveries')"
             />
-            <SupplierDashboardStatCard
+            <StatCard
                 icon="pi-chart-line"
                 icon-class="stat-card__icon--forecast"
                 :value="demandOutlook"
                 :label="t('supplier-management.dashboard.stats.demand-outlook')"
             />
-            <SupplierDashboardStatCard
+            <StatCard
                 icon="pi-bell"
                 icon-class="stat-card__icon--alerts"
                 :value="urgentRequests"

@@ -4,7 +4,7 @@ const supplierClients = () => import('./views/clients-supplier.vue');
 const supplierDelivery = () => import('./views/delivery-supplier.vue');
 const supplierForecast = () => import('./views/demand-forecast.vue');
 const supplierCatalog = () => import('./views/catalog-supplier.vue');
-const supplierAlerts = () => import('./views/alerts-supplier.vue');
+const supplierAlerts = () => import('../../shared/presentation/views/alerts-view.vue');
 const supplierSettings = () => import('./views/settings-supplier.vue');
 const supplierSubscription = () => import('./views/subscription-supplier.vue');
 

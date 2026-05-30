@@ -3,14 +3,14 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import useSupplierManagementStore from '../../application/supply-management.store.js';
+import { iotStore } from '../../../iot/application/iot-store.js';
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const store = useSupplierManagementStore();
-const { alerts, alertsLoaded } = storeToRefs(store);
-const { fetchAlerts, acknowledgeAlert } = store;
+const store = iotStore();
+const { supplierAlerts: alerts, supplierAlertsLoaded: alertsLoaded } = storeToRefs(store);
+const { fetchSupplierAlerts: fetchAlerts, acknowledgeAlert } = store;
 
 const searchQuery = ref('');
 const severityFilter = ref(null);
