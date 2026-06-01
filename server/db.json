@@ -1427,5 +1427,41 @@
       "id": "19",
       "email": "mpajes2006@gmail.com"
     }
+  ],
+  "report": [
+    {
+      "id": 1,
+      "inventoryTrend": [
+        { "month": "Jan", "value": 120 },
+        { "month": "Feb", "value": 150 },
+        { "month": "Mar", "value": 220 },
+        { "month": "Apr", "value": 180 },
+        { "month": "May", "value": 250 },
+        { "month": "Jun", "value": 290 }
+      ],
+      "weeklyConsumption": [
+        { "week": "W1", "value": 45 },
+        { "week": "W2", "value": 55 },
+        { "week": "W3", "value": 40 },
+        { "week": "W4", "value": 60 },
+        { "week": "W5", "value": 65 },
+        { "week": "W6", "value": 50 }
+      ],
+      "topSuppliersOrders": [
+        { "supplier": "Golden Wok Produce", "value": 85 },
+        { "supplier": "Andes Cold Chain", "value": 70 },
+        { "supplier": "Orient Pantry Co.", "value": 50 },
+        { "supplier": "Lotus Rice Traders", "value": 40 }
+      ],
+      "temperatureFluctuations": [
+        { "day": "Mon", "value": 4 },
+        { "day": "Tue", "value": 3.8 },
+        { "day": "Wed", "value": 4.2 },
+        { "day": "Thu", "value": 5.0 },
+        { "day": "Fri", "value": 4.5 },
+        { "day": "Sat", "value": 3.9 },
+        { "day": "Sun", "value": 4.1 }
+      ]
+    }
   ]
 }
