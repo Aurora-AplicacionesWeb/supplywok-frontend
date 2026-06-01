@@ -726,6 +726,27 @@
           "acknowledge": "Acknowledge"
         }
       }
+    },
+    "sensors": {
+      "create-button": "Create Sensor",
+      "types": {
+        "kitchen-temperature": "Kitchen Temperature",
+        "storage-temperature": "Cold Storage Temperature",
+        "table-pressure": "Table Pressure (Occupancy)",
+        "storage-pressure": "Storage Pressure (Stock)"
+      },
+      "create-dialog": {
+        "title": "Create New IoT Sensor",
+        "name": "Sensor Name",
+        "name-placeholder": "e.g., Grill 1, Meat Freezer...",
+        "type": "Sensor Type",
+        "min-value": "Min",
+        "max-value": "Max",
+        "last-value": "Initial Reading (Value)",
+        "enabled": "Sensor Enabled / Active",
+        "cancel": "Cancel",
+        "submit": "Confirm Creation"
+      }
     }
   },
   "tables": {

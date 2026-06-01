@@ -1,21 +1,15 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { PurchaseOrderApi } from '../infrastructure/purchase-order-api.js';
-import { PurchaseOrderAssembler } from '../infrastructure/purchase-order.assembler.js';
+import { OrdersApi } from '../infrastructure/orders-api.js';
+import { OrderAssembler } from '../infrastructure/order.assembler.js';
 import { SupplierApi } from '../infrastructure/supplier-api.js';
 import i18n from '../../i18n.js';
 
-const purchaseOrderApi = new PurchaseOrderApi();
+const ordersApi = new OrdersApi();
 const supplierApi = new SupplierApi();
 const translate = (key) => i18n.global.t(key);
 
-/**
- * Application service store for the `Supply and Purchasing` bounded context.
- * It coordinates purchase order use cases and keeps a UI-facing state.
- *
- * @module usePurchaseOrderStore
- */
-const usePurchaseOrderStore = defineStore('purchasing', () => {
+export const useOrdersStore = defineStore('orders', () => {
     const purchaseOrders = ref([]);
     const suppliers = ref([]);
     const errors = ref([]);
@@ -24,38 +18,18 @@ const usePurchaseOrderStore = defineStore('purchasing', () => {
     const suppliersLoaded = ref(false);
     const loading = ref(false);
 
-    /**
-     * Number of loaded purchase orders.
-     *
-     * @type {import('vue').ComputedRef<number>}
-     */
     const purchaseOrdersCount = computed(() => {
         return purchaseOrdersLoaded.value ? purchaseOrders.value.length : 0;
     });
 
-    /**
-     * Number of purchase orders in pending state.
-     *
-     * @type {import('vue').ComputedRef<number>}
-     */
     const pendingPurchaseOrdersCount = computed(() => {
         return purchaseOrders.value.filter((purchaseOrder) => purchaseOrder.status === 'Pending').length;
     });
 
-    /**
-     * Number of high-priority purchase orders.
-     *
-     * @type {import('vue').ComputedRef<number>}
-     */
     const highPriorityPurchaseOrdersCount = computed(() => {
         return purchaseOrders.value.filter((purchaseOrder) => purchaseOrder.priority === 'High').length;
     });
 
-    /**
-     * Supplier options normalized for selects and cards.
-     *
-     * @type {import('vue').ComputedRef<Array<{id: string, name: string, contactName: string, phone: string, category: string}>>}
-     */
     const supplierDirectory = computed(() => {
         return suppliers.value.map((supplier) => ({
             ...supplier,
@@ -67,11 +41,6 @@ const usePurchaseOrderStore = defineStore('purchasing', () => {
         }));
     });
 
-    /**
-     * Loads supplier records from infrastructure and updates the application state.
-     *
-     * @returns {Promise<void>}
-     */
     async function fetchSuppliers() {
         loading.value = true;
         try {
@@ -90,16 +59,11 @@ const usePurchaseOrderStore = defineStore('purchasing', () => {
         }
     }
 
-    /**
-     * Loads purchase orders from infrastructure and updates the application state.
-     *
-     * @returns {Promise<void>}
-     */
     async function fetchPurchaseOrders() {
         loading.value = true;
         try {
-            const response = await purchaseOrderApi.getPurchaseOrders();
-            purchaseOrders.value = PurchaseOrderAssembler.toEntitiesFromResponse(response);
+            const response = await ordersApi.getOrders();
+            purchaseOrders.value = OrderAssembler.toEntitiesFromResponse(response);
             purchaseOrdersLoaded.value = true;
         } catch (error) {
             errors.value.push(error);
@@ -108,55 +72,41 @@ const usePurchaseOrderStore = defineStore('purchasing', () => {
         }
     }
 
-    /**
-     * Ensures purchase orders are loaded before a page or dashboard card tries to render them.
-     *
-     * @returns {Promise<void>}
-     */
+    async function fetchOrderById(id) {
+        loading.value = true;
+        try {
+            const response = await ordersApi.getOrderById(id);
+            return OrderAssembler.toEntityFromResponse(response);
+        } catch (error) {
+            errors.value.push(error);
+            return null;
+        } finally {
+            loading.value = false;
+        }
+    }
+
     async function ensurePurchaseOrdersLoaded() {
         if (!purchaseOrdersLoaded.value && !loading.value) {
             await fetchPurchaseOrders();
         }
     }
 
-    /**
-     * Ensures suppliers are available before any directory or form tries to render them.
-     *
-     * @returns {Promise<void>}
-     */
     async function ensureSuppliersLoaded() {
         if (!suppliersLoaded.value && !loading.value) {
             await fetchSuppliers();
         }
     }
 
-    /**
-     * Clears validation errors from the current application state.
-     *
-     * @returns {void}
-     */
     function clearValidationErrors() {
         validationErrors.value = {};
     }
 
-    /**
-     * Clears one validation error scope from the current application state.
-     *
-     * @param {string} scope - Validation scope identifier.
-     * @returns {void}
-     */
     function clearValidationScope(scope) {
         const nextValidationErrors = { ...validationErrors.value };
         delete nextValidationErrors[scope];
         validationErrors.value = nextValidationErrors;
     }
 
-    /**
-     * Collects validation errors for a purchase order item.
-     *
-     * @param {Object} item - Purchase order item data.
-     * @returns {Object} Validation errors keyed by field name.
-     */
     function collectOrderItemValidationErrors(item) {
         const itemValidationErrors = {};
         const quantity = Number(item.quantity);
@@ -181,13 +131,6 @@ const usePurchaseOrderStore = defineStore('purchasing', () => {
         return itemValidationErrors;
     }
 
-    /**
-     * Validates one purchase order item and stores its scoped errors.
-     *
-     * @param {Object} item - Purchase order item data.
-     * @param {string} [scope='draftLine'] - Validation scope identifier.
-     * @returns {boolean} Whether the item is valid.
-     */
     function validateOrderItem(item, scope = 'draftLine') {
         const itemValidationErrors = collectOrderItemValidationErrors(item);
         const nextValidationErrors = { ...validationErrors.value };
@@ -203,12 +146,6 @@ const usePurchaseOrderStore = defineStore('purchasing', () => {
         return true;
     }
 
-    /**
-     * Validates a purchase order entity before persistence.
-     *
-     * @param {import('../domain/model/purchase-order.entity.js').PurchaseOrder} purchaseOrder - Purchase order entity to validate.
-     * @returns {boolean} Whether the purchase order is valid.
-     */
     function validatePurchaseOrder(purchaseOrder) {
         const nextValidationErrors = {};
 
@@ -245,12 +182,6 @@ const usePurchaseOrderStore = defineStore('purchasing', () => {
         return Object.keys(nextValidationErrors).length === 0;
     }
 
-    /**
-     * Creates a purchase order through infrastructure and appends it to local state.
-     *
-     * @param {import('../domain/model/purchase-order.entity.js').PurchaseOrder} purchaseOrder - Purchase order entity to persist.
-     * @returns {Promise<boolean>}
-     */
     async function addPurchaseOrder(purchaseOrder) {
         clearValidationScope('draftLine');
 
@@ -259,10 +190,36 @@ const usePurchaseOrderStore = defineStore('purchasing', () => {
         }
 
         try {
-            const response = await purchaseOrderApi.createPurchaseOrder(purchaseOrder);
-            const newPurchaseOrder = PurchaseOrderAssembler.toEntityFromResource(response.data);
+            const response = await ordersApi.createOrder(OrderAssembler.toResourceFromEntity(purchaseOrder));
+            const newPurchaseOrder = OrderAssembler.toEntityFromResource(response.data);
             purchaseOrders.value.unshift(newPurchaseOrder);
             clearValidationErrors();
+            return true;
+        } catch (error) {
+            errors.value.push(error);
+            return false;
+        }
+    }
+
+    async function updateOrder(id, order) {
+        try {
+            const response = await ordersApi.updateOrder(id, OrderAssembler.toResourceFromEntity(order));
+            const updated = OrderAssembler.toEntityFromResource(response.data);
+            const idx = purchaseOrders.value.findIndex(o => o.id === id);
+            if (idx !== -1) {
+                purchaseOrders.value[idx] = updated;
+            }
+            return true;
+        } catch (error) {
+            errors.value.push(error);
+            return false;
+        }
+    }
+
+    async function deleteOrder(id) {
+        try {
+            await ordersApi.deleteOrder(id);
+            purchaseOrders.value = purchaseOrders.value.filter(o => o.id !== id);
             return true;
         } catch (error) {
             errors.value.push(error);
@@ -286,12 +243,15 @@ const usePurchaseOrderStore = defineStore('purchasing', () => {
         ensureSuppliersLoaded,
         ensurePurchaseOrdersLoaded,
         fetchPurchaseOrders,
+        fetchOrderById,
         clearValidationErrors,
         clearValidationScope,
         validateOrderItem,
         validatePurchaseOrder,
-        addPurchaseOrder
+        addPurchaseOrder,
+        updateOrder,
+        deleteOrder
     };
 });
 
-export default usePurchaseOrderStore;
+export default useOrdersStore;

@@ -1,8 +1,8 @@
-import { SupplierAlert } from '../domain/model/supplier-alert.entity.js';
+import { Alert } from '../domain/model/alert.entity.js';
 
 export class SupplierAlertAssembler {
     static toEntityFromResource(resource) {
-        return new SupplierAlert({
+        return new Alert({
             id: resource.id,
             severity: resource.severity,
             detail: resource.detail,

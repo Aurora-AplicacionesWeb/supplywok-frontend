@@ -7,6 +7,7 @@ import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import InputText from 'primevue/inputtext';
 import Tag from 'primevue/tag';
+import OrderDetails from './order-details.vue';
 
 const props = defineProps({
     purchaseOrders: {
@@ -125,6 +126,34 @@ watch(
     },
     { immediate: true }
 );
+
+// Pagination logic
+const firstRow = ref(0);
+const rowsPerPage = ref(5);
+
+const totalRecords = computed(() => filteredPurchaseOrders.value.length);
+const totalPages = computed(() => Math.ceil(totalRecords.value / rowsPerPage.value));
+const currentPage = computed(() => Math.floor(firstRow.value / rowsPerPage.value) + 1);
+
+const paginatedOrders = computed(() =>
+    filteredPurchaseOrders.value.slice(firstRow.value, firstRow.value + rowsPerPage.value)
+);
+
+function prevPage() {
+    if (firstRow.value > 0) {
+        firstRow.value -= rowsPerPage.value;
+    }
+}
+
+function nextPage() {
+    if (firstRow.value + rowsPerPage.value < totalRecords.value) {
+        firstRow.value += rowsPerPage.value;
+    }
+}
+
+watch(searchValue, () => {
+    firstRow.value = 0;
+});
 </script>
 
 <template>
@@ -155,10 +184,8 @@ watch(
         </span>
 
         <DataTable
-            :value="filteredPurchaseOrders"
+            :value="paginatedOrders"
             :loading="loading"
-            paginator
-            :rows="4"
             responsiveLayout="scroll"
             dataKey="id"
             class="purchase-orders-table__grid"
@@ -194,65 +221,37 @@ watch(
         <div class="purchase-orders-table__footer">
             <span>{{ t('supply-and-purchasing.table.footer.showing', { filtered: filteredPurchaseOrders.length, total: purchaseOrders.length }) }}</span>
             <div class="purchase-orders-table__pager">
-                <button type="button" class="purchase-orders-table__toolbar-button">
+                <button 
+                    type="button" 
+                    class="purchase-orders-table__toolbar-button"
+                    :disabled="currentPage === 1"
+                    :style="{ opacity: currentPage === 1 ? 0.4 : 1, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }"
+                    @click="prevPage"
+                >
                     <i class="pi pi-angle-left" />
                 </button>
-                <button type="button" class="purchase-orders-table__toolbar-button">
+                <span class="flex align-items-center px-2 text-sm font-semibold" style="color: #4b3d34;">
+                    {{ currentPage }} / {{ totalPages || 1 }}
+                </span>
+                <button 
+                    type="button" 
+                    class="purchase-orders-table__toolbar-button"
+                    :disabled="currentPage === totalPages || totalPages === 0"
+                    :style="{ opacity: (currentPage === totalPages || totalPages === 0) ? 0.4 : 1, cursor: (currentPage === totalPages || totalPages === 0) ? 'not-allowed' : 'pointer' }"
+                    @click="nextPage"
+                >
                     <i class="pi pi-angle-right" />
                 </button>
             </div>
         </div>
 
-        <div v-if="selectedPurchaseOrder" class="purchase-orders-table__detail-overlay" @click.self="closePurchaseOrderDetail">
-            <section class="purchase-orders-table__detail-modal">
-                <div class="purchase-orders-table__detail-header">
-                    <div>
-                        <span class="purchase-orders-table__detail-kicker">{{ t('supply-and-purchasing.detail.kicker') }}</span>
-                        <h3>{{ formatCode(selectedPurchaseOrder) }}</h3>
-                        <p>{{ selectedPurchaseOrder.supplierName }}</p>
-                    </div>
-
-                    <button type="button" class="purchase-orders-table__toolbar-button" @click="closePurchaseOrderDetail">
-                        <i class="pi pi-times" />
-                    </button>
-                </div>
-
-                <div class="purchase-orders-table__detail-meta">
-                    <article>
-                        <span>{{ t('supply-and-purchasing.detail.meta.status') }}</span>
-                        <Tag :value="getStatusLabel(selectedPurchaseOrder.status).toUpperCase()" :severity="getSeverityByStatus(selectedPurchaseOrder.status)" />
-                    </article>
-                    <article>
-                        <span>{{ t('supply-and-purchasing.detail.meta.priority') }}</span>
-                        <strong>{{ getPriorityLabel(selectedPurchaseOrder.priority) }}</strong>
-                    </article>
-                    <article>
-                        <span>{{ t('supply-and-purchasing.detail.meta.date') }}</span>
-                        <strong>{{ selectedPurchaseOrder.orderDate }}</strong>
-                    </article>
-                    <article>
-                        <span>{{ t('supply-and-purchasing.detail.meta.total') }}</span>
-                        <strong>$ {{ formatCurrency(calculateOrderTotal(selectedPurchaseOrder.items)) }}</strong>
-                    </article>
-                </div>
-
-                <div class="purchase-orders-table__detail-items">
-                    <div class="purchase-orders-table__detail-items-head">
-                        <span>{{ t('supply-and-purchasing.detail.items.product') }}</span>
-                        <span>{{ t('supply-and-purchasing.detail.items.quantity') }}</span>
-                        <span>{{ t('supply-and-purchasing.detail.items.unit') }}</span>
-                        <span>{{ t('supply-and-purchasing.detail.items.subtotal') }}</span>
-                    </div>
-
-                    <div v-for="item in selectedPurchaseOrder.items" :key="item.id" class="purchase-orders-table__detail-item-row">
-                        <strong>{{ item.productName }}</strong>
-                        <span>{{ item.quantity }}</span>
-                        <span>{{ item.unitType }}</span>
-                        <span>$ {{ formatCurrency(calculateItemSubtotal(item)) }}</span>
-                    </div>
-                </div>
-            </section>
-        </div>
+        <OrderDetails
+            v-if="selectedPurchaseOrder"
+            :id="selectedPurchaseOrder.id"
+            :visible="!!selectedPurchaseOrder"
+            @update:visible="(val) => { if (!val) closePurchaseOrderDetail(); }"
+            @close="closePurchaseOrderDetail"
+        />
     </section>
 </template>
 

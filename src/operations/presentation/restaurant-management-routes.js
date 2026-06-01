@@ -1,5 +1,4 @@
 const placeholderPage = () => import('../../shared/presentation/views/placeholder-page.vue');
-const reportsPage = () => import('../../shared/presentation/views/reports-page.vue');
 const configurationPage = () => import('../../shared/presentation/views/configuration-page.vue');
 const subscriptionPage = () => import('../../shared/presentation/views/subscription-page.vue');
 
@@ -16,7 +15,6 @@ const restaurantManagementRoutes = [
     { path: '/operations/tables', name: 'restaurant-tables', component: tablesAndOccupancyView, meta: { i18nKey: 'shared.titles.tables', role: 'restaurant' } },
     { path: '/operations/tables/new', name: 'operations-tables-new', component: tablesAndOccupancyView, meta: { i18nKey: 'shared.titles.tables', role: 'restaurant' } },
     { path: '/operations/tables/:tableId/view', name: 'operations-tables-view', component: tablesAndOccupancyView, meta: { i18nKey: 'shared.titles.tables', role: 'restaurant' } },
-    { path: '/operations/reports', name: 'restaurant-reports', component: reportsPage, meta: { i18nKey: 'shared.titles.reports', role: 'restaurant' } },
     { path: '/operations/configuration', name: 'restaurant-configuration', component: configurationPage, meta: { i18nKey: 'shared.titles.configuration', role: 'restaurant' } },
     { path: '/operations/subscription', name: 'restaurant-subscription', component: subscriptionPage, meta: { i18nKey: 'shared.titles.subscription', role: 'restaurant' } },
     { path: '/operations/dish-menu', name: 'dish-menu-view', component: dishMenuView, meta: { i18nKey: 'shared.titles.dish-menu', role: 'restaurant' } }

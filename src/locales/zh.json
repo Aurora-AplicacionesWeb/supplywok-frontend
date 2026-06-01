@@ -726,6 +726,27 @@
           "acknowledge": "确认"
         }
       }
+    },
+    "sensors": {
+      "create-button": "創建傳感器",
+      "types": {
+        "kitchen-temperature": "廚房溫度",
+        "storage-temperature": "冷庫溫度",
+        "table-pressure": "餐桌壓力 (佔用)",
+        "storage-pressure": "倉庫壓力 (庫存)"
+      },
+      "create-dialog": {
+        "title": "創建新 IoT 傳感器",
+        "name": "傳感器名稱",
+        "name-placeholder": "例如：烤架 1，肉類冷凍庫...",
+        "type": "傳感器類型",
+        "min-value": "最小值",
+        "max-value": "最大值",
+        "last-value": "初始讀數 (數值)",
+        "enabled": "啟用/活性傳感器",
+        "cancel": "取消",
+        "submit": "確認創建"
+      }
     }
   },
   "tables": {

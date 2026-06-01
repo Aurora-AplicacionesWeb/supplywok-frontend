@@ -7,18 +7,14 @@ const baseDos = import.meta.env.VITE_SUPPLY_WOK_REST_MANAGE_DOS_URL;   // "https
 const dishesEndpointPath           = baseUno + 'dishes';
 const dishesCategoriesEndpointPath = baseUno + 'dishes-categories';
 const kitchenOrdersEndpointPath    = baseUno + 'kitchen-orders';
-const kitchenOrderItemsEndpointPath = baseUno + 'kitchen-order-items';
 const kitchenLocksEndpointPath     = baseDos + 'kitchen-locks';
 const tablesEndpointPath           = baseDos + 'tables';
-const historyStateKitchenOrdersEndpointPath = baseUno + 'history-state-kitchen-orders';
 
 export class RestaurantManagementApi extends BaseApi {
     #dishesEndpoint;
     #dishesCategoriesEndpoint;
-    #historyStateKitchenOrdersEndpoint;
     #kitchenLocksEndpoint;
     #kitchenOrdersEndpoint;
-    #kitchenOrderItemsEndpoint;
     #tablesEndpoint;
 
     constructor() {
@@ -28,8 +24,6 @@ export class RestaurantManagementApi extends BaseApi {
         this.#dishesCategoriesEndpoint = new BaseEndpoint(this, dishesCategoriesEndpointPath);
         this.#kitchenLocksEndpoint = new BaseEndpoint(this, kitchenLocksEndpointPath);
         this.#kitchenOrdersEndpoint = new BaseEndpoint(this, kitchenOrdersEndpointPath);
-        this.#kitchenOrderItemsEndpoint = new BaseEndpoint(this, kitchenOrderItemsEndpointPath);
-        this.#historyStateKitchenOrdersEndpoint = new BaseEndpoint(this, historyStateKitchenOrdersEndpointPath);
         this.#tablesEndpoint = new BaseEndpoint(this, tablesEndpointPath);
     }
 
@@ -76,10 +70,6 @@ export class RestaurantManagementApi extends BaseApi {
         return this.#kitchenOrdersEndpoint.update(id, resource);
     }
 
-    getKitchenOrderItems() {
-        return this.#kitchenOrderItemsEndpoint.getAll();
-    }
-
     getKitchenLock() {
         return this.#kitchenLocksEndpoint.getAll();
     }
@@ -90,14 +80,6 @@ export class RestaurantManagementApi extends BaseApi {
 
     deleteKitchenOrder(id) {
         return this.#kitchenOrdersEndpoint.delete(id);
-    }
-
-    createStateHistory(resource) {
-        return this.#historyStateKitchenOrdersEndpoint.create(resource);
-    }
-
-    getHistoryByKitchenOrderId(kitchenOrderId) {
-        return this.#historyStateKitchenOrdersEndpoint.getAll();
     }
 
     updateTableStatus(tableId, newState) {

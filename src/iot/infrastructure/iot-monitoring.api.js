@@ -37,6 +37,25 @@ export class IotMonitoringApi {
   }
 
   /**
+   * Creates a new sensor on the API.
+   * @param {Object} sensorData - The raw sensor data.
+   * @returns {Promise<Sensor|null>}
+   */
+  async createSensor(sensorData) {
+    try {
+      const data = await this._fetchData(`${this.baseUrl}${this.endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sensorData)
+      });
+      return SensorAssembler.toEntityFromResource(data);
+    } catch (error) {
+      console.error('Failed to create sensor:', error);
+      return null;
+    }
+  }
+
+  /**
    * Internal helper to filter sensors by type.
    * @private
    */

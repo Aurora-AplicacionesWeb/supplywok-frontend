@@ -3,10 +3,10 @@ import { computed, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import Chart from 'primevue/chart';
-import useSupplierManagementStore from '../../application/supply-management.store.js';
+import useAnalyticsStore from '../../application/analytics.store.js';
 
 const { t } = useI18n();
-const store = useSupplierManagementStore();
+const store = useAnalyticsStore();
 const { demandForecast, demandForecastLoaded } = storeToRefs(store);
 const { fetchDemandForecast } = store;
 

@@ -201,10 +201,15 @@ export const iotStore = defineStore('iot', () => {
     loading.value = true;
     error.value = null;
     try {
-      sensors.value.push(sensor);
-      syncAlerts();
+      const created = await api.createSensor(sensor);
+      if (created) {
+        sensors.value.push(created);
+        syncAlerts();
+        return created;
+      }
     } catch (err) {
       error.value = formatError(err, 'Failed to create sensor');
+      throw err;
     } finally {
       loading.value = false;
     }

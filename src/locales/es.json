@@ -726,6 +726,27 @@
           "acknowledge": "Reconocer"
         }
       }
+    },
+    "sensors": {
+      "create-button": "Crear Sensor",
+      "types": {
+        "kitchen-temperature": "Temperatura de Cocina",
+        "storage-temperature": "Temperatura de Almacén",
+        "table-pressure": "Presión de Mesa (Ocupación)",
+        "storage-pressure": "Presión de Almacén (Stock)"
+      },
+      "create-dialog": {
+        "title": "Crear Nuevo Sensor IoT",
+        "name": "Nombre del Sensor",
+        "name-placeholder": "Ej. Parrilla 1, Refrigerador Carnes...",
+        "type": "Tipo de Sensor",
+        "min-value": "Mínimo",
+        "max-value": "Máximo",
+        "last-value": "Lectura Inicial (Valor)",
+        "enabled": "Sensor Habilitado / Activo",
+        "cancel": "Cancelar",
+        "submit": "Confirmar Creación"
+      }
     }
   },
   "tables": {

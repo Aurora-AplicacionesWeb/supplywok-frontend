@@ -4,12 +4,12 @@ import { storeToRefs } from 'pinia';
 import { RouterLink } from 'vue-router';
 import useInventoryManagementStore from '../../../inventory/application/inventory-management.store.js';
 import { iotStore } from '../../../iot/application/iot-store.js';
-import usePurchaseOrderStore from '../../../purchasing/application/purchase-order.store.js';
+import useOrdersStore from '../../../purchasing/application/orders.store.js';
 import useRestaurantManagementStore from '../../../operations/application/restaurant-management.store.js';
 
 const inventoryStore = useInventoryManagementStore();
 const monitoringStore = iotStore();
-const purchaseStore = usePurchaseOrderStore();
+const purchaseStore = useOrdersStore();
 const restaurantStore = useRestaurantManagementStore();
 
 const { inventoryItems, lowStockItems } = storeToRefs(inventoryStore);

@@ -12,13 +12,11 @@ import { TableAssembler } from '../infrastructure/table.assembler.js';
 import { DishAssembler } from '../infrastructure/dish.assembler.js';
 import { DishCategoryAssembler } from '../infrastructure/dish-category.assembler.js';
 import { KitchenOrderAssembler } from '../infrastructure/kitchen-order.assembler.js';
-import { KitchenOrderItemAssembler } from '../infrastructure/kitchen-order-item.assembler.js';
 import { KitchenLockAssembler } from '../infrastructure/kitchen-lock.assembler.js';
 import { Table } from '../domain/model/table.entity.js';
 import { Dish } from '../domain/model/dish.entity.js';
 import { DishCategory } from '../domain/model/dish-category.entity.js';
 import { KitchenOrder } from '../domain/model/kitchen-order.entity.js';
-import { KitchenOrderItem } from '../domain/model/kitchen-order-item.entity.js';
 import { KitchenLock } from '../domain/model/kitchen-lock.entity.js';
 
 const restaurantManagementApi = new RestaurantManagementApi();
@@ -372,10 +370,6 @@ const useRestaurantManagementStore = defineStore('operations', () => {
         loading.value = true;
         return restaurantManagementApi.getKitchenOrders().then(ordersResponse => {
             kitchenOrders.value = KitchenOrderAssembler.toEntitiesFromResponse(ordersResponse);
-            return restaurantManagementApi.getKitchenOrderItems();
-        }).then(itemsResponse => {
-            kitchenOrderItems.value = KitchenOrderItemAssembler.toEntitiesFromResponse(itemsResponse);
-            mergeItemsIntoOrders();
             loading.value = false;
         }).catch(error => {
             errors.value.push(error);
@@ -387,18 +381,7 @@ const useRestaurantManagementStore = defineStore('operations', () => {
      * Merges kitchen-order items into their parent orders.
      * @returns {void}
      */
-    function mergeItemsIntoOrders() {
-        const itemsByOrderId = {};
-        kitchenOrderItems.value.forEach(item => {
-            if (!itemsByOrderId[item.kitchenOrderId]) itemsByOrderId[item.kitchenOrderId] = [];
-            itemsByOrderId[item.kitchenOrderId].push(item);
-        });
-        kitchenOrders.value.forEach(order => {
-            if (!order.item || order.item.length === 0) {
-                order.item = itemsByOrderId[order.id] || [];
-            }
-        });
-    }
+
 
     /**
      * Loads a single kitchen order by identifier.
@@ -409,14 +392,6 @@ const useRestaurantManagementStore = defineStore('operations', () => {
         loading.value = true;
         return restaurantManagementApi.getKitchenOrderById(id).then(response => {
             const order = KitchenOrderAssembler.toEntityFromResource(response.data);
-            if (!order.item || order.item.length === 0) {
-                return restaurantManagementApi.getKitchenOrderItems().then(itemsResponse => {
-                    const allItems = KitchenOrderItemAssembler.toEntitiesFromResponse(itemsResponse);
-                    order.item = allItems.filter(i => i.kitchenOrderId === id);
-                    currentKitchenOrder.value = order;
-                    loading.value = false;
-                });
-            }
             currentKitchenOrder.value = order;
             loading.value = false;
         }).catch(error => {
@@ -455,10 +430,6 @@ const useRestaurantManagementStore = defineStore('operations', () => {
             return restaurantManagementApi.getKitchenOrders();
         }).then(ordersResponse => {
             kitchenOrders.value = KitchenOrderAssembler.toEntitiesFromResponse(ordersResponse);
-            return restaurantManagementApi.getKitchenOrderItems();
-        }).then(itemsResponse => {
-            kitchenOrderItems.value = KitchenOrderItemAssembler.toEntitiesFromResponse(itemsResponse);
-            mergeItemsIntoOrders();
             return restaurantManagementApi.getKitchenLock();
         }).then(response => {
             const locks = KitchenLockAssembler.toEntitiesFromResponse(response);

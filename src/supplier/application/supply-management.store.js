@@ -1,10 +1,9 @@
 import {defineStore} from "pinia";
 import {computed, ref} from "vue";
 import { SupplyManagementApi } from "../infrastructure/supply-management-api.js";
-import {OrdersAssembler} from "../infrastructure/orders.assembler.js";
+
 import {CatalogItemAssembler} from "../infrastructure/catalog-item.assembler.js";
 import {ClientAssembler} from "../infrastructure/client.assembler.js";
-import {DemandForecastAssembler} from "../infrastructure/demand-forecast.assembler.js";
 import {DeliveryRouteAssembler} from "../infrastructure/delivery-route.assembler.js";
 import {SupplierSettingsAssembler} from "../infrastructure/supplier-settings.assembler.js";
 const supplierManagementApi = new SupplyManagementApi();
@@ -17,93 +16,6 @@ const supplierManagementApi = new SupplyManagementApi();
  */
 const useSupplierManagementStore = defineStore('supplierManagement', () => {
     const errors=ref([]);
-    const purchaseOrders = ref([]);
-    const purchaseOrdersLoaded = ref(false);
-
-    /**
-     * Number of loaded purchase orders.
-     *
-     * @type {import('vue').ComputedRef<number>}
-     */
-    const purchaseOrdersCount =
-        computed(()=> purchaseOrdersLoaded ? purchaseOrders.value.length:0);
-
-    /**
-     * Loads supplier purchase orders from infrastructure and updates the application state.
-     *
-     * @returns {void}
-     */
-    function fetchPurchaseOrders(){
-        supplierManagementApi.getOrders().then(response=>{
-            purchaseOrders.value=OrdersAssembler.toEntitiesFromResponse(response);
-            purchaseOrdersLoaded.value=true;
-        }).catch(error=>{
-            errors.value.push(error);
-        });
-    }
-
-    /**
-     * Finds a purchase order by its identifier from the local state.
-     *
-     * @param {string|number} id - Purchase order identifier.
-     * @returns {import('../domain/model/orders.entity.js').Orders|undefined} Matching purchase order, if found.
-     */
-    function getPurchaseOrdersById(id){
-        let idNum=parseInt(id);
-        return purchaseOrders.value.find(order=>order['id']===idNum);
-    }
-
-    /**
-     * Creates a purchase order through infrastructure and appends it to local state.
-     *
-     * @param {import('../domain/model/orders.entity.js').Orders} order - Purchase order entity to persist.
-     * @returns {void}
-     */
-    function addPurchaseOrders(order){
-        supplierManagementApi.createOrder(order).then(response=>{
-            const resource=response.data;
-            const newOrder=OrdersAssembler.toEntityFromResource(resource);
-            purchaseOrders.value.push(newOrder);
-        }).catch(error=>{
-            errors.value.push(error);
-        });
-    }
-
-    /**
-     * Updates a purchase order through infrastructure and replaces it in local state.
-     *
-     * @param {import('../domain/model/orders.entity.js').Orders} order - Purchase order entity to update.
-     * @returns {void}
-     */
-    function updatePurchaseOrders(order){
-        supplierManagementApi.updateOrder(order).then(response=> {
-            const resource=response.data;
-            const updatedOrder=OrdersAssembler.toEntityFromResource(resource);
-            const index=purchaseOrders.value.findIndex(o=>o['id']===updatedOrder.id);
-            if(index !== -1){
-                purchaseOrders.value[index]=updatedOrder;
-            }
-        }).catch(error=>{
-            errors.value.push(error);
-        });
-    }
-
-    /**
-     * Deletes a purchase order through infrastructure and removes it from local state.
-     *
-     * @param {string|number} id - Purchase order identifier.
-     * @returns {void}
-     */
-    function deletePurchaseOrders(id){
-        supplierManagementApi.deleteOrder(id).then(response=>{
-            const index=purchaseOrders.value.findIndex(o=>o['id']===id);
-            if(index !== -1){
-                purchaseOrders.value.splice(index,1);
-            }
-        }).catch(error=>{
-            errors.value.push(error);
-        })
-    }
 
     // ── Catalog Supplier section ──────────────────────────────────────────────
     // State and use cases for the supplier's product catalog (CatalogItem aggregate).
@@ -112,8 +24,6 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
     const catalogItemsLoaded = ref(false);
     const clients = ref([]);
     const clientsLoaded = ref(false);
-    const demandForecast = ref(null);
-    const demandForecastLoaded = ref(false);
     const deliveryRoutes = ref([]);
     const deliveryRoutesLoaded = ref(false);
     const supplierSettings = ref(null);
@@ -135,8 +45,6 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
     const clientsCount =
         computed(() => clientsLoaded.value ? clients.value.length : 0);
 
-    const demandForecastClientCount =
-        computed(() => demandForecastLoaded.value ? demandForecast.value?.clients?.length ?? 0 : 0);
     const deliveryRoutesCount =
         computed(() => deliveryRoutesLoaded.value ? deliveryRoutes.value.length : 0);
 
@@ -168,19 +76,6 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
         });
     }
 
-    /**
-     * Loads supplier demand forecast from infrastructure and updates local state.
-     *
-     * @returns {void}
-     */
-    function fetchDemandForecast(){
-        supplierManagementApi.getDemandForecast().then(response=>{
-            demandForecast.value = DemandForecastAssembler.toEntityFromResponse(response);
-            demandForecastLoaded.value = true;
-        }).catch(error=>{
-            errors.value.push(error);
-        });
-    }
 
     /**
      * Loads delivery routes from infrastructure and updates local state.
@@ -299,15 +194,7 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
     // ── End Catalog Supplier section ──────────────────────────────────────────
 
     return{
-        purchaseOrders,
         errors,
-        purchaseOrdersLoaded,
-        purchaseOrdersCount,
-        fetchPurchaseOrders,
-        getPurchaseOrdersById,
-        addPurchaseOrders,
-        updatePurchaseOrders,
-        deletePurchaseOrders,
         // ── Catalog Supplier exports ──
         catalogItems,
         catalogItemsLoaded,
@@ -315,9 +202,6 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
         clients,
         clientsLoaded,
         clientsCount,
-        demandForecast,
-        demandForecastLoaded,
-        demandForecastClientCount,
         deliveryRoutes,
         deliveryRoutesLoaded,
         deliveryRoutesCount,
@@ -325,7 +209,6 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
         supplierSettingsLoaded,
         fetchCatalogItems,
         fetchClients,
-        fetchDemandForecast,
         fetchDeliveryRoutes,
         fetchSupplierSettings,
         updateSupplierSettings,

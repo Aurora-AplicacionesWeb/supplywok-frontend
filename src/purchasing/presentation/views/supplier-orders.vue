@@ -3,14 +3,19 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import useSupplierManagementStore from '../../application/supply-management.store.js';
+import useOrdersStore from '../../application/orders.store.js';
+import OrderDetails from '../components/order-details.vue';
+import InputText from 'primevue/inputtext';
+import Button from 'primevue/button';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const store = useSupplierManagementStore();
+const store = useOrdersStore();
 const { purchaseOrders, purchaseOrdersLoaded } = storeToRefs(store);
-const { fetchPurchaseOrders } = store;
+const { fetchPurchaseOrders, updateOrder } = store;
 
 const searchQuery = ref('');
 const statusFilter = ref('all');
@@ -72,8 +77,9 @@ function openOrderDetails(order) {
   router.push(`/supplier/orders/${order.id}/view`);
 }
 
-function setOrderStatus(order, status) {
-  order.status = status;
+async function setOrderStatus(order, status) {
+  const updated = { ...order, status };
+  await updateOrder(order.id, updated);
 }
 
 function formatDate(dateValue) {
@@ -85,26 +91,6 @@ function formatDate(dateValue) {
     month: 'short',
     day: '2-digit'
   });
-}
-
-function formatDateTime(dateValue) {
-  if (!dateValue) return '-';
-  const parsedDate = new Date(dateValue);
-  if (Number.isNaN(parsedDate.getTime())) return '-';
-  return parsedDate.toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
-
-function formatCurrency(amount) {
-  return `$${Number(amount ?? 0).toLocaleString('en-US', {
-    minimumFractionDigits: Number(amount ?? 0) % 1 === 0 ? 0 : 1,
-    maximumFractionDigits: 2
-  })}`;
 }
 
 function priorityClass(priority) {
@@ -181,7 +167,7 @@ watch(
     <section class="orders-page__filters">
       <div class="orders-page__search">
         <label for="orders-search">{{ t('supplier-management.orders.search') }}</label>
-        <pv-input-text id="orders-search" v-model="searchQuery" type="search" />
+        <InputText id="orders-search" v-model="searchQuery" type="search" />
       </div>
       <label class="orders-page__status-filter">
         <span>{{ t('supplier-management.orders.filters.status') }}</span>
@@ -193,139 +179,85 @@ watch(
       </label>
     </section>
 
-    <pv-datatable
+    <DataTable
       class="orders-table"
       :loading="!purchaseOrdersLoaded"
       :value="filteredOrders"
       responsive-layout="scroll"
     >
-      <pv-column field="code" :header="t('supplier-management.orders.columns.code')" />
-      <pv-column field="restaurantName" :header="t('supplier-management.orders.columns.restaurant')" />
-      <pv-column :header="t('supplier-management.orders.columns.order-date')">
+      <Column field="code" :header="t('supplier-management.orders.columns.code')" />
+      <Column field="restaurantName" :header="t('supplier-management.orders.columns.restaurant')" />
+      <Column :header="t('supplier-management.orders.columns.order-date')">
         <template #body="{ data }">
           {{ formatDate(data.orderDate) }}
         </template>
-      </pv-column>
-      <pv-column :header="t('supplier-management.orders.columns.priority')">
+      </Column>
+      <Column :header="t('supplier-management.orders.columns.priority')">
         <template #body="{ data }">
           <span class="orders-page__pill" :class="priorityClass(data.priority)">{{ data.priority }}</span>
         </template>
-      </pv-column>
-      <pv-column :header="t('supplier-management.orders.columns.status')">
+      </Column>
+      <Column :header="t('supplier-management.orders.columns.status')">
         <template #body="{ data }">
           <span class="orders-page__pill" :class="statusClass(data.status)">{{ data.status }}</span>
         </template>
-      </pv-column>
-      <pv-column :header="t('supplier-management.orders.columns.items')">
+      </Column>
+      <Column :header="t('supplier-management.orders.columns.items')">
         <template #body="{ data }">
           {{ data.items?.length ?? 0 }}
         </template>
-      </pv-column>
-      <pv-column :header="t('supplier-management.orders.columns.actions')">
+      </Column>
+      <Column :header="t('supplier-management.orders.columns.actions')">
         <template #body="{ data }">
           <div class="orders-page__actions">
-            <pv-button
+            <Button
               :label="t('supplier-management.orders.actions.confirm')"
-              class="orders-page__action-btn"
+              class="orders-page__action-btn p-button-text"
               text
               type="button"
               :disabled="data.status === 'Confirmed'"
               @click="setOrderStatus(data, 'Confirmed')"
             />
-            <pv-button
+            <Button
               :label="t('supplier-management.orders.actions.mark-in-transit')"
-              class="orders-page__action-btn"
+              class="orders-page__action-btn p-button-text"
               text
               type="button"
               :disabled="data.status === 'In Transit'"
               @click="setOrderStatus(data, 'In Transit')"
             />
-            <pv-button
+            <Button
               :label="t('supplier-management.orders.actions.mark-delivered')"
-              class="orders-page__action-btn"
+              class="orders-page__action-btn p-button-text"
               text
               type="button"
               :disabled="data.status === 'Delivered'"
               @click="setOrderStatus(data, 'Delivered')"
             />
-            <pv-button
+            <Button
               :label="t('supplier-management.orders.actions.view')"
-              class="orders-page__action-btn"
+              class="orders-page__action-btn p-button-text"
               text
               type="button"
               @click="openOrderDetails(data)"
             />
           </div>
         </template>
-      </pv-column>
+      </Column>
       <template #empty>
         <span class="orders-page__empty">{{ t('supplier-management.orders.empty') }}</span>
       </template>
-    </pv-datatable>
+    </DataTable>
 
     <p class="orders-page__visible-count">{{ visibleOrdersText }}</p>
 
-    <pv-dialog
-      v-model:visible="isDetailsDialogVisible"
-      modal
-      :draggable="false"
-      :header="t('supplier-management.orders.details.title')"
-      :style="{ width: 'min(900px, calc(100vw - 32px))' }"
-    >
-      <template v-if="selectedOrder">
-        <section class="orders-page__detail-header">
-          <div>
-            <p class="orders-page__detail-code">{{ selectedOrder.code }}</p>
-            <p class="orders-page__detail-restaurant">{{ selectedOrder.restaurantName }}</p>
-          </div>
-          <span class="orders-page__pill" :class="statusClass(selectedOrder.status)">{{ selectedOrder.status }}</span>
-        </section>
-
-        <section class="orders-page__detail-meta">
-          <article>
-            <span>{{ t('supplier-management.orders.details.order-date') }}</span>
-            <strong>{{ formatDate(selectedOrder.orderDate) }}</strong>
-          </article>
-          <article>
-            <span>{{ t('supplier-management.orders.details.delivery-date') }}</span>
-            <strong>{{ formatDateTime(selectedOrder.estimatedDate) }}</strong>
-          </article>
-          <article>
-            <span>{{ t('supplier-management.orders.details.priority') }}</span>
-            <strong>{{ selectedOrder.priority }}</strong>
-          </article>
-          <article>
-            <span>{{ t('supplier-management.orders.details.supplier') }}</span>
-            <strong>{{ selectedOrder.supplierName }}</strong>
-          </article>
-        </section>
-
-        <pv-datatable class="orders-detail-table" :value="selectedOrder.items ?? []" responsive-layout="scroll">
-          <pv-column field="productName" :header="t('supplier-management.orders.details.columns.product')" />
-          <pv-column field="quantity" :header="t('supplier-management.orders.details.columns.quantity')" />
-          <pv-column field="unitType" :header="t('supplier-management.orders.details.columns.unit')" />
-          <pv-column :header="t('supplier-management.orders.details.columns.unit-price')">
-            <template #body="{ data }">
-              {{ formatCurrency(data.unitPrice) }}
-            </template>
-          </pv-column>
-          <pv-column :header="t('supplier-management.orders.details.columns.subtotal')">
-            <template #body="{ data }">
-              {{ formatCurrency((data.quantity ?? 0) * (data.unitPrice ?? 0)) }}
-            </template>
-          </pv-column>
-        </pv-datatable>
-      </template>
-      <template #footer>
-        <pv-button
-          :label="t('supplier-management.orders.details.close')"
-          severity="secondary"
-          outlined
-          type="button"
-          @click="isDetailsDialogVisible = false"
-        />
-      </template>
-    </pv-dialog>
+    <OrderDetails
+      v-if="selectedOrder"
+      :id="selectedOrder.id"
+      :visible="isDetailsDialogVisible"
+      @update:visible="(val) => isDetailsDialogVisible = val"
+      @close="isDetailsDialogVisible = false"
+    />
   </section>
 </template>
 
@@ -531,75 +463,4 @@ watch(
   color: #7b7269;
   font-size: 12px;
 }
-
-.orders-page__detail-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.orders-page__detail-code {
-  margin: 0;
-  color: #241c17;
-  font-family: 'Poppins', system-ui, sans-serif;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.orders-page__detail-restaurant {
-  margin: 2px 0 0;
-  color: #6f665d;
-  font-size: 13px;
-}
-
-.orders-page__detail-meta {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(120px, 1fr));
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.orders-page__detail-meta article {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 10px;
-  border: 1px solid #efe4d4;
-  border-radius: 10px;
-  background: #fffdf9;
-}
-
-.orders-page__detail-meta span {
-  color: #6f665d;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.orders-page__detail-meta strong {
-  color: #2d241e;
-  font-size: 13px;
-}
-
-.orders-detail-table :deep(.p-datatable-thead > tr > th) {
-  background: #f8edce;
-  color: #2d241e;
-  font-weight: 800;
-}
-
-@media (max-width: 1000px) {
-  .orders-page__stats {
-    grid-template-columns: repeat(2, minmax(120px, 1fr));
-  }
-
-  .orders-page__filters {
-    grid-template-columns: 1fr;
-  }
-
-  .orders-page__detail-meta {
-    grid-template-columns: repeat(2, minmax(120px, 1fr));
-  }
-}
-
 </style>

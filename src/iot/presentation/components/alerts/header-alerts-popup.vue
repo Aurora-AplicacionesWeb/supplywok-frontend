@@ -72,7 +72,7 @@ const displayAlerts = computed(() => {
   if (activeRole.value === 'supplier') {
     return restaurantIotStore.supplierAlerts
       .filter(a => a.status === 'pending')
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       .slice(0, 5)
       .map(a => {
         let mappedSeverity = 'normal';
@@ -89,7 +89,7 @@ const displayAlerts = computed(() => {
           title: t('supplier-management.alerts.notification-title'),
           message: translatedMessage,
           severity: mappedSeverity,
-          timestamp: new Date(a.date)
+          timestamp: a.timestamp
         };
       });
   }

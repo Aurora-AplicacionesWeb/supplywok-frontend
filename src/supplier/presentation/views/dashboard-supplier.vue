@@ -3,25 +3,35 @@ import { computed, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import useSupplierManagementStore from '../../application/supply-management.store.js';
+import useOrdersStore from '../../../purchasing/application/orders.store.js';
+import useAnalyticsStore from '../../../analytics/application/analytics.store.js';
 import { iotStore } from '../../../iot/application/iot-store.js';
 import StatCard from '../../../shared/presentation/components/stat-card.vue';
 import SupplierActiveRoutesPanel from '../components/supplier-active-routes-panel.vue';
-import SupplierAggregateForecastCard from '../components/supplier-aggregate-forecast-card.vue';
+import SupplierAggregateForecastCard from '../../../analytics/presentation/components/aggregate-forecast-card.vue';
 
 const { t } = useI18n();
 const store = useSupplierManagementStore();
+const ordersStore = useOrdersStore();
+const analyticsStore = useAnalyticsStore();
 const restaurantIotStore = iotStore();
 
 const {
-    purchaseOrders,
-    purchaseOrdersLoaded,
     deliveryRoutes,
     deliveryRoutesLoaded,
-    demandForecast,
-    demandForecastLoaded,
     clients,
     clientsLoaded
 } = storeToRefs(store);
+
+const {
+    purchaseOrders,
+    purchaseOrdersLoaded
+} = storeToRefs(ordersStore);
+
+const {
+    demandForecast,
+    demandForecastLoaded
+} = storeToRefs(analyticsStore);
 
 const {
     supplierAlerts: alerts,
@@ -29,11 +39,17 @@ const {
 } = storeToRefs(restaurantIotStore);
 
 const {
-    fetchPurchaseOrders,
     fetchDeliveryRoutes,
-    fetchDemandForecast,
     fetchClients
 } = store;
+
+const {
+    fetchPurchaseOrders
+} = ordersStore;
+
+const {
+    fetchDemandForecast
+} = analyticsStore;
 
 const {
     fetchSupplierAlerts: fetchAlerts
