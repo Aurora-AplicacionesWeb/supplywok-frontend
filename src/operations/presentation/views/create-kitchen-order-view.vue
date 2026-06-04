@@ -3,19 +3,19 @@ import { onMounted, ref, computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
-import useRestaurantManagementStore from '../../application/restaurant-management.store.js';
-import DishCard from '../components/dish-card.vue';
+import useOperationsStore from '../../application/operations.store.js';
+import DishMenuPanel from '../components/dish-menu-panel.vue';
 import Button from 'primevue/button';
 import Textarea from 'primevue/textarea';
 
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
-const store = useRestaurantManagementStore();
+const store = useOperationsStore();
 
 const {
   tables, freeTables, dishes, dishCategories, dishesByCategory,
-  newOrderTypeService, newOrderTableId, newOrderTableNumber,
+  newOrderServiceType, newOrderTableId, newOrderTableNumber,
   newOrderItems, newOrderObservations,
   totalItemsNewOrder, totalNewOrder, loading
 } = storeToRefs(store);
@@ -24,7 +24,7 @@ const {
   fetchTables, fetchDishes, fetchDishCategories,
   selectServiceType, setNewOrderObservations, setNewOrderItems,
   addItemToOrder, removeItemFromOrder,
-  updateItemQuantity, createKitchenOrder, updateKitchenOrderFull,
+  updateItemQuantity, createKitchenOrder, updateKitchenOrder,
   fetchKitchenOrderById, initNewKitchenOrder, clearCurrentOrder
 } = store;
 
@@ -36,11 +36,6 @@ const editId = computed(() => {
   return val ? Number(val) : null;
 });
 
-function categoryLabel(cat) {
-  const key = cat.name.toLowerCase().replace(/\s+/g, '_');
-  return t(`restaurantManagement.dishMenuPage.categories.${key}`) || cat.name;
-}
-
 function handleCreateOrder() {
   function onResult(result) {
     if (result) {
@@ -48,10 +43,10 @@ function handleCreateOrder() {
     }
   }
   if (editId.value) {
-      updateKitchenOrderFull(editId.value, {
+    updateKitchenOrder(editId.value, {
       tableId: newOrderTableId.value,
       tableNumber: newOrderTableNumber.value,
-      typeService: newOrderTypeService.value,
+      typeService: newOrderServiceType.value,
       items: [...newOrderItems.value],
       observations: newOrderObservations.value
     }).then(onResult);
@@ -84,7 +79,7 @@ function loadEditOrder(editIdVal) {
 
     selectServiceType(order.typeService, order.tableId, tableCode);
     setNewOrderObservations(order.observations || '');
-    setNewOrderItems((order.item || []).map(function (item) {
+    setNewOrderItems((order.items || []).map(function (item) {
       return {
         dishId: item.dishId,
         dishName: item.dishName,
@@ -118,13 +113,13 @@ onMounted(function() {
             severity="secondary"
             text
             rounded
-            :tooltip="t('restaurantManagement.createKitchenOrderPage.back')"
+            :tooltip="t('operations.createKitchenOrderPage.back')"
             @click="goBack"
         />
         <div>
-          <span class="inline-block font-bold uppercase mb-1 kicker-text">{{ t('restaurantManagement.createKitchenOrderPage.kicker') }}</span>
-          <h1 class="font-bold m-0 page-title">{{ t('restaurantManagement.createKitchenOrderPage.title') }}</h1>
-          <p class="mt-2 page-desc">{{ t('restaurantManagement.createKitchenOrderPage.description') }}</p>
+          <span class="inline-block font-bold uppercase mb-1 kicker-text">{{ t('operations.createKitchenOrderPage.kicker') }}</span>
+          <h1 class="font-bold m-0 page-title">{{ t('operations.createKitchenOrderPage.title') }}</h1>
+          <p class="mt-2 page-desc">{{ t('operations.createKitchenOrderPage.description') }}</p>
         </div>
       </div>
     </div>
@@ -133,25 +128,25 @@ onMounted(function() {
       <div class="col-12 lg:col-7">
         <div class="flex flex-column gap-3">
           <div class="bg-white border-round shadow-1 p-3">
-            <h3 class="m-0 mb-2 font-semibold card-title">{{ t('restaurantManagement.createKitchenOrderPage.serviceType') }}</h3>
+            <h3 class="m-0 mb-2 font-semibold card-title">{{ t('operations.createKitchenOrderPage.serviceType') }}</h3>
             <div class="flex gap-2">
               <Button
-                  :label="t('restaurantManagement.createKitchenOrderPage.tableService')"
+                  :label="t('operations.createKitchenOrderPage.tableService')"
                   severity="danger"
-                  :outlined="newOrderTypeService !== 'table_service'"
+                  :outlined="newOrderServiceType !== 'table_service'"
                   @click="selectServiceType('table_service')"
               />
               <Button
-                  :label="t('restaurantManagement.createKitchenOrderPage.toTakeHome')"
+                  :label="t('operations.createKitchenOrderPage.toTakeHome')"
                   severity="danger"
-                  :outlined="newOrderTypeService !== 'to_take_home'"
+                  :outlined="newOrderServiceType !== 'to_take_home'"
                   @click="selectServiceType('to_take_home')"
               />
             </div>
           </div>
 
-          <div v-if="newOrderTypeService === 'table_service'" class="bg-white border-round shadow-1 p-3">
-            <h3 class="m-0 mb-2 font-semibold card-title">{{ t('restaurantManagement.createKitchenOrderPage.tableSelection') }}</h3>
+          <div v-if="newOrderServiceType === 'table_service'" class="bg-white border-round shadow-1 p-3">
+            <h3 class="m-0 mb-2 font-semibold card-title">{{ t('operations.createKitchenOrderPage.tableSelection') }}</h3>
             <div class="tables-grid">
               <button
                   v-for="table in freeTables"
@@ -166,20 +161,20 @@ onMounted(function() {
               </button>
             </div>
             <p v-if="freeTables.length === 0" class="no-tables-text">
-              {{ t('restaurantManagement.createKitchenOrderPage.freeTables') }}: 0
+              {{ t('operations.createKitchenOrderPage.freeTables') }}: 0
             </p>
           </div>
 
           <div class="bg-white border-round shadow-1 p-3">
-            <h3 class="m-0 mb-2 font-semibold card-title">{{ t('restaurantManagement.createKitchenOrderPage.selectedDishes') }}</h3>
+            <h3 class="m-0 mb-2 font-semibold card-title">{{ t('operations.createKitchenOrderPage.selectedDishes') }}</h3>
             <div v-if="newOrderItems.length === 0" class="empty-items-text">
-              <p>{{ t('restaurantManagement.createKitchenOrderPage.noItems') }}</p>
+              <p>{{ t('operations.createKitchenOrderPage.noItems') }}</p>
             </div>
             <div v-else class="flex flex-column gap-2 mb-2">
               <div v-for="item in newOrderItems" :key="item.dishId" class="flex justify-content-between align-items-center gap-2 p-2 border-round item-row">
                 <div class="item-info">
                   <strong class="item-name">{{ item.dishName }}</strong>
-                  <span class="item-price">{{ t('restaurantManagement.createKitchenOrderPage.unitPrice') }}: S/ {{ item.unitPrice.toFixed(2) }}</span>
+                  <span class="item-price">{{ t('operations.createKitchenOrderPage.unitPrice') }}: S/ {{ item.unitPrice.toFixed(2) }}</span>
                 </div>
                 <div class="flex align-items-center gap-1">
                   <button type="button" class="cursor-pointer font-bold border-1 border-round qty-btn" @click="updateItemQuantity(item.dishId, item.quantity - 1)">-</button>
@@ -192,7 +187,7 @@ onMounted(function() {
               </div>
             </div>
             <Button
-                :label="t('restaurantManagement.createKitchenOrderPage.addDishes')"
+                :label="t('operations.createKitchenOrderPage.addDishes')"
                 icon="pi pi-plus-circle"
                 severity="secondary"
                 text
@@ -201,10 +196,10 @@ onMounted(function() {
           </div>
 
           <div class="bg-white border-round shadow-1 p-3">
-            <h3 class="m-0 mb-2 font-semibold card-title">{{ t('restaurantManagement.createKitchenOrderPage.observations') }}</h3>
+            <h3 class="m-0 mb-2 font-semibold card-title">{{ t('operations.createKitchenOrderPage.observations') }}</h3>
             <Textarea
                 v-model="newOrderObservations"
-                :placeholder="t('restaurantManagement.createKitchenOrderPage.observationsPlaceholder')"
+                :placeholder="t('operations.createKitchenOrderPage.observationsPlaceholder')"
                 rows="3"
                 class="w-full border-1 border-round"
                 :style="{ padding: '0.78rem 0.9rem', borderColor: '#e6ddd3', resize: 'vertical' }"
@@ -213,17 +208,17 @@ onMounted(function() {
 
           <div class="bg-white border-round shadow-1 p-3 flex flex-column gap-2">
             <div class="flex justify-content-between align-items-center">
-              <span class="summary-label">{{ t('restaurantManagement.createKitchenOrderPage.totalItems') }}</span>
+              <span class="summary-label">{{ t('operations.createKitchenOrderPage.totalItems') }}</span>
               <strong class="summary-value">{{ totalItemsNewOrder }}</strong>
             </div>
             <div class="flex justify-content-between align-items-center">
-              <span class="summary-label">{{ t('restaurantManagement.createKitchenOrderPage.totalAmount') }}</span>
+              <span class="summary-label">{{ t('operations.createKitchenOrderPage.totalAmount') }}</span>
               <strong class="summary-value">S/ {{ totalNewOrder.toFixed(2) }}</strong>
             </div>
           </div>
 
           <Button
-              :label="editId ? t('restaurantManagement.createKitchenOrderPage.updateOrder') : t('restaurantManagement.createKitchenOrderPage.createOrder')"
+              :label="editId ? t('operations.createKitchenOrderPage.updateOrder') : t('operations.createKitchenOrderPage.createOrder')"
               :icon="editId ? 'pi pi-save' : 'pi pi-check'"
               severity="danger"
               class="border-round uppercase submit-btn"
@@ -235,26 +230,11 @@ onMounted(function() {
       </div>
 
       <div v-if="showMenu" class="col-12 lg:col-5">
-        <div class="bg-white border-round shadow-1 p-3 menu-panel">
-          <div class="flex justify-content-between align-items-center mb-2">
-            <h3 class="m-0 font-semibold menu-title">{{ t('restaurantManagement.dishMenuPage.title') }}</h3>
-            <button type="button" class="border-none bg-transparent cursor-pointer menu-close" @click="showMenu = false">
-              <i class="pi pi-times" />
-            </button>
-          </div>
-          <div v-for="group in dishesByCategory" :key="group.category.id" class="mb-3">
-            <h4 class="m-0 mb-2 font-semibold pb-1 menu-category">{{ categoryLabel(group.category) }}</h4>
-            <div class="menu-grid">
-              <DishCard
-                  v-for="dish in group.dishes"
-                  :key="dish.id"
-                  :dish="dish"
-                  compact
-                  @add-to-order="handleAddDish"
-              />
-            </div>
-          </div>
-        </div>
+        <DishMenuPanel
+            :dishes-by-category="dishesByCategory"
+            @add-dish="handleAddDish"
+            @close="showMenu = false"
+        />
       </div>
     </div>
   </section>
@@ -281,9 +261,5 @@ onMounted(function() {
 .summary-label { color: #7d7065; }
 .summary-value { color: #40342d; font-size: 18px; }
 .submit-btn { min-height: 42px; letter-spacing: 0.1em; }
-.menu-panel { max-height: 80vh; overflow-y: auto; }
-.menu-title { color: #40342d; font-family: 'Poppins', system-ui, sans-serif; }
-.menu-close { color: #7d7065; font-size: 18px; }
-.menu-category { color: #65594f; font-size: 14px; border-bottom: 1px solid #efe6da; }
-.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+
 </style>

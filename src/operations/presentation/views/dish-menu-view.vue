@@ -4,13 +4,13 @@ import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
-import useRestaurantManagementStore from '../../application/restaurant-management.store.js';
+import useOperationsStore from '../../application/operations.store.js';
 import DishCard from '../components/dish-card.vue';
 import InputText from 'primevue/inputtext';
 
 const { t } = useI18n();
 const router = useRouter();
-const store = useRestaurantManagementStore();
+const store = useOperationsStore();
 
 const { dishes, dishCategories, dishesByCategory, loading } = storeToRefs(store);
 const { fetchDishes, fetchDishCategories, addItemToOrder } = store;
@@ -38,7 +38,7 @@ const filteredDishesByCategory = computed(() => {
 
 function categoryLabel(cat) {
   const key = cat.name.toLowerCase().replace(/\s+/g, '_');
-  return t(`restaurantManagement.dishMenuPage.categories.${key}`) || cat.name;
+  return t(`operations.dishMenuPage.categories.${key}`) || cat.name;
 }
 
 function handleAddToOrder(dish) {
@@ -56,9 +56,9 @@ onMounted(() => {
   <section class="flex flex-column gap-3">
     <div class="flex justify-content-between align-items-start gap-3">
       <div>
-        <span class="inline-block font-bold uppercase mb-1 kicker-text">{{ t('restaurantManagement.dishMenuPage.kicker') }}</span>
-        <h1 class="font-bold m-0 page-title">{{ t('restaurantManagement.dishMenuPage.title') }}</h1>
-        <p class="mt-2 page-desc">{{ t('restaurantManagement.dishMenuPage.description') }}</p>
+        <span class="inline-block font-bold uppercase mb-1 kicker-text">{{ t('operations.dishMenuPage.kicker') }}</span>
+        <h1 class="font-bold m-0 page-title">{{ t('operations.dishMenuPage.title') }}</h1>
+        <p class="mt-2 page-desc">{{ t('operations.dishMenuPage.description') }}</p>
       </div>
     </div>
 
@@ -67,13 +67,13 @@ onMounted(() => {
                 <i class="pi pi-search search-icon" />
                 <InputText
                     v-model="searchQuery"
-                    :placeholder="t('restaurantManagement.dishMenuPage.searchPlaceholder')"
+                    :placeholder="t('operations.dishMenuPage.searchPlaceholder')"
                     class="w-full border-none bg-transparent search-input"
                 />
             </span>
 
       <select v-model="selectedCategoryId" class="border-1 bg-white border-round category-select">
-        <option :value="null">{{ t('restaurantManagement.dishMenuPage.category') }}: {{ t('restaurantManagement.tablesAndOccupancyPage.all') }}</option>
+        <option :value="null">{{ t('operations.dishMenuPage.category') }}: {{ t('operations.tablesAndOccupancyPage.all') }}</option>
         <option v-for="cat in dishCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
       </select>
     </div>
@@ -83,7 +83,7 @@ onMounted(() => {
     </div>
 
     <div v-else-if="filteredDishesByCategory.length === 0" class="p-5 text-center bg-white border-round empty-state">
-      <p>{{ t('restaurantManagement.dishMenuPage.noDishes') }}</p>
+      <p>{{ t('operations.dishMenuPage.noDishes') }}</p>
     </div>
 
     <div v-else v-for="group in filteredDishesByCategory" :key="group.category.id" class="flex flex-column gap-2">

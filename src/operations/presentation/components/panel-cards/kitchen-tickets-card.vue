@@ -3,16 +3,21 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import KitchenOrderCard from '../kitchen-order-card.vue';
-import useRestaurantManagementStore from '../../../application/restaurant-management.store.js';
+import useOperationsStore from '../../../application/operations.store.js';
 
-const store = useRestaurantManagementStore();
+const store = useOperationsStore();
 const router = useRouter();
 
 const MAX_VISIBLE = 3;
 
 const visibleOrders = computed(() =>
-  store.activeKitchenOrders.slice(0, MAX_VISIBLE)
+    store.activeKitchenOrders.slice(0, MAX_VISIBLE)
 );
+
+function getTableCode(order) {
+  const table = store.tables.find(t => String(t.id) === String(order.tableId));
+  return table ? (table.code || String(table.number).padStart(2, '0')) : '';
+}
 
 function handleStatusChange({ orderId, newState }) {
   store.updateKitchenOrderStatus(orderId, newState);
@@ -28,31 +33,32 @@ function goToKitchenTickets() {
     <div class="kt-header-section">
       <div class="kt-title-container">
         <img src="/images/icons/kitchen-ticket-icon.svg" alt="kitchen tickets" class="kt-icon" />
-        <h2 class="kt-title">{{ $t('restaurantManagement.dashboard.kitchenTickets.title') }}</h2>
+        <h2 class="kt-title">{{ $t('operations.dashboard.kitchenTickets.title') }}</h2>
       </div>
     </div>
 
     <div class="kt-order-list">
       <KitchenOrderCard
-        v-for="order in visibleOrders"
-        :key="order.id"
-        :order="order"
-        @status-change="handleStatusChange"
+          v-for="order in visibleOrders"
+          :key="order.id"
+          :order="order"
+          :tableCode="getTableCode(order)"
+          @status-change="handleStatusChange"
       />
       <div v-if="store.activeKitchenOrders.length === 0" class="kt-empty">
         <i class="pi pi-inbox" style="font-size: 24px; color: #ccc;" />
-        <p>{{ $t('restaurantManagement.kitchenTicketsPage.noOrders') }}</p>
+        <p>{{ $t('operations.kitchenTicketsPage.noOrders') }}</p>
       </div>
     </div>
 
     <div class="kt-footer">
       <Button
-        :label="$t('restaurantManagement.dashboard.kitchenTickets.seeAll')"
-        icon="pi pi-arrow-right"
-        severity="secondary"
-        size="small"
-        text
-        @click="goToKitchenTickets"
+          :label="$t('operations.dashboard.kitchenTickets.seeAll')"
+          icon="pi pi-arrow-right"
+          severity="secondary"
+          size="small"
+          text
+          @click="goToKitchenTickets"
       />
     </div>
   </div>
