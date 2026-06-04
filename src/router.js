@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import restaurantManagementRoutes from './operations/presentation/restaurant-management-routes.js';
+import operationsRoutes from './operations/presentation/operations-routes.js';
 import { inventoryManagementRoutes } from './inventory/presentation/inventory-management-routes.js';
 import supplyAndPurchasingRoutes from './purchasing/presentation/supply-and-purchasing-routes.js';
 import supplyManagementRoutes from './supplier/presentation/supply-management-routes.js';
@@ -54,7 +54,7 @@ const loginPage = () => import('./iam/presentation/views/login-view.vue');
 const registerPage = () => import('./iam/presentation/views/register-view.vue');
 
 const routes = [
-    ...restaurantManagementRoutes,
+    ...operationsRoutes,
     ...inventoryManagementRoutes,
     ...supplyAndPurchasingRoutes,
     ...iotRoutes,

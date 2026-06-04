@@ -7,7 +7,7 @@ const createKitchenOrderView = () => import('./views/create-kitchen-order-view.v
 const kitchenTicketsView = () => import('./views/kitchen-tickets-view.vue');
 const tablesAndOccupancyView = () => import('./views/tables-and-occupancy-view.vue');
 
-const restaurantManagementRoutes = [
+const operationsRoutes = [
     { path: '/operations/dashboard', name: 'restaurant-dashboard', component: placeholderPage, meta: { i18nKey: 'shared.titles.dashboard', role: 'restaurant', isDashboard: true } },
     { path: '/operations/kitchen', name: 'kitchen-tickets-view', component: kitchenTicketsView, meta: { i18nKey: 'shared.titles.kitchen-tickets', role: 'restaurant' } },
     { path: '/operations/kitchen/new', name: 'create-kitchen-order-view', component: createKitchenOrderView, meta: { i18nKey: 'shared.titles.create-kitchen-order', role: 'restaurant' } },
@@ -20,4 +20,4 @@ const restaurantManagementRoutes = [
     { path: '/operations/dish-menu', name: 'dish-menu-view', component: dishMenuView, meta: { i18nKey: 'shared.titles.dish-menu', role: 'restaurant' } }
 ];
 
-export default restaurantManagementRoutes;
+export default operationsRoutes;

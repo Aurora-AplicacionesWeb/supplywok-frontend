@@ -1,8 +1,8 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js';
 import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
-const baseUno = import.meta.env.VITE_SUPPLY_WOK_REST_MANAGE_UNO_URL;   // "https://my-json-server.typicode.com/Nounz27/db.server/"
-const baseDos = import.meta.env.VITE_SUPPLY_WOK_REST_MANAGE_DOS_URL;   // "https://my-json-server.typicode.com/Nounz27/db.server-2/"
+const baseUno = import.meta.env.VITE_SUPPLY_WOK_REST_MANAGE_UNO_URL   || 'https://my-json-server.typicode.com/Nounz27/db.server/';
+const baseDos = import.meta.env.VITE_SUPPLY_WOK_REST_MANAGE_DOS_URL  || 'https://my-json-server.typicode.com/Nounz27/db.server-2/';
 
 const dishesEndpointPath           = baseUno + 'dishes';
 const dishesCategoriesEndpointPath = baseUno + 'dishes-categories';
@@ -10,7 +10,7 @@ const kitchenOrdersEndpointPath    = baseUno + 'kitchen-orders';
 const kitchenLocksEndpointPath     = baseDos + 'kitchen-locks';
 const tablesEndpointPath           = baseDos + 'tables';
 
-export class RestaurantManagementApi extends BaseApi {
+export class OperationsApi extends BaseApi {
     #dishesEndpoint;
     #dishesCategoriesEndpoint;
     #kitchenLocksEndpoint;
@@ -59,7 +59,7 @@ export class RestaurantManagementApi extends BaseApi {
         return this.#kitchenOrdersEndpoint.create(resource);
     }
 
-    updateKitchenOrderFull(id, resource) {
+    updateKitchenOrder(id, resource) {
         return this.#kitchenOrdersEndpoint.update(id, resource);
     }
 
@@ -80,6 +80,10 @@ export class RestaurantManagementApi extends BaseApi {
 
     deleteKitchenOrder(id) {
         return this.#kitchenOrdersEndpoint.delete(id);
+    }
+
+    updateTable(tableId, data) {
+        return this.#tablesEndpoint.update(tableId, data);
     }
 
     updateTableStatus(tableId, newState) {

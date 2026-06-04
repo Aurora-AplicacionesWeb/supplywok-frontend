@@ -12,7 +12,7 @@ import KitchenTicketsCard from '../../../operations/presentation/components/pane
 import HeaderAlertsPopup from '../../../iot/presentation/components/alerts/header-alerts-popup.vue';
 import OrdersSummaryCard from '../../../purchasing/presentation/components/orders-summary-card.vue';
 import BelowMinimumCard from '../../../inventory/presentation/components/below-minimum-card.vue';
-import useRestaurantManagementStore from '../../../operations/application/restaurant-management.store.js';
+import useOperationsStore from '../../../operations/application/operations.store.js';
 
 const route = useRoute();
 const { t } = useI18n();
@@ -21,7 +21,7 @@ const pageTitle = computed(() => {
   return route.meta?.title ?? 'Module';
 });
 const isDashboard = computed(() => route.meta?.isDashboard === true);
-const restaurantStore = useRestaurantManagementStore();
+const restaurantStore = useOperationsStore();
 
 onMounted(() => {
     restaurantStore.fetchKitchenOrders();
