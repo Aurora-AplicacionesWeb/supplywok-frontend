@@ -7,13 +7,11 @@ const baseDos = import.meta.env.VITE_SUPPLY_WOK_REST_MANAGE_DOS_URL  || 'https:/
 const dishesEndpointPath           = baseUno + 'dishes';
 const dishesCategoriesEndpointPath = baseUno + 'dishes-categories';
 const kitchenOrdersEndpointPath    = baseUno + 'kitchen-orders';
-const kitchenLocksEndpointPath     = baseDos + 'kitchen-locks';
 const tablesEndpointPath           = baseDos + 'tables';
 
 export class OperationsApi extends BaseApi {
     #dishesEndpoint;
     #dishesCategoriesEndpoint;
-    #kitchenLocksEndpoint;
     #kitchenOrdersEndpoint;
     #tablesEndpoint;
 
@@ -22,7 +20,6 @@ export class OperationsApi extends BaseApi {
 
         this.#dishesEndpoint = new BaseEndpoint(this, dishesEndpointPath);
         this.#dishesCategoriesEndpoint = new BaseEndpoint(this, dishesCategoriesEndpointPath);
-        this.#kitchenLocksEndpoint = new BaseEndpoint(this, kitchenLocksEndpointPath);
         this.#kitchenOrdersEndpoint = new BaseEndpoint(this, kitchenOrdersEndpointPath);
         this.#tablesEndpoint = new BaseEndpoint(this, tablesEndpointPath);
     }
@@ -68,14 +65,6 @@ export class OperationsApi extends BaseApi {
         if (newState === 'ready') resource.hourReady = new Date().toISOString();
         if (newState === 'delivered') resource.hourDelivered = new Date().toISOString();
         return this.#kitchenOrdersEndpoint.update(id, resource);
-    }
-
-    getKitchenLock() {
-        return this.#kitchenLocksEndpoint.getAll();
-    }
-
-    updateKitchenLock(resource) {
-        return this.#kitchenLocksEndpoint.update(resource.id, resource);
     }
 
     deleteKitchenOrder(id) {
