@@ -766,9 +766,7 @@
     "name": "菜名",
     "description": "描述",
     "price": "價錢",
-    "outstanding": "精選",
-    "categoryId": "分類編號",
-    "categoryName": "分類名稱"
+    "outstanding": "精選"
   },
   "dishesCategories": {
     "title": "菜式分類",
@@ -822,7 +820,7 @@
       }
     }
   },
-  "restaurantManagement": {
+  "operations": {
     "dishMenuPage": {
       "kicker": "菜單",
       "title": "菜式菜單",
@@ -892,7 +890,8 @@
       "dateCreated": "創建時間",
       "edit": "編輯",
       "delete": "刪除",
-      "confirmDelete": "確定要刪除此訂單嗎？"
+      "confirmDelete": "確定要刪除此訂單嗎？",
+      "confirmHeader": "確認刪除"
     },
     "tablesAndOccupancyPage": {
       "kicker": "餐桌",
@@ -913,6 +912,8 @@
       "allLocations": "所有位置",
       "addTable": "新增餐桌",
       "confirmAddTable": "新增",
+      "confirmDeleteTable": "確定要刪除此餐桌嗎？",
+      "confirmUpdateTable": "更新餐桌",
       "cancel": "取消",
       "locations": {
         "main_hall": "主廳",
@@ -922,6 +923,8 @@
       "viewDetails": "查看詳情",
       "tableDetails": "餐桌詳情",
       "deleteTable": "刪除餐桌",
+      "edit": "編輯",
+      "editTable": "編輯餐桌",
       "close": "關閉",
       "people": "人"
     },
@@ -943,8 +946,8 @@
         "title": "廚房票據",
         "seeAll": "查看所有廚房票據"
       },
-      "activeCommands": {
-        "label": "廚房指令"
+      "activeOrders": {
+        "label": "活躍訂單"
       }
     },
     "reportsPage": {

@@ -766,9 +766,7 @@
     "name": "Name",
     "description": "Description",
     "price": "Price",
-    "outstanding": "Outstanding",
-    "categoryId": "Category ID",
-    "categoryName": "Category Name"
+    "outstanding": "Outstanding"
   },
   "dishesCategories": {
     "title": "Dishes Categories",
@@ -822,7 +820,7 @@
       }
     }
   },
-  "restaurantManagement": {
+  "operations": {
     "dishMenuPage": {
       "kicker": "Menu",
       "title": "Dish Menu",
@@ -892,7 +890,8 @@
       "dateCreated": "Created",
       "edit": "Edit",
       "delete": "Delete",
-      "confirmDelete": "Are you sure you want to delete this order?"
+      "confirmDelete": "Are you sure you want to delete this order?",
+      "confirmHeader": "Confirm deletion"
     },
     "tablesAndOccupancyPage": {
       "kicker": "Tables",
@@ -913,6 +912,8 @@
       "allLocations": "All Locations",
       "addTable": "Add Table",
       "confirmAddTable": "Add",
+      "confirmDeleteTable": "Are you sure you want to delete this table?",
+      "confirmUpdateTable": "Update Table",
       "cancel": "Cancel",
       "locations": {
         "main_hall": "Main Hall",
@@ -922,6 +923,8 @@
       "viewDetails": "View details",
       "tableDetails": "Table Details",
       "deleteTable": "Delete Table",
+      "edit": "Edit",
+      "editTable": "Edit Table",
       "close": "Close",
       "people": "people"
     },
@@ -943,8 +946,8 @@
         "title": "Kitchen Tickets",
         "seeAll": "See All Kitchen Tickets"
       },
-      "activeCommands": {
-        "label": "Kitchen Commands"
+      "activeOrders": {
+        "label": "Kitchen Orders"
       }
     },
     "reportsPage": {

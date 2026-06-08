@@ -6,7 +6,6 @@
       "capacity": 4,
       "location": "Main Hall",
       "state": "available",
-      "kitchenOrderId": 1,
       "active": true
     },
     {
@@ -15,7 +14,6 @@
       "capacity": 6,
       "location": "Main Hall",
       "state": "busy",
-      "kitchenOrderId": 1,
       "active": true
     },
     {
@@ -24,7 +22,6 @@
       "capacity": 2,
       "location": "Bar",
       "state": "available",
-      "kitchenOrderId": 2,
       "active": true
     },
     {
@@ -33,7 +30,6 @@
       "capacity": 8,
       "location": "Terrace",
       "state": "busy",
-      "kitchenOrderId": null,
       "active": true
     },
     {
@@ -42,7 +38,6 @@
       "capacity": 4,
       "location": "Main Hall",
       "state": "available",
-      "kitchenOrderId": null,
       "active": true
     }
   ],
@@ -91,10 +86,9 @@
       "name": "Arroz Chaufa",
       "description": "Arroz salteado con huevo, verduras y pollo",
       "price": 22.5,
-      "categoryId": 1,
-      "categoryName": "Rice",
       "active": true,
-      "outstanding": true
+      "outstanding": true,
+      "dishCategoryId": 1
     },
     {
       "id": 2,
@@ -102,10 +96,9 @@
       "name": "Tallarín Saltado",
       "description": "Fideos salteados con verduras y carne",
       "price": 21,
-      "categoryId": 2,
-      "categoryName": "Noodles",
       "active": true,
-      "outstanding": true
+      "outstanding": true,
+      "dishCategoryId": 2
     },
     {
       "id": 3,
@@ -113,10 +106,9 @@
       "name": "Sopa Wantán",
       "description": "Sopa tradicional con wantanes de pollo",
       "price": 18,
-      "categoryId": 3,
-      "categoryName": "Soups",
       "active": true,
-      "outstanding": false
+      "outstanding": false,
+      "dishCategoryId": 3
     },
     {
       "id": 4,
@@ -124,10 +116,9 @@
       "name": "Inca Kola",
       "description": "Gaseosa dorada peruana",
       "price": 8,
-      "categoryId": 6,
-      "categoryName": "Drinks",
       "active": true,
-      "outstanding": false
+      "outstanding": false,
+      "dishCategoryId": 6
     },
     {
       "id": 5,
@@ -135,10 +126,9 @@
       "name": "Pollo Chijaukay",
       "description": "Pollo deshuesado rebozado y frito, bañado en una salsa de ostión, sillao y aceite de ajonjolí, servido con nabo encurtido",
       "price": 24,
-      "categoryId": 4,
-      "categoryName": "Special Dishes",
       "active": true,
-      "outstanding": true
+      "outstanding": true,
+      "dishCategoryId": 4
     },
     {
       "id": 6,
@@ -146,63 +136,139 @@
       "name": "Min Pao Dulce",
       "description": "Panecillos al vapor, suaves y rellenos de pasta de frejol dulce o crema",
       "price": 12,
-      "categoryId": 5,
-      "categoryName": "Desserts",
       "active": true,
-      "outstanding": true
+      "outstanding": true,
+      "dishCategoryId": 5
     }
   ],
   "kitchen-orders": [
     {
       "id": 1,
       "number": "C001",
+      "table": {
+        "id": 2,
+        "number": "T-02",
+        "capacity": 6,
+        "location": "Main Hall",
+        "state": "busy",
+        "active": true
+      },
       "tableId": 2,
-      "tableNumber": 2,
       "typeService": "table_service",
       "state": "in_preparation",
       "observations": "",
       "dateCreated": "2026-05-09T18:09:00.000Z",
       "hourReady": "2026-05-09T18:35:00Z",
       "hourDelivered": null,
-      "preparationTime": null
+      "preparationTime": null,
+      "totalPrice": 66,
+      "dishes": [
+        {
+          "id": 1,
+          "code": "CHF001",
+          "name": "Arroz Chaufa",
+          "description": "Arroz salteado con huevo, verduras y pollo",
+          "quantity": 2,
+          "price": 22.5,
+          "active": true,
+          "outstanding": true,
+          "dishCategoryId": 1
+        },
+        {
+          "id": 2,
+          "code": "CHF002",
+          "name": "Tallarín Saltado",
+          "description": "Fideos salteados con verduras y carne",
+          "quantity": 1,
+          "price": 21,
+          "active": true,
+          "outstanding": true,
+          "dishCategoryId": 2
+        }
+      ]
     },
     {
       "id": 2,
       "number": "C002",
+      "table": null,
       "tableId": null,
-      "tableNumber": null,
       "typeService": "to_take_home",
       "state": "ready",
       "observations": "Cliente: Sr. Rodríguez",
       "dateCreated": "2026-05-09T18:15:00Z",
       "hourReady": "2026-05-09T18:35:00Z",
       "hourDelivered": null,
-      "preparationTime": null
+      "preparationTime": null,
+      "totalPrice": 42,
+      "dishes": [
+        {
+          "id": 3,
+          "code": "CHF003",
+          "name": "Sopa Wantán",
+          "description": "Sopa tradicional con wantanes de pollo",
+          "quantity": 1,
+          "price": 18,
+          "active": true,
+          "outstanding": false,
+          "dishCategoryId": 3
+        },
+        {
+          "id": 5,
+          "code": "CHF005",
+          "name": "Pollo Chijaukay",
+          "description": "Pollo deshuesado rebozado y frito, bañado en una salsa de ostión, sillao y aceite de ajonjolí, servido con nabo encurtido",
+          "quantity": 1,
+          "price": 24,
+          "active": true,
+          "outstanding": true,
+          "dishCategoryId": 4
+        }
+      ]
     },
     {
       "id": 3,
       "number": "C003",
+      "table": {
+        "id": 5,
+        "number": "T-05",
+        "capacity": 4,
+        "location": "Main Hall",
+        "state": "available",
+        "active": true
+      },
       "tableId": 5,
-      "tableNumber": "5",
       "typeService": "table_service",
       "state": "ready",
       "observations": "",
       "dateCreated": "2026-05-09T18:00:00Z",
       "hourReady": null,
       "hourDelivered": null,
-      "preparationTime": null
-    }
-  ],
-  "kitchen-locks": [
-    {
-      "id": 1,
-      "userId": 1,
-      "stateLocked": false,
-      "hashPassword": "desarrollo123",
-      "lastLocked": "2026-05-08T20:00:00Z",
-      "lastUnlocked": "2026-05-08T22:00:00Z",
-      "failAttempts": 0,
-      "lockedUntil": true
+      "preparationTime": null,
+      "totalPrice": 28,
+      "dishes": [
+        {
+          "id": 4,
+          "code": "BEB001",
+          "name": "Inca Kola",
+          "description": "Gaseosa dorada peruana",
+          "quantity": 2,
+          "price": 8,
+          "active": true,
+          "outstanding": false,
+          "dishCategoryId": 6
+        },
+        {
+          "id": 6,
+          "code": "PST001",
+          "name": "Min Pao Dulce",
+          "description": "Panecillos al vapor, suaves y rellenos de pasta de frejol dulce o crema",
+          "quantity": 1,
+          "price": 12,
+          "active": true,
+          "outstanding": true,
+          "dishCategoryId": 5
+        }
+      ]
     }
   ],
   "catalog-items": [

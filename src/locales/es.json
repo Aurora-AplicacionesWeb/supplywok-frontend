@@ -766,9 +766,7 @@
     "name": "Nombre",
     "description": "Descripción",
     "price": "Precio",
-    "outstanding": "Destacado",
-    "categoryId": "ID Categoría",
-    "categoryName": "Nombre Categoría"
+    "outstanding": "Destacado"
   },
   "dishesCategories": {
     "title": "Categorías de Platos",
@@ -822,7 +820,7 @@
       }
     }
   },
-  "restaurantManagement": {
+  "operations": {
     "dishMenuPage": {
       "kicker": "Menú",
       "title": "Menú de Platos",
@@ -892,7 +890,8 @@
       "dateCreated": "Creado",
       "edit": "Editar",
       "delete": "Eliminar",
-      "confirmDelete": "¿Estás seguro de eliminar esta orden?"
+      "confirmDelete": "¿Estás seguro de eliminar esta orden?",
+      "confirmHeader": "Confirmar eliminación"
     },
     "tablesAndOccupancyPage": {
       "kicker": "Mesas",
@@ -913,6 +912,8 @@
       "allLocations": "Todas las Ubicaciones",
       "addTable": "Agregar Mesa",
       "confirmAddTable": "Agregar",
+      "confirmDeleteTable": "¿Estás seguro de eliminar esta mesa?",
+      "confirmUpdateTable": "Actualizar Mesa",
       "cancel": "Cancelar",
       "locations": {
         "main_hall": "Salón Principal",
@@ -922,6 +923,8 @@
       "viewDetails": "Ver detalles",
       "tableDetails": "Detalles de Mesa",
       "deleteTable": "Eliminar Mesa",
+      "edit": "Editar",
+      "editTable": "Editar Mesa",
       "close": "Cerrar",
       "people": "personas"
     },
@@ -943,8 +946,8 @@
         "title": "Tickets de Cocina",
         "seeAll": "Ver Todos los Tickets"
       },
-      "activeCommands": {
-        "label": "Comandos de Cocina"
+      "activeOrders": {
+        "label": "Comandas de Cocina"
       }
     },
     "reportsPage": {
