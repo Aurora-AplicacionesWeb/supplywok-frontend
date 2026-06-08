@@ -15,6 +15,7 @@ const operationsRoutes = [
     { path: '/operations/tables', name: 'restaurant-tables', component: tablesAndOccupancyView, meta: { i18nKey: 'shared.titles.tables', role: 'restaurant' } },
     { path: '/operations/tables/new', name: 'operations-tables-new', component: tablesAndOccupancyView, meta: { i18nKey: 'shared.titles.tables', role: 'restaurant' } },
     { path: '/operations/tables/:tableId/view', name: 'operations-tables-view', component: tablesAndOccupancyView, meta: { i18nKey: 'shared.titles.tables', role: 'restaurant' } },
+    { path: '/operations/tables/:tableId/edit', name: 'operations-tables-edit', component: tablesAndOccupancyView, meta: { i18nKey: 'shared.titles.tables', role: 'restaurant' } },
     { path: '/operations/configuration', name: 'restaurant-configuration', component: configurationPage, meta: { i18nKey: 'shared.titles.configuration', role: 'restaurant' } },
     { path: '/operations/subscription', name: 'restaurant-subscription', component: subscriptionPage, meta: { i18nKey: 'shared.titles.subscription', role: 'restaurant' } },
     { path: '/operations/dish-menu', name: 'dish-menu-view', component: dishMenuView, meta: { i18nKey: 'shared.titles.dish-menu', role: 'restaurant' } }

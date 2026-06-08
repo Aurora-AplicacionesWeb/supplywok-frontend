@@ -15,14 +15,14 @@ const store = useOperationsStore();
 
 const {
   tables, freeTables, dishes, dishCategories, dishesByCategory,
-  newOrderServiceType, newOrderTableId, newOrderTableNumber,
-  newOrderItems, newOrderObservations,
+  newOrderServiceType, newOrderTableId,
+  newOrderDishes, newOrderObservations,
   totalItemsNewOrder, totalNewOrder, loading
 } = storeToRefs(store);
 
 const {
   fetchTables, fetchDishes, fetchDishCategories,
-  selectServiceType, setNewOrderObservations, setNewOrderItems,
+  selectServiceType, setNewOrderObservations, setNewOrderDishes,
   addItemToOrder, removeItemFromOrder,
   updateItemQuantity, createKitchenOrder, updateKitchenOrder,
   fetchKitchenOrderById, initNewKitchenOrder, clearCurrentOrder
@@ -45,9 +45,8 @@ function handleCreateOrder() {
   if (editId.value) {
     updateKitchenOrder(editId.value, {
       tableId: newOrderTableId.value,
-      tableNumber: newOrderTableNumber.value,
       typeService: newOrderServiceType.value,
-      items: [...newOrderItems.value],
+      dishes: [...newOrderDishes.value],
       observations: newOrderObservations.value
     }).then(onResult);
   } else {
@@ -59,7 +58,7 @@ function handleCreateOrder() {
 }
 
 function handleAddDish(dish) {
-  addItemToOrder(dish, 1, '');
+  addItemToOrder(dish, 1);
   showMenu.value = false;
 }
 
@@ -72,24 +71,10 @@ function loadEditOrder(editIdVal) {
     var order = store.currentKitchenOrder;
     if (!order || !order.id) return;
 
-    var table = tables.value.find(function (t) {
-      return t.id === order.tableId;
-    });
-    var tableCode = table?.code || order.tableNumber;
-
-    selectServiceType(order.typeService, order.tableId, tableCode);
+    var tableId = order.table?.id || order.tableId;
+    selectServiceType(order.typeService, tableId);
     setNewOrderObservations(order.observations || '');
-    setNewOrderItems((order.items || []).map(function (item) {
-      return {
-        dishId: item.dishId,
-        dishName: item.dishName,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        totalPrice: item.totalPrice,
-        state: item.state || 'pending',
-        observations: item.observations || ''
-      };
-    }));
+    setNewOrderDishes(order.dishes || []);
   });
 }
 
@@ -145,7 +130,7 @@ onMounted(function() {
             </div>
           </div>
 
-          <div v-if="newOrderServiceType === 'table_service'" class="bg-white border-round shadow-1 p-3">
+            <div v-if="newOrderServiceType === 'table_service'" class="bg-white border-round shadow-1 p-3">
             <h3 class="m-0 mb-2 font-semibold card-title">{{ t('operations.createKitchenOrderPage.tableSelection') }}</h3>
             <div class="tables-grid">
               <button
@@ -154,10 +139,10 @@ onMounted(function() {
                   type="button"
                   class="flex flex-column align-items-center gap-1 p-2 border-2 border-round bg-white cursor-pointer table-btn"
                   :class="{ 'table-btn--selected': newOrderTableId === table.id }"
-                  @click="selectServiceType('table_service', table.id, table.number)"
+                  @click="selectServiceType('table_service', table.id)"
               >
                 <i class="pi pi-table" />
-                <span>{{ table.code || table.number }}</span>
+                <span>{{ table.number }}</span>
               </button>
             </div>
             <p v-if="freeTables.length === 0" class="no-tables-text">
@@ -167,20 +152,20 @@ onMounted(function() {
 
           <div class="bg-white border-round shadow-1 p-3">
             <h3 class="m-0 mb-2 font-semibold card-title">{{ t('operations.createKitchenOrderPage.selectedDishes') }}</h3>
-            <div v-if="newOrderItems.length === 0" class="empty-items-text">
+            <div v-if="newOrderDishes.length === 0" class="empty-items-text">
               <p>{{ t('operations.createKitchenOrderPage.noItems') }}</p>
             </div>
             <div v-else class="flex flex-column gap-2 mb-2">
-              <div v-for="item in newOrderItems" :key="item.dishId" class="flex justify-content-between align-items-center gap-2 p-2 border-round item-row">
+              <div v-for="dish in newOrderDishes" :key="dish.id" class="flex justify-content-between align-items-center gap-2 p-2 border-round item-row">
                 <div class="item-info">
-                  <strong class="item-name">{{ item.dishName }}</strong>
-                  <span class="item-price">{{ t('operations.createKitchenOrderPage.unitPrice') }}: S/ {{ item.unitPrice.toFixed(2) }}</span>
+                  <strong class="item-name">{{ dish.name }}</strong>
+                  <span class="item-price">{{ t('operations.createKitchenOrderPage.unitPrice') }}: S/ {{ dish.price.toFixed(2) }}</span>
                 </div>
                 <div class="flex align-items-center gap-1">
-                  <button type="button" class="cursor-pointer font-bold border-1 border-round qty-btn" @click="updateItemQuantity(item.dishId, item.quantity - 1)">-</button>
-                  <span class="font-semibold text-center qty-value">{{ item.quantity }}</span>
-                  <button type="button" class="cursor-pointer font-bold border-1 border-round qty-btn" @click="updateItemQuantity(item.dishId, item.quantity + 1)">+</button>
-                  <button type="button" class="border-none bg-transparent cursor-pointer p-1 remove-btn" @click="removeItemFromOrder(item.dishId)">
+                  <button type="button" class="cursor-pointer font-bold border-1 border-round qty-btn" @click="updateItemQuantity(dish.id, dish.quantity - 1)">-</button>
+                  <span class="font-semibold text-center qty-value">{{ dish.quantity }}</span>
+                  <button type="button" class="cursor-pointer font-bold border-1 border-round qty-btn" @click="updateItemQuantity(dish.id, dish.quantity + 1)">+</button>
+                  <button type="button" class="border-none bg-transparent cursor-pointer p-1 remove-btn" @click="removeItemFromOrder(dish.id)">
                     <i class="pi pi-trash" />
                   </button>
                 </div>
@@ -222,7 +207,7 @@ onMounted(function() {
               :icon="editId ? 'pi pi-save' : 'pi pi-check'"
               severity="danger"
               class="border-round uppercase submit-btn"
-              :disabled="newOrderItems.length === 0 || loading"
+              :disabled="newOrderDishes.length === 0 || loading"
               :loading="loading"
               @click="handleCreateOrder"
           />

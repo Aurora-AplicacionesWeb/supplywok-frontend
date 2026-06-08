@@ -18,12 +18,12 @@ const serviceTypeLabel = computed(() => {
 });
 
 const itemCount = computed(() => {
-  const items = props.order.items || [];
-  return items.reduce((sum, i) => sum + (i.quantity || 0), 0);
+  const dishes = props.order.dishes || [];
+  return dishes.reduce((sum, d) => sum + (d.quantity || 0), 0);
 });
 
-const itemList = computed(() => {
-  return props.order.items || [];
+const dishList = computed(() => {
+  return props.order.dishes || [];
 });
 </script>
 
@@ -34,8 +34,8 @@ const itemList = computed(() => {
         <strong class="font-heading font-semibold text-lg">{{ order.number || `#${order.id}` }}</strong>
         <StatusBadge :status="order.state" />
       </div>
-      <span v-if="tableCode || order.tableNumber" class="font-semibold" :style="{ color: '#7d7065', fontSize: '12px', whiteSpace: 'nowrap' }">
-                <i class="pi pi-table mr-1" /> {{ tableCode || order.tableNumber }}
+      <span v-if="tableCode || order.table?.number" class="font-semibold" :style="{ color: '#7d7065', fontSize: '12px', whiteSpace: 'nowrap' }">
+                <i class="pi pi-table mr-1" /> {{ tableCode || order.table?.number }}
             </span>
       <span v-else class="font-semibold" :style="{ color: '#7d7065', fontSize: '12px', whiteSpace: 'nowrap' }">
                 <i class="pi pi-shopping-bag mr-1" /> {{ serviceTypeLabel }}
@@ -43,9 +43,9 @@ const itemList = computed(() => {
     </div>
 
     <div class="flex flex-column gap-1">
-      <div v-for="item in itemList" :key="item.id || item.dishId" class="flex justify-content-between gap-2 text-sm">
-        <span class="text-color">{{ item.dishName }}</span>
-        <span class="font-semibold" :style="{ color: '#7d7065', whiteSpace: 'nowrap' }">x{{ item.quantity }}</span>
+      <div v-for="dish in dishList" :key="dish.id" class="flex justify-content-between gap-2 text-sm">
+        <span class="text-color">{{ dish.name }}</span>
+        <span class="font-semibold" :style="{ color: '#7d7065', whiteSpace: 'nowrap' }">x{{ dish.quantity }}</span>
       </div>
     </div>
 

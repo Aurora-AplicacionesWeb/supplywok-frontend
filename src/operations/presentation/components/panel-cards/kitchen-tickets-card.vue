@@ -16,7 +16,7 @@ const visibleOrders = computed(() =>
 
 function getTableCode(order) {
   const table = store.tables.find(t => String(t.id) === String(order.tableId));
-  return table ? (table.code || String(table.number).padStart(2, '0')) : '';
+  return table ? String(table.number).padStart(2, '0') : '';
 }
 
 function handleStatusChange({ orderId, newState }) {

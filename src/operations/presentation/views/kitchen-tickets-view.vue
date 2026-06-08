@@ -40,14 +40,13 @@ function serviceTypeLabel(order) {
 }
 
 function itemCount(order) {
-  const items = order.items || [];
-  return items.reduce((sum, i) => sum + (i.quantity || 0), 0);
+  const dishes = order.dishes || [];
+  return dishes.reduce((sum, d) => sum + (d.quantity || 0), 0);
 }
 
 function tableCode(order) {
-  if (!order.tableId) return null;
-  const table = tables.value.find(t => t.id === order.tableId);
-  return table?.code || table?.number || order.tableNumber || null;
+  const table = order.table || tables.value.find(t => t.id === order.tableId);
+  return table?.code || table?.number || null;
 }
 
 function formatDateTime(dateStr) {

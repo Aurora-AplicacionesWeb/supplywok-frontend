@@ -73,7 +73,7 @@ function handleDelete() {
       <div class="flex flex-column flex-1" :style="{ gap: '2px' }">
         <strong class="flex align-items-center gap-1 font-heading" :style="{ color: '#40342d', fontSize: '18px' }">
           <i class="pi pi-table" :style="{ fontSize: '14px', color: '#7d7065' }" />
-          {{ table.code ||String(table.number).padStart(2, '0') }}
+          {{ String(table.number).padStart(2, '0') }}
         </strong>
         <span class="flex align-items-center gap-1" :style="{ fontSize: '12px', color: '#8e8177' }">
           <i class="pi pi-users" /> {{ table.capacity }}
@@ -104,7 +104,7 @@ function handleDelete() {
       <div class="flex flex-column gap-3 p-3">
         <div class="flex flex-column gap-1">
           <label class="detail-label">{{ t('operations.tablesAndOccupancyPage.tableNumber') }}</label>
-          <span class="detail-value">{{ table.code || String(table.number).padStart(2, '0') }}</span>
+          <span class="detail-value">{{ String(table.number).padStart(2, '0') }}</span>
         </div>
         <div class="flex flex-column gap-1">
           <label class="detail-label">{{ t('operations.tablesAndOccupancyPage.capacity') }}</label>
