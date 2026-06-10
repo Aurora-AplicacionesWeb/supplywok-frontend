@@ -157,6 +157,16 @@
       },
       "messages": {
         "switchSuccess": "La vista ahora refleja el plan {plan}. Conéctalo al flujo de pago cuando el módulo comercial esté listo."
+      },
+      "stripe": {
+        "eyebrow": "Stripe Checkout",
+        "title": "Elige y paga tu suscripción",
+        "loading": "Cargando opciones de pago...",
+        "error": "No se pudo cargar la tabla de precios de Stripe.",
+        "setupTitle": "Falta configurar Stripe",
+        "setupDescription": "Agrega la clave publicable y el ID de la pricing table en las variables de entorno para habilitar el checkout.",
+        "pending": "Pendiente",
+        "ready": "Listo"
       }
     }
   },

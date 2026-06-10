@@ -15,7 +15,7 @@ const useAnalyticsStore = defineStore('analytics', () => {
     const demandForecastLoaded = ref(false);
 
     // Global loading/errors
-    const loading = ref(false);
+    const loading = ref(true);
     const errors = ref([]);
 
     // Computed

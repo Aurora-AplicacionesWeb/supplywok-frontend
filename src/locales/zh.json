@@ -157,6 +157,16 @@
       },
       "messages": {
         "switchSuccess": "視圖現在反映了 {plan} 方案。商業模塊準備就緒後，將其連接到付款流程。"
+      },
+      "stripe": {
+        "eyebrow": "Stripe 結帳",
+        "title": "選擇並支付訂閱",
+        "loading": "正在載入付款選項...",
+        "error": "無法載入 Stripe 價格表。",
+        "setupTitle": "缺少 Stripe 設定",
+        "setupDescription": "請在環境變數中加入公開金鑰和價格表 ID 以啟用結帳。",
+        "pending": "待處理",
+        "ready": "就緒"
       }
     }
   },

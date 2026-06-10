@@ -157,6 +157,16 @@
       },
       "messages": {
         "switchSuccess": "The view now reflects the {plan} plan. Connect it to the payment flow when the commercial module is ready."
+      },
+      "stripe": {
+        "eyebrow": "Stripe Checkout",
+        "title": "Choose and pay for your subscription",
+        "loading": "Loading payment options...",
+        "error": "Stripe pricing table could not be loaded.",
+        "setupTitle": "Stripe configuration is missing",
+        "setupDescription": "Add the publishable key and pricing table ID to the environment variables to enable checkout.",
+        "pending": "Pending",
+        "ready": "Ready"
       }
     }
   },
