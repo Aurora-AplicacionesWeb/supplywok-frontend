@@ -104,7 +104,7 @@ function handleClose() {
     >
         <div v-if="loading" class="order-details__loading">
             <i class="pi pi-spin pi-spinner text-3xl"></i>
-            <p class="mt-2 text-sm text-gray-500">Cargando detalles...</p>
+            <p class="mt-2 text-sm text-gray-500">{{ t('supply-and-purchasing.detail.loading') }}</p>
         </div>
 
         <template v-else-if="order">

@@ -25,9 +25,9 @@ const supplierRows = computed(() => {
   return supplierDirectory.value.map((supplier) => ({
     id: supplier.id,
     supplier: supplier.name,
-    contact: supplier.contactName || 'No contact',
-    email: supplier.email || 'No email',
-    phone: supplier.phone || 'No phone',
+    contact: supplier.contactName || t('supply-and-purchasing.suppliers-page.noContact'),
+    email: supplier.email || t('supply-and-purchasing.suppliers-page.noEmail'),
+    phone: supplier.phone || t('supply-and-purchasing.suppliers-page.noPhone'),
     category: normalizeCategory(supplier.category),
     linkedDate: supplier.linkedDate || supplier.createdAt?.slice(0, 10) || '--',
     sla: supplier.sla || '--',
