@@ -11,7 +11,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['status-change']);
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const serviceTypeLabel = computed(() => {
   return t(`operations.shared.serviceType.${props.order.typeService}`) || props.order.typeService;
@@ -56,9 +56,9 @@ const dishList = computed(() => {
     <div class="flex justify-content-between" :style="{ fontSize: '11px', color: '#8e8177' }">
             <span>
                 <i class="pi pi-clock mr-1" />
-                {{ new Date(order.dateCreated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+                {{ new Date(order.dateCreated).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) }}
             </span>
-      <span>{{ itemCount }} items</span>
+      <span>{{ itemCount }} {{ t('operations.kitchenTicketsPage.items') }}</span>
     </div>
 
     <div v-if="!readonly" class="flex gap-2 flex-wrap">

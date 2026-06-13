@@ -13,7 +13,11 @@ const store = useOperationsStore();
 const route = useRoute();
 const router = useRouter();
 
-const locationOptions = ['Main Hall', 'Bar', 'Terrace'];
+const locationOptions = computed(() => [
+  t('operations.tablesAndOccupancyPage.locations.main_hall'),
+  t('operations.tablesAndOccupancyPage.locations.terrace'),
+  t('operations.tablesAndOccupancyPage.locations.bar')
+]);
 const statusOptions = ['available', 'busy'];
 
 const newTable = ref({
@@ -62,7 +66,7 @@ function handleSave() {
   const data = {
     number: newTable.value.number,
     capacity: newTable.value.capacity,
-    location: newTable.value.location || 'Main Hall',
+    location: newTable.value.location || 'main_hall',
     state: newTable.value.state,
     active: true
   };
