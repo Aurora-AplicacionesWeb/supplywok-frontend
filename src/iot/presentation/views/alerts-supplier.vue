@@ -128,7 +128,7 @@ watch(
         <div class="alerts-table-container">
             <div v-if="!alertsLoaded" class="alerts-page__loading">
                 <i class="pi pi-spin pi-spinner text-3xl"></i>
-                <p class="mt-2 text-sm text-gray-500">Cargando alertas...</p>
+                <p class="mt-2 text-sm text-gray-500">{{ t('iot.alerts-page.table.loading') }}</p>
             </div>
             <AlertsList
                 v-else

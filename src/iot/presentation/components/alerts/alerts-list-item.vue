@@ -17,16 +17,16 @@ const props = defineProps({
 
 const emit = defineEmits(['acknowledge', 'view']);
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const alertTitle = computed(() => {
   if (props.showSensor) {
     if (props.alert.titleKey) {
       return t(props.alert.titleKey, props.alert.messageParams);
     }
-    return props.alert.detailText || props.alert.detail || 'Alerta';
+    return props.alert.detailText || props.alert.detail || t('iot.alerts.defaultTitle');
   }
-  return props.alert.detailText || props.alert.detail || 'Alerta';
+  return props.alert.detailText || props.alert.detail || t('iot.alerts.defaultTitle');
 });
 
 const alertMessage = computed(() => {
@@ -55,9 +55,9 @@ function formatAlertTimestamp(timestamp) {
   const date = new Date(timestamp);
   if (Number.isNaN(date.getTime())) return '-';
   if (props.showSensor) {
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' });
   } else {
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(locale.value, {
       year: 'numeric',
       month: 'short',
       day: '2-digit'
@@ -85,7 +85,7 @@ const canAcknowledge = computed(() => {
     <td v-if="showSensor">
       <span class="alerts-list-item__sensor">
         <i class="pi pi-compass mr-1"></i>
-        {{ alert.source || 'Sensor' }} (ID: {{ alert.sensorId || 'N/A' }})
+        {{ alert.source || t('iot.alerts.defaultTitle') }} ({{ t('iot.alerts-page.dialog.meta.sensor-id') }}: {{ alert.sensorId || t('iot.alerts-page.table.na') }})
       </span>
     </td>
     <td>

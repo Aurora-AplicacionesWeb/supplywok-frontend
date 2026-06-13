@@ -22,7 +22,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:visible', 'close']);
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const isVisible = computed({
   get: () => props.visible,
@@ -35,9 +35,9 @@ const alertTitle = computed(() => {
     if (props.alert.titleKey) {
       return t(props.alert.titleKey, props.alert.messageParams);
     }
-    return props.alert.detailText || props.alert.detail || 'Alerta';
+    return props.alert.detailText || props.alert.detail || t('iot.alerts.defaultTitle');
   }
-  return props.alert.detailText || props.alert.detail || 'Alerta de Proveedor';
+  return props.alert.detailText || props.alert.detail || t('iot.alerts.supplierTitle');
 });
 
 const alertMessage = computed(() => {
@@ -67,9 +67,9 @@ function formatAlertTimestamp(timestamp) {
   const date = new Date(timestamp);
   if (Number.isNaN(date.getTime())) return '-';
   if (props.showSensor) {
-    return date.toLocaleString();
+    return date.toLocaleString(locale.value);
   } else {
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(locale.value, {
       year: 'numeric',
       month: 'short',
       day: '2-digit'
@@ -88,7 +88,7 @@ function handleClose() {
     v-model:visible="isVisible"
     modal
     :draggable="false"
-    :header="showSensor ? 'Detalle de Incidencia (IoT)' : 'Detalle de Alerta'"
+    :header="showSensor ? t('iot.alerts-page.dialog.headerIncident') : t('iot.alerts-page.dialog.header')"
     :style="{ width: 'min(500px, calc(100vw - 32px))' }"
     @hide="handleClose"
   >
@@ -107,21 +107,21 @@ function handleClose() {
         <div class="alert-details__meta">
           <template v-if="showSensor">
             <div class="alert-details__meta-row">
-              <span>Origen:</span>
+              <span>{{ t('iot.alerts-page.dialog.meta.source') }}:</span>
               <strong>{{ alert.source }}</strong>
             </div>
             <div class="alert-details__meta-row" v-if="alert.sensorId">
-              <span>ID de Sensor:</span>
+              <span>{{ t('iot.alerts-page.dialog.meta.sensor-id') }}:</span>
               <strong>{{ alert.sensorId }}</strong>
             </div>
             <div class="alert-details__meta-row">
-              <span>Fecha y Hora:</span>
+              <span>{{ t('iot.alerts-page.dialog.meta.dateTime') }}:</span>
               <strong>{{ formatAlertTimestamp(alert.timestamp) }}</strong>
             </div>
           </template>
           <template v-else>
             <div class="alert-details__meta-row">
-              <span>Fecha:</span>
+              <span>{{ t('iot.alerts-page.dialog.meta.date') }}:</span>
               <strong>{{ formatAlertTimestamp(alert.timestamp) }}</strong>
             </div>
           </template>
@@ -129,7 +129,7 @@ function handleClose() {
       </div>
     </div>
     <template #footer>
-      <Button label="Cerrar" severity="secondary" outlined @click="handleClose" />
+      <Button :label="t('iot.alerts-page.dialog.actions.close')" severity="secondary" outlined @click="handleClose" />
     </template>
   </Dialog>
 </template>

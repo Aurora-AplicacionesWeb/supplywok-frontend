@@ -62,13 +62,12 @@ watch(() => props.alerts, () => {
     <table class="alerts-list__table">
       <thead>
         <tr>
-          <th>{{ t('supplier-management.orders.columns.priority') }}</th>
-          <th v-if="showSensor">{{ t('supply-and-purchasing.detail.items.product') }} / Detalle</th>
-          <th v-else>Detalle</th>
-          <th v-if="showSensor">Sensor</th>
-          <th>{{ t('supply-and-purchasing.detail.meta.date') }}</th>
-          <th>{{ t('supply-and-purchasing.detail.meta.status') }}</th>
-          <th>Acciones</th>
+          <th>{{ t('iot.alerts-page.table.columns.severity') }}</th>
+          <th>{{ showSensor ? t('iot.alerts-page.table.productDetail') : t('iot.alerts-page.table.columns.detail') }}</th>
+          <th v-if="showSensor">{{ t('iot.alerts-page.table.columns.source') }}</th>
+          <th>{{ t('iot.alerts-page.table.columns.date') }}</th>
+          <th>{{ t('iot.alerts-page.table.columns.status') }}</th>
+          <th>{{ t('iot.alerts-page.table.columns.actions') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -82,7 +81,7 @@ watch(() => props.alerts, () => {
         />
         <tr v-if="!alerts.length">
           <td :colspan="showSensor ? 6 : 5" class="alerts-list__empty">
-            No se encontraron alertas activas.
+            {{ t('iot.alerts-page.table.empty') }}
           </td>
         </tr>
       </tbody>

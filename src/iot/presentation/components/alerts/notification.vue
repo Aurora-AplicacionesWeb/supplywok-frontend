@@ -15,7 +15,7 @@ const alertTitle = computed(() => {
   if (props.alert.titleKey) {
     return t(props.alert.titleKey, props.alert.messageParams);
   }
-  return props.alert.detailText || props.alert.detail || 'Alerta';
+  return props.alert.detailText || props.alert.detail || t('iot.alerts.defaultTitle');
 });
 
 const alertMessage = computed(() => {

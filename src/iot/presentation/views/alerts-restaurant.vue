@@ -150,7 +150,7 @@ watch(
             </div>
             <div class="alerts-header__right">
                 <Button
-                    :label="t('iot.sensors.create-button') || 'Create Sensor'"
+                    :label="t('iot.sensors.create-button')"
                     icon="pi pi-plus"
                     @click="showCreateDialog = true"
                     class="create-sensor-btn"
