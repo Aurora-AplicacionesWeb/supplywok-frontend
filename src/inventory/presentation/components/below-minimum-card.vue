@@ -7,21 +7,21 @@ import useInventoryManagementStore from '../../application/inventory-management.
 const { t } = useI18n();
 const store = useInventoryManagementStore();
 
-const visibleLowStockItems = computed(() => {
-  return store.lowStockItems;
+const visibleLowStockSupplies = computed(() => {
+  return store.lowStockSupplies;
 });
 
 onMounted(async () => {
-  if (!store.loaded) await store.fetchAll();
+  if (!store.suppliesLoaded) await store.fetchAll();
 });
 
 function getStockStatusLabel(item) {
-  const status = item.getStockStatus?.();
+  const status = store.getStockStatus(item);
   return t(`inventoryManagement.stockStatus.${status}`) || status;
 }
 
 function getStatusClass(item) {
-  const status = item.getStockStatus?.();
+  const status = store.getStockStatus(item);
   if (status === 'critical') return 'below-minimum-card__badge--critical';
   if (status === 'warning') return 'below-minimum-card__badge--warning';
   return 'below-minimum-card__badge--secondary';
@@ -34,16 +34,16 @@ function getStatusClass(item) {
       <div>
         <h2 class="below-minimum-card__title">{{ t('inventoryManagement.belowMinimum.title') }}</h2>
         <p class="below-minimum-card__caption">
-          {{ t('inventoryManagement.belowMinimum.caption', { count: visibleLowStockItems.length }) }}
+          {{ t('inventoryManagement.belowMinimum.caption', { count: visibleLowStockSupplies.length }) }}
         </p>
       </div>
     </div>
 
-    <div v-if="store.loading && !store.loaded" class="below-minimum-card__state">
-      {{ t('supply-and-purchasing.summary-card.loading') }}
+    <div v-if="store.loading && !store.suppliesLoaded" class="below-minimum-card__state">
+      {{ t('inventoryManagement.loading') }}
     </div>
 
-    <div v-else-if="!visibleLowStockItems.length" class="below-minimum-card__state">
+    <div v-else-if="!visibleLowStockSupplies.length" class="below-minimum-card__state">
       {{ t('inventoryManagement.belowMinimum.empty') }}
     </div>
 
@@ -54,7 +54,7 @@ function getStatusClass(item) {
         <span>{{ t('inventoryManagement.belowMinimum.columns.status') }}</span>
       </div>
 
-      <div v-for="item in visibleLowStockItems" :key="item.id" class="below-minimum-card__row">
+      <div v-for="item in visibleLowStockSupplies" :key="item.id" class="below-minimum-card__row">
         <strong>{{ item.name }}</strong>
         <span>{{ item.currentStock }} {{ item.unitOfMeasure }}</span>
         <span class="below-minimum-card__badge" :class="getStatusClass(item)">

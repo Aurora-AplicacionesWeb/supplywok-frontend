@@ -1,11 +1,14 @@
 <script setup>
 import { computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 import { RouterLink } from 'vue-router';
 import useInventoryManagementStore from '../../../inventory/application/inventory-management.store.js';
 import { iotStore } from '../../../iot/application/iot-store.js';
 import useOrdersStore from '../../../purchasing/application/orders.store.js';
 import useRestaurantManagementStore from '../../../operations/application/operations.store.js';
+
+const { t, locale } = useI18n();
 
 const inventoryStore = useInventoryManagementStore();
 const monitoringStore = iotStore();
@@ -63,7 +66,7 @@ function toTimestamp(value) {
 
 function formatDate(value) {
     if (!value) {
-        return 'Sin fecha';
+        return t('shared.dashboardPage.status.noDate');
     }
 
     const parsedDate = new Date(value);
@@ -71,7 +74,7 @@ function formatDate(value) {
         return value;
     }
 
-    return new Intl.DateTimeFormat('es-PE', {
+    return new Intl.DateTimeFormat(locale.value, {
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
@@ -81,27 +84,27 @@ function formatDate(value) {
 
 function getSensorStatus(sensor) {
     if (!sensor?.enabled) {
-        return { label: 'Desconectado', tone: 'muted' };
+        return { label: t('shared.dashboardPage.status.disconnected'), tone: 'muted' };
     }
 
     const isOutOfRange = sensor.lastValue < sensor.minValue || sensor.lastValue > sensor.maxValue;
     if (isOutOfRange) {
-        return { label: 'Fuera de rango', tone: 'critical' };
+        return { label: t('shared.dashboardPage.status.outOfRange'), tone: 'critical' };
     }
 
-    return { label: 'Estable', tone: 'healthy' };
+    return { label: t('shared.dashboardPage.status.stable'), tone: 'healthy' };
 }
 
 function getKitchenStatusLabel(order) {
     const labels = {
-        pending: 'Pendiente',
-        in_preparation: 'En preparacion',
-        ready: 'Lista',
-        delivered: 'Entregada',
-        cancelled: 'Anulada'
+        pending: t('shared.dashboardPage.kitchen.status.pending'),
+        in_preparation: t('shared.dashboardPage.kitchen.status.inPreparation'),
+        ready: t('shared.dashboardPage.kitchen.status.ready'),
+        delivered: t('shared.dashboardPage.kitchen.status.delivered'),
+        cancelled: t('shared.dashboardPage.kitchen.status.cancelled')
     };
 
-    return labels[order?.state] ?? 'Sin estado';
+    return labels[order?.state] ?? t('shared.dashboardPage.status.noStatus');
 }
 
 function getKitchenStatusTone(order) {
@@ -123,42 +126,42 @@ function getOrderStatusTone(status) {
     <section class="dashboard-page">
         <header class="dashboard-page__hero">
             <div>
-                <span class="dashboard-page__kicker">Centro operativo</span>
-                <h1 class="dashboard-page__title">Dashboard principal</h1>
+                <span class="dashboard-page__kicker">{{ $t('shared.dashboardPage.hero.kicker') }}</span>
+                <h1 class="dashboard-page__title">{{ $t('shared.dashboardPage.hero.title') }}</h1>
                 <p class="dashboard-page__description">
-                    Resume inventario, sensores, comandas y pedidos abiertos en una sola vista para reaccionar rapido.
+                    {{ $t('shared.dashboardPage.hero.description') }}
                 </p>
             </div>
 
             <div class="dashboard-page__hero-actions">
-                <RouterLink to="/purchasing/orders/new" class="dashboard-page__primary-action">Crear pedido</RouterLink>
-                <RouterLink to="/iot/alerts" class="dashboard-page__secondary-action">Revisar alertas</RouterLink>
+                <RouterLink to="/purchasing/orders/new" class="dashboard-page__primary-action">{{ $t('shared.dashboardPage.hero.createOrder') }}</RouterLink>
+                <RouterLink to="/iot/alerts" class="dashboard-page__secondary-action">{{ $t('shared.dashboardPage.hero.reviewAlerts') }}</RouterLink>
             </div>
         </header>
 
         <div class="dashboard-page__metrics">
             <article class="metric-card">
-                <span class="metric-card__label">Items saludables</span>
+                <span class="metric-card__label">{{ $t('shared.dashboardPage.metrics.healthyItems') }}</span>
                 <strong class="metric-card__value">{{ inventoryHealth }}%</strong>
-                <p class="metric-card__hint">{{ highlightedInventory.length }} productos requieren reposicion</p>
+                <p class="metric-card__hint">{{ $t('shared.dashboardPage.metrics.replenishmentHint', { count: highlightedInventory.length }) }}</p>
             </article>
 
             <article class="metric-card">
-                <span class="metric-card__label">Alertas activas</span>
+                <span class="metric-card__label">{{ $t('shared.dashboardPage.metrics.activeAlerts') }}</span>
                 <strong class="metric-card__value">{{ activeAlerts.length }}</strong>
-                <p class="metric-card__hint">Temperatura, stock y ocupacion fuera de rango</p>
+                <p class="metric-card__hint">{{ $t('shared.dashboardPage.metrics.alertsHint') }}</p>
             </article>
 
             <article class="metric-card">
-                <span class="metric-card__label">Mesas ocupadas</span>
+                <span class="metric-card__label">{{ $t('shared.dashboardPage.metrics.occupiedTables') }}</span>
                 <strong class="metric-card__value">{{ occupiedTablePercentage ?? 0 }}%</strong>
-                <p class="metric-card__hint">{{ occupiedTables.length }} mesas en servicio ahora</p>
+                <p class="metric-card__hint">{{ $t('shared.dashboardPage.metrics.tablesHint', { count: occupiedTables.length }) }}</p>
             </article>
 
             <article class="metric-card">
-                <span class="metric-card__label">Pedidos pendientes</span>
+                <span class="metric-card__label">{{ $t('shared.dashboardPage.metrics.pendingOrders') }}</span>
                 <strong class="metric-card__value">{{ pendingPurchaseOrdersCount }}</strong>
-                <p class="metric-card__hint">Seguimiento rapido a proveedores prioritarios</p>
+                <p class="metric-card__hint">{{ $t('shared.dashboardPage.metrics.ordersHint') }}</p>
             </article>
         </div>
 
@@ -166,17 +169,17 @@ function getOrderStatusTone(status) {
             <article class="dashboard-card">
                 <div class="dashboard-card__header">
                     <div>
-                        <span class="dashboard-card__eyebrow">Sensores</span>
-                        <h2 class="dashboard-card__title">Panel operativo</h2>
+                        <span class="dashboard-card__eyebrow">{{ $t('shared.dashboardPage.sensors.eyebrow') }}</span>
+                        <h2 class="dashboard-card__title">{{ $t('shared.dashboardPage.sensors.title') }}</h2>
                     </div>
-                    <RouterLink to="/iot/alerts" class="dashboard-card__link">Ver incidencias</RouterLink>
+                    <RouterLink to="/iot/alerts" class="dashboard-card__link">{{ $t('shared.dashboardPage.sensors.link') }}</RouterLink>
                 </div>
 
                 <div class="sensor-list">
                     <article v-for="sensor in highlightedSensors" :key="sensor.id" class="sensor-row">
                         <div>
                             <strong>{{ sensor.name }}</strong>
-                            <p>Rango {{ sensor.minValue }} - {{ sensor.maxValue }}</p>
+                            <p>{{ $t('shared.dashboardPage.sensors.range', { min: sensor.minValue, max: sensor.maxValue }) }}</p>
                         </div>
 
                         <div class="sensor-row__meta">
@@ -188,7 +191,7 @@ function getOrderStatusTone(status) {
                     </article>
 
                     <p v-if="!highlightedSensors.length" class="dashboard-card__empty">
-                        No hay sensores cargados en este entorno.
+                        {{ $t('shared.dashboardPage.sensors.empty') }}
                     </p>
                 </div>
             </article>
@@ -196,17 +199,17 @@ function getOrderStatusTone(status) {
             <article class="dashboard-card">
                 <div class="dashboard-card__header">
                     <div>
-                        <span class="dashboard-card__eyebrow">Cocina</span>
-                        <h2 class="dashboard-card__title">Comandas activas</h2>
+                        <span class="dashboard-card__eyebrow">{{ $t('shared.dashboardPage.kitchen.eyebrow') }}</span>
+                        <h2 class="dashboard-card__title">{{ $t('shared.dashboardPage.kitchen.title') }}</h2>
                     </div>
-                    <RouterLink to="/operations/kitchen" class="dashboard-card__link">Abrir cocina</RouterLink>
+                    <RouterLink to="/operations/kitchen" class="dashboard-card__link">{{ $t('shared.dashboardPage.kitchen.link') }}</RouterLink>
                 </div>
 
                 <div class="ticket-list">
                     <article v-for="order in highlightedKitchenOrders" :key="order.id" class="ticket-row">
                         <div>
                             <strong>{{ order.number }}</strong>
-                            <p>{{ order.tableNumber ? `Mesa ${order.tableNumber}` : 'Para llevar' }}</p>
+                            <p>{{ order.tableNumber ? $t('shared.dashboardPage.kitchen.table', { number: order.tableNumber }) : $t('shared.dashboardPage.kitchen.takeAway') }}</p>
                         </div>
 
                         <div class="ticket-row__meta">
@@ -218,7 +221,7 @@ function getOrderStatusTone(status) {
                     </article>
 
                     <p v-if="!highlightedKitchenOrders.length" class="dashboard-card__empty">
-                        No hay comandas activas para mostrar.
+                        {{ $t('shared.dashboardPage.kitchen.empty') }}
                     </p>
                 </div>
             </article>
@@ -226,17 +229,17 @@ function getOrderStatusTone(status) {
             <article class="dashboard-card">
                 <div class="dashboard-card__header">
                     <div>
-                        <span class="dashboard-card__eyebrow">Inventario</span>
-                        <h2 class="dashboard-card__title">Productos con bajo stock</h2>
+                        <span class="dashboard-card__eyebrow">{{ $t('shared.dashboardPage.inventory.eyebrow') }}</span>
+                        <h2 class="dashboard-card__title">{{ $t('shared.dashboardPage.inventory.title') }}</h2>
                     </div>
-                    <RouterLink to="/inventory/items" class="dashboard-card__link">Ir a inventario</RouterLink>
+                    <RouterLink to="/inventory/items" class="dashboard-card__link">{{ $t('shared.dashboardPage.inventory.link') }}</RouterLink>
                 </div>
 
                 <div class="inventory-list">
                     <article v-for="item in highlightedInventory" :key="item.id" class="inventory-row">
                         <div>
                             <strong>{{ item.name }}</strong>
-                            <p>{{ item.currentStock }} disponibles de {{ item.minimumStockLevel }} minimos</p>
+                            <p>{{ $t('shared.dashboardPage.inventory.stockInfo', { stock: item.currentStock, minimum: item.minimumStockLevel }) }}</p>
                         </div>
 
                         <div class="inventory-row__bar">
@@ -245,7 +248,7 @@ function getOrderStatusTone(status) {
                     </article>
 
                     <p v-if="!highlightedInventory.length" class="dashboard-card__empty">
-                        No hay productos criticos por ahora.
+                        {{ $t('shared.dashboardPage.inventory.empty') }}
                     </p>
                 </div>
             </article>
@@ -253,10 +256,10 @@ function getOrderStatusTone(status) {
             <article class="dashboard-card">
                 <div class="dashboard-card__header">
                     <div>
-                        <span class="dashboard-card__eyebrow">Abastecimiento</span>
-                        <h2 class="dashboard-card__title">Pedidos recientes</h2>
+                        <span class="dashboard-card__eyebrow">{{ $t('shared.dashboardPage.purchasing.eyebrow') }}</span>
+                        <h2 class="dashboard-card__title">{{ $t('shared.dashboardPage.purchasing.title') }}</h2>
                     </div>
-                    <RouterLink to="/purchasing/orders" class="dashboard-card__link">Abrir pedidos</RouterLink>
+                    <RouterLink to="/purchasing/orders" class="dashboard-card__link">{{ $t('shared.dashboardPage.purchasing.link') }}</RouterLink>
                 </div>
 
                 <div class="order-list">
@@ -275,7 +278,7 @@ function getOrderStatusTone(status) {
                     </article>
 
                     <p v-if="!highlightedOrders.length" class="dashboard-card__empty">
-                        No hay pedidos recientes cargados.
+                        {{ $t('shared.dashboardPage.purchasing.empty') }}
                     </p>
                 </div>
             </article>

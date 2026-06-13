@@ -22,7 +22,7 @@ const inventoryChartData = computed(() => ({
   labels: inventoryDataList.value.map(item => item.month),
   datasets: [
     {
-      label: t('restaurantManagement.reportsPage.charts.inventoryTitle'),
+      label: t('operations.reportsPage.charts.inventoryTitle'),
       data: inventoryDataList.value.map(item => item.value),
       fill: true,
       borderColor: '#ef3b34',
@@ -40,7 +40,7 @@ const consumptionChartData = computed(() => ({
   labels: weeklyConsumptionList.value.map(item => item.week),
   datasets: [
     {
-      label: t('restaurantManagement.reportsPage.charts.consumptionTitle'),
+      label: t('operations.reportsPage.charts.consumptionTitle'),
       data: weeklyConsumptionList.value.map(item => item.value),
       backgroundColor: '#f7bf00',
       borderRadius: 6,
@@ -53,7 +53,7 @@ const tempChartData = computed(() => ({
   labels: tempFluctuationsList.value.map(item => item.day),
   datasets: [
     {
-      label: t('restaurantManagement.reportsPage.charts.tempTitle'),
+      label: t('operations.reportsPage.charts.tempTitle'),
       data: tempFluctuationsList.value.map(item => item.value),
       backgroundColor: '#ef7f84',
       borderRadius: 6,
@@ -106,24 +106,24 @@ const consumptionSummary = computed(() => {
   const list = weeklyConsumptionList.value;
   const first = list[0]?.value ?? 0;
   const last = list[list.length - 1]?.value ?? 0;
-  return t('restaurantManagement.reportsPage.charts.summaryDesc', { from: first, to: last });
+  return t('operations.reportsPage.charts.summaryDesc', { from: first, to: last });
 });
 
 const suppliersSummary = computed(() => {
   const list = topSuppliersList.value;
-  return t('restaurantManagement.reportsPage.charts.summaryValue', { value: list.length });
+  return t('operations.reportsPage.charts.summaryValue', { value: list.length });
 });
 
 const tempSummary = computed(() => {
   const list = tempFluctuationsList.value;
   const maxTemp = list.reduce((max, item) => Math.max(max, item.value), 0);
-  return t('restaurantManagement.reportsPage.charts.summaryValue', { value: maxTemp });
+  return t('operations.reportsPage.charts.summaryValue', { value: maxTemp });
 });
 
 // CSV Export utilizing dynamic state
 function exportCsv() {
   const rows = [
-    [t('restaurantManagement.reportsPage.charts.month'), t('restaurantManagement.reportsPage.charts.inventoryTitle')],
+    [t('operations.reportsPage.charts.month'), t('operations.reportsPage.charts.inventoryTitle')],
     ...inventoryDataList.value.map(item => [item.month, item.value])
   ];
 
@@ -150,21 +150,21 @@ onMounted(() => {
   <section class="reports-page">
     <header class="reports-page__hero">
       <div>
-        <span class="reports-page__kicker">{{ t('restaurantManagement.reportsPage.kicker') }}</span>
-        <h1 class="reports-page__title">{{ t('restaurantManagement.reportsPage.title') }}</h1>
+        <span class="reports-page__kicker">{{ t('operations.reportsPage.kicker') }}</span>
+        <h1 class="reports-page__title">{{ t('operations.reportsPage.title') }}</h1>
         <p class="reports-page__description">
-          {{ t('restaurantManagement.reportsPage.description') }}
+          {{ t('operations.reportsPage.description') }}
         </p>
       </div>
 
       <div class="reports-page__actions">
         <button type="button" class="reports-page__secondary-action" @click="exportCsv">
           <i class="pi pi-download"></i>
-          <span>{{ t('restaurantManagement.reportsPage.actions.exportCsv') }}</span>
+          <span>{{ t('operations.reportsPage.actions.exportCsv') }}</span>
         </button>
         <button type="button" class="reports-page__primary-action" @click="exportPdf">
           <i class="pi pi-file-pdf"></i>
-          <span>{{ t('restaurantManagement.reportsPage.actions.exportPdf') }}</span>
+          <span>{{ t('operations.reportsPage.actions.exportPdf') }}</span>
         </button>
       </div>
     </header>
@@ -177,7 +177,7 @@ onMounted(() => {
     <template v-else>
       <article class="reports-page__chart-card reports-page__chart-card--wide">
         <div class="reports-page__card-header">
-          <h2>{{ t('restaurantManagement.reportsPage.charts.inventoryTitle') }}</h2>
+          <h2>{{ t('operations.reportsPage.charts.inventoryTitle') }}</h2>
           <i class="pi pi-ellipsis-v"></i>
         </div>
 
@@ -189,7 +189,7 @@ onMounted(() => {
       <div class="reports-page__grid">
         <article class="reports-page__chart-card">
           <div class="reports-page__card-header">
-            <h2>{{ t('restaurantManagement.reportsPage.charts.consumptionTitle') }}</h2>
+            <h2>{{ t('operations.reportsPage.charts.consumptionTitle') }}</h2>
             <i class="pi pi-ellipsis-v"></i>
           </div>
 
@@ -198,14 +198,14 @@ onMounted(() => {
           </div>
 
           <div class="reports-page__summary mt-4">
-            <strong>{{ t('restaurantManagement.reportsPage.charts.summary') }}</strong>
+            <strong>{{ t('operations.reportsPage.charts.summary') }}</strong>
             <p>{{ consumptionSummary }}</p>
           </div>
         </article>
 
         <article class="reports-page__chart-card">
           <div class="reports-page__card-header">
-            <h2>{{ t('restaurantManagement.reportsPage.charts.ordersTitle') }}</h2>
+            <h2>{{ t('operations.reportsPage.charts.ordersTitle') }}</h2>
             <i class="pi pi-ellipsis-v"></i>
           </div>
 
@@ -222,14 +222,14 @@ onMounted(() => {
           </div>
 
           <div class="reports-page__summary mt-4">
-            <strong>{{ t('restaurantManagement.reportsPage.charts.summary') }}</strong>
+            <strong>{{ t('operations.reportsPage.charts.summary') }}</strong>
             <p>{{ suppliersSummary }}</p>
           </div>
         </article>
 
         <article class="reports-page__chart-card">
           <div class="reports-page__card-header">
-            <h2>{{ t('restaurantManagement.reportsPage.charts.tempTitle') }}</h2>
+            <h2>{{ t('operations.reportsPage.charts.tempTitle') }}</h2>
             <i class="pi pi-ellipsis-v"></i>
           </div>
 
@@ -238,7 +238,7 @@ onMounted(() => {
           </div>
 
           <div class="reports-page__summary mt-4">
-            <strong>{{ t('restaurantManagement.reportsPage.charts.summary') }}</strong>
+            <strong>{{ t('operations.reportsPage.charts.summary') }}</strong>
             <p>{{ tempSummary }}</p>
           </div>
         </article>

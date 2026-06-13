@@ -7,7 +7,7 @@ const analyticsRoutes = [
         name: 'restaurant-reports',
         component: restaurantReports,
         meta: {
-            title: 'Reports',
+            i18nKey: 'shared.titles.reports',
             role: 'restaurant'
         }
     },
@@ -16,7 +16,7 @@ const analyticsRoutes = [
         name: 'supplier-forecast',
         component: supplierForecast,
         meta: {
-            title: 'Forecast',
+            i18nKey: 'supplier-management.forecast.title',
             role: 'supplier'
         }
     }

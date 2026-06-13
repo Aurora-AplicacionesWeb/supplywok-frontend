@@ -22,14 +22,14 @@ const loading = ref(false);
 const errorMessage = ref('');
 const submitted = ref(false);
 
-const roles = ref([
-  { label: 'Restaurant', value: 'Restaurant' },
-  { label: 'Supplier', value: 'Supplier' }
+const roles = computed(() => [
+  { label: t('access.register.role-restaurant'), value: 'Restaurant' },
+  { label: t('access.register.role-supplier'), value: 'Supplier' }
 ]);
 
-const subscriptions = ref([
-  { label: 'Premium', value: 'Premium' },
-  { label: 'Enterprise', value: 'Enterprise' }
+const subscriptions = computed(() => [
+  { label: t('access.register.subscription-premium'), value: 'Premium' },
+  { label: t('access.register.subscription-enterprise'), value: 'Enterprise' }
 ]);
 
 const errors = computed(() => {
@@ -76,7 +76,7 @@ const handleRegister = async () => {
     sessionStore.setUserRole(normalizedRole);
     router.push(getHomeByRole(normalizedRole));
   } else {
-    errorMessage.value = iamStore.error || 'Registration failed';
+    errorMessage.value = iamStore.error || t('access.register.registration-failed');
   }
   
   loading.value = false;

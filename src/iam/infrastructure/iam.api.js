@@ -42,11 +42,10 @@ export class IamApi {
    */
   async createUser(userEntity) {
     try {
-      const resource = UserAssembler.toResourceFromEntity(userEntity);
       const data = await this._fetchData(`${this.baseUrl}${this.endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(resource),
+        body: JSON.stringify(userEntity),
       });
       return UserAssembler.toEntityFromResource(data);
     } catch (error) {

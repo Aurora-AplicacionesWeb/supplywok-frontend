@@ -1,6 +1,6 @@
-const ordersPage = () => import('./pages/orders-page.vue');
-const purchaseOrderFormPage = () => import('./pages/purchase-order-form-page.vue');
-const suppliersPage = () => import('./pages/suppliers-page.vue');
+const ordersPage = () => import('./views/orders-page.vue');
+const purchaseOrderFormPage = () => import('./views/purchase-order-form-page.vue');
+const suppliersPage = () => import('./views/suppliers-page.vue');
 
 /**
  * Supply and Purchasing presentation routes.
