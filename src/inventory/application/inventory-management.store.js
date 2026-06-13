@@ -1,195 +1,193 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { InventoryManagementApi } from '../infrastructure/inventory-management-api.js';
-import { InventoryItemAssembler } from '../infrastructure/inventory-item.assembler.js';
+import { SupplyAssembler } from '../infrastructure/supply.assembler.js';
 import { StockMovementAssembler } from '../infrastructure/stock-movement.assembler.js';
 
 const api = new InventoryManagementApi();
 
+function hasCriticalStock(supply) {
+  return supply.currentStock <= supply.minimumStockLevel;
+}
+
+function getStockStatus(supply) {
+  if (hasCriticalStock(supply)) return 'critical';
+  if (supply.currentStock <= supply.minimumStockLevel * 1.5) return 'warning';
+  return 'healthy';
+}
+
+function getStockLevelPercentage(supply) {
+  if (supply.minimumStockLevel <= 0) return supply.currentStock > 0 ? 100 : 0;
+  const targetMaxStock = supply.minimumStockLevel * 6;
+  return Math.min(100, Math.max(0, Math.round((supply.currentStock / targetMaxStock) * 100)));
+}
+
+function getStockGap(supply) {
+  return supply.currentStock - supply.minimumStockLevel;
+}
+
 const useInventoryManagementStore = defineStore('inventory', () => {
-  const inventoryItems = ref([]);
+  const supplies = ref([]);
   const stockMovements = ref([]);
   const loading = ref(false);
-  const loaded = ref(false);
+  const suppliesLoaded = ref(false);
+  const stockMovementsLoaded = ref(false);
   const errors = ref([]);
 
-  const totalInventoryItems = computed(() => (loaded.value ? inventoryItems.value.length : 0));
+  const totalSupplies = computed(() => (suppliesLoaded.value ? supplies.value.length : 0));
 
   const totalCurrentStock = computed(() => {
-	return inventoryItems.value.reduce((acc, item) => acc + (Number(item.currentStock) || 0), 0);
+    return supplies.value.reduce((acc, item) => acc + (Number(item.currentStock) || 0), 0);
   });
 
-  const criticalItemsCount = computed(() => inventoryItems.value.filter((i) => i.hasCriticalStock?.()).length);
+  const criticalSuppliesCount = computed(() => supplies.value.filter((s) => hasCriticalStock(s)).length);
 
-  const lowStockItems = computed(() => inventoryItems.value.filter((i) => i.getStockStatus?.() === 'warning' || i.getStockStatus?.() === 'critical'));
+  const lowStockSupplies = computed(() => supplies.value.filter((s) => {
+    const status = getStockStatus(s);
+    return status === 'warning' || status === 'critical';
+  }));
 
-  const inventoryUnits = computed(() => {
-	const units = new Set(inventoryItems.value.map((i) => i.unitOfMeasure));
-	return Array.from(units);
+  const supplyUnits = computed(() => {
+    const units = new Set(supplies.value.map((s) => s.unitOfMeasure));
+    return Array.from(units);
   });
 
-  async function fetchInventoryItems() {
-	loading.value = true;
-	try {
-	  const response = await api.getInventoryItems();
-	  inventoryItems.value = InventoryItemAssembler.toEntitiesFromResponse(response);
-	  loaded.value = true;
-	  return inventoryItems.value;
-	} catch (error) {
-	  errors.value.push(error);
-	  throw error;
-	} finally {
-	  loading.value = false;
-	}
+  function fetchSupplies() {
+    loading.value = true;
+    api.getSupplies().then(response => {
+      supplies.value = SupplyAssembler.toEntitiesFromResponse(response);
+      suppliesLoaded.value = true;
+      loading.value = false;
+    }).catch(error => {
+      errors.value.push(error);
+      loading.value = false;
+    });
   }
 
-  async function fetchStockMovements() {
-	loading.value = true;
-	try {
-	  const response = await api.getStockMovements();
-	  stockMovements.value = StockMovementAssembler.toEntitiesFromResponse(response);
-	  return stockMovements.value;
-	} catch (error) {
-	  errors.value.push(error);
-	  throw error;
-	} finally {
-	  loading.value = false;
-	}
+  function fetchStockMovements() {
+    loading.value = true;
+    api.getStockMovements().then(response => {
+      stockMovements.value = StockMovementAssembler.toEntitiesFromResponse(response);
+      stockMovementsLoaded.value = true;
+      loading.value = false;
+    }).catch(error => {
+      errors.value.push(error);
+      loading.value = false;
+    });
   }
 
-  function attachMovementsToInventoryItems() {
-	const movementsByInventory = stockMovements.value.reduce((map, movement) => {
-	  const key = movement.inventoryItemId;
-	  if (!map[key]) map[key] = [];
-	  map[key].push(movement);
-	  return map;
-	}, {});
+  function attachMovementsToSupplies() {
+    const movementsBySupply = stockMovements.value.reduce((map, movement) => {
+      const key = movement.supplyId;
+      if (!map[key]) map[key] = [];
+      map[key].push(movement);
+      return map;
+    }, {});
 
-	inventoryItems.value.forEach((item) => {
-	  const attached = movementsByInventory[item.id] ?? [];
-	  item.attachMovements(attached);
-	});
+    supplies.value.forEach((supply) => {
+      const attached = movementsBySupply[supply.id] ?? [];
+      supply.movements = attached;
+    });
   }
 
-  async function fetchAll() {
-	loading.value = true;
-	try {
-	  const [itemsResponse, movementsResponse] = await Promise.allSettled([api.getInventoryItems(), api.getStockMovements()]);
-
-	  if (itemsResponse.status === 'fulfilled') {
-		inventoryItems.value = InventoryItemAssembler.toEntitiesFromResponse(itemsResponse.value);
-		loaded.value = true;
-	  } else {
-		errors.value.push(itemsResponse.reason);
-	  }
-
-	  if (movementsResponse.status === 'fulfilled') {
-		stockMovements.value = StockMovementAssembler.toEntitiesFromResponse(movementsResponse.value);
-	  } else {
-		errors.value.push(movementsResponse.reason);
-	  }
-
-	  attachMovementsToInventoryItems();
-	} finally {
-	  loading.value = false;
-	}
+  function fetchAll() {
+    loading.value = true;
+    api.getSupplies().then(response => {
+      supplies.value = SupplyAssembler.toEntitiesFromResponse(response);
+      suppliesLoaded.value = true;
+      return api.getStockMovements();
+    }).then(response => {
+      stockMovements.value = StockMovementAssembler.toEntitiesFromResponse(response);
+      stockMovementsLoaded.value = true;
+      attachMovementsToSupplies();
+      loading.value = false;
+    }).catch(error => {
+      errors.value.push(error);
+      loading.value = false;
+    });
   }
 
-  async function createInventoryItem(entity) {
-	loading.value = true;
-	try {
-	  const resource = InventoryItemAssembler.toResourceFromEntity(entity);
-	  const response = await api.createInventoryItem(resource);
-	  const created = InventoryItemAssembler.toEntityFromResource(response.data ?? response);
-	  inventoryItems.value.unshift(created);
-	  return created;
-	} catch (error) {
-	  errors.value.push(error);
-	  return null;
-	} finally {
-	  loading.value = false;
-	}
+  function createSupply(supply) {
+    loading.value = true;
+    api.createSupply(supply).then(response => {
+      const created = SupplyAssembler.toEntityFromResource(response.data ?? response);
+      supplies.value.unshift(created);
+      loading.value = false;
+    }).catch(error => {
+      errors.value.push(error);
+      loading.value = false;
+    });
   }
 
-  async function updateInventoryItem(id, entity) {
-	loading.value = true;
-	try {
-	  const resource = InventoryItemAssembler.toResourceFromEntity(entity);
-	  const response = await api.updateInventoryItem(id, resource);
-	  const updated = InventoryItemAssembler.toEntityFromResource(response.data ?? response);
-	  const index = inventoryItems.value.findIndex((i) => i.id === id);
-	  if (index >= 0) inventoryItems.value.splice(index, 1, updated);
-	  return updated;
-	} catch (error) {
-	  errors.value.push(error);
-	  return null;
-	} finally {
-	  loading.value = false;
-	}
+  function updateSupply(id, supply) {
+    loading.value = true;
+    api.updateSupply(id, supply).then(response => {
+      const updated = SupplyAssembler.toEntityFromResource(response.data ?? response);
+      const index = supplies.value.findIndex((s) => s.id === id);
+      if (index >= 0) supplies.value.splice(index, 1, updated);
+      loading.value = false;
+    }).catch(error => {
+      errors.value.push(error);
+      loading.value = false;
+    });
   }
 
-  async function deleteInventoryItem(id) {
-	loading.value = true;
-	try {
-	  await api.deleteInventoryItem(id);
-	  inventoryItems.value = inventoryItems.value.filter((i) => i.id !== id);
-	  return true;
-	} catch (error) {
-	  errors.value.push(error);
-	  return false;
-	} finally {
-	  loading.value = false;
-	}
+  function deleteSupply(id) {
+    loading.value = true;
+    api.deleteSupply(id).then(() => {
+      supplies.value = supplies.value.filter((s) => s.id !== id);
+      loading.value = false;
+    }).catch(error => {
+      errors.value.push(error);
+      loading.value = false;
+    });
   }
 
-  async function createStockMovement(movementEntity) {
-	loading.value = true;
-	try {
-	  const resource = StockMovementAssembler.toResourceFromEntity(movementEntity);
-	  const response = await api.createStockMovement(resource);
-	  const created = StockMovementAssembler.toEntityFromResource(response.data ?? response);
-	  stockMovements.value.push(created);
+  function createStockMovement(movementEntity) {
+    loading.value = true;
+    api.createStockMovement(movementEntity).then(response => {
+      const created = StockMovementAssembler.toEntityFromResource(response.data ?? response);
+      stockMovements.value.push(created);
 
-	  // Apply movement to inventory item locally
-	  const item = inventoryItems.value.find((it) => it.id === created.inventoryItemId);
-	  if (item) {
-		if (created.type === 'ENTRY') item.addStock(created.amount, created.reason);
-		else if (created.type === 'EXIT') item.removeStock(created.amount, created.reason);
-		else if (created.type === 'ADJUSTMENT') item.adjustStock(created.amount, created.reason);
-	  }
+      const supply = supplies.value.find((s) => s.id === created.supplyId);
+      if (supply) {
+        if (created.type === 'ENTRY') supply.currentStock += created.amount;
+        else if (created.type === 'EXIT') supply.currentStock -= created.amount;
+        else if (created.type === 'ADJUSTMENT') supply.currentStock += created.amount;
+      }
 
-	  return created;
-	} catch (error) {
-	  errors.value.push(error);
-	  return null;
-	} finally {
-	  loading.value = false;
-	}
+      loading.value = false;
+    }).catch(error => {
+      errors.value.push(error);
+      loading.value = false;
+    });
   }
 
   return {
-	inventoryItems,
-	stockMovements,
-	loading,
-	loaded,
-	errors,
-	totalInventoryItems,
-	totalCurrentStock,
-	criticalItemsCount,
-	lowStockItems,
-	inventoryUnits,
-	fetchInventoryItems,
-	fetchStockMovements,
-	fetchAll,
-	attachMovementsToInventoryItems,
-	createInventoryItem,
-	updateInventoryItem,
-	deleteInventoryItem,
-	createStockMovement
+    supplies,
+    stockMovements,
+    loading,
+    suppliesLoaded,
+    stockMovementsLoaded,
+    errors,
+    totalSupplies,
+    totalCurrentStock,
+    criticalSuppliesCount,
+    lowStockSupplies,
+    supplyUnits,
+    fetchSupplies,
+    fetchStockMovements,
+    fetchAll,
+    attachMovementsToSupplies,
+    createSupply,
+    updateSupply,
+    deleteSupply,
+    createStockMovement,
+    hasCriticalStock,
+    getStockStatus,
+    getStockLevelPercentage,
+    getStockGap
   };
 });
 
 export default useInventoryManagementStore;
-
-
-

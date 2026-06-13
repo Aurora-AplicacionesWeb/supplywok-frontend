@@ -14,13 +14,13 @@ const currentPage = ref(1);
 const rowsPerPage = 6;
 
 const categories = computed(() => {
-  return [...new Set(store.inventoryItems.map((item) => item.category).filter(Boolean))].sort();
+  return [...new Set(store.supplies.map((item) => item.category).filter(Boolean))].sort();
 });
 
 const filteredRows = computed(() => {
   const normalizedQuery = searchTerm.value.trim().toLowerCase();
 
-  return store.inventoryItems.filter((item) => {
+  return store.supplies.filter((item) => {
     const matchesCategory = !selectedCategory.value || item.category === selectedCategory.value;
     const matchesQuery = !normalizedQuery || [
       item.name,
@@ -56,15 +56,15 @@ function goToNextPage() {
 }
 
 function getStatusTone(item) {
-  return item.getStockStatus?.() ?? 'healthy';
+  return store.getStockStatus(item);
 }
 
 function getProgressWidth(item) {
-  return `${item.getStockLevelPercentage?.() ?? 0}%`;
+  return `${store.getStockLevelPercentage(item)}%`;
 }
 
 function getStockAlert(item) {
-  const status = item.getStockStatus?.();
+  const status = store.getStockStatus(item);
   if (status === 'critical') return t('inventoryManagement.stockStatus.critical');
   if (status === 'warning') return t('inventoryManagement.stockStatus.warning');
   return '';
@@ -84,12 +84,12 @@ function openEditItem(row) {
 
 function openDeleteItem(row) {
   if (confirm(t('inventoryManagement.table.actions.delete'))) {
-    store.deleteInventoryItem(row.id);
+    store.deleteSupply(row.id);
   }
 }
 
 onMounted(async () => {
-  if (!store.loaded) {
+  if (!store.suppliesLoaded) {
     await store.fetchAll();
   }
 });
@@ -124,11 +124,11 @@ onMounted(async () => {
       </label>
     </div>
 
-    <div v-if="store.loading && !store.loaded" class="inventory-table-card__state">
-      {{ t('supply-and-purchasing.summary-card.loading') }}
+    <div v-if="store.loading && !store.suppliesLoaded" class="inventory-table-card__state">
+      {{ t('inventoryManagement.loading') }}
     </div>
 
-    <div v-else-if="store.errors.length && !store.inventoryItems.length" class="inventory-table-card__state inventory-table-card__state--error">
+    <div v-else-if="store.errors.length && !store.supplies.length" class="inventory-table-card__state inventory-table-card__state--error">
       {{ t('inventoryManagement.table.error') }}
     </div>
 
@@ -153,7 +153,7 @@ onMounted(async () => {
             <td>
               <div class="inventory-table__product">
                 <strong>{{ row.name }}</strong>
-                <small>ID: {{ row.id }}</small>
+                <small>{{ t('inventoryManagement.table.idLabel', { id: row.id }) }}</small>
                 <em v-if="getStockAlert(row)">{{ getStockAlert(row) }}</em>
               </div>
             </td>
@@ -164,7 +164,7 @@ onMounted(async () => {
                   <strong :class="`inventory-table__stock-value--${getStatusTone(row)}`">
                     {{ row.currentStock }} {{ row.unitOfMeasure }}
                   </strong>
-                  <small>{{ t('inventoryManagement.table.minimum') }}: {{ row.minimumStockLevel }}</small>
+                  <small>{{ t('inventoryManagement.table.minimumLabel', { value: row.minimumStockLevel }) }}</small>
                 </div>
                 <div class="inventory-table__bar">
                   <span

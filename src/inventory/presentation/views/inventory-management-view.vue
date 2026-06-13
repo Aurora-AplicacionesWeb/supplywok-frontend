@@ -1,22 +1,28 @@
 <script setup>
+import { useRouter } from 'vue-router';
 import InventoryDataTable from '../components/inventory-data-table.component.vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
+const router = useRouter();
+
+function goToCreate() {
+  router.push('/inventory/items/new');
+}
 </script>
 
 <template>
-  <section class="inventory-management-page">
-    <header class="inventory-management-page__hero">
+  <section class="inventory-management-view">
+    <header class="inventory-management-view__hero">
       <div>
-        <span class="inventory-management-page__kicker">{{ t('inventoryManagement.page.kicker') }}</span>
-        <h1 class="inventory-management-page__title">{{ t('inventoryManagement.page.title') }}</h1>
-        <p class="inventory-management-page__description">
+        <span class="inventory-management-view__kicker">{{ t('inventoryManagement.page.kicker') }}</span>
+        <h1 class="inventory-management-view__title">{{ t('inventoryManagement.page.title') }}</h1>
+        <p class="inventory-management-view__description">
           {{ t('inventoryManagement.page.description') }}
         </p>
       </div>
 
-      <button type="button" class="inventory-management-page__action">
+      <button type="button" class="inventory-management-view__action" @click="goToCreate">
         <i class="pi pi-plus"></i>
         <span>{{ t('inventoryManagement.page.actions.add') }}</span>
       </button>
@@ -27,13 +33,13 @@ const { t } = useI18n();
 </template>
 
 <style scoped>
-.inventory-management-page {
+.inventory-management-view {
   display: flex;
   flex-direction: column;
   gap: 22px;
 }
 
-.inventory-management-page__hero {
+.inventory-management-view__hero {
   display: flex;
   justify-content: space-between;
   gap: 20px;
@@ -41,7 +47,7 @@ const { t } = useI18n();
   padding: 12px 6px 0;
 }
 
-.inventory-management-page__kicker {
+.inventory-management-view__kicker {
   display: inline-block;
   color: #a07832;
   font-size: 12px;
@@ -50,7 +56,7 @@ const { t } = useI18n();
   text-transform: uppercase;
 }
 
-.inventory-management-page__title {
+.inventory-management-view__title {
   margin: 10px 0 8px;
   color: #221b2a;
   font-size: clamp(2.6rem, 4vw, 3.3rem);
@@ -58,12 +64,12 @@ const { t } = useI18n();
   letter-spacing: -0.04em;
 }
 
-.inventory-management-page__description {
+.inventory-management-view__description {
   color: #5b5247;
   font-size: 1.03rem;
 }
 
-.inventory-management-page__action {
+.inventory-management-view__action {
   display: inline-flex;
   align-items: center;
   gap: 18px;
@@ -80,12 +86,12 @@ const { t } = useI18n();
   box-shadow: 0 10px 24px rgba(45, 36, 30, 0.16);
 }
 
-.inventory-management-page__action i {
+.inventory-management-view__action i {
   font-size: 1.1rem;
 }
 
 @media (max-width: 900px) {
-  .inventory-management-page__hero {
+  .inventory-management-view__hero {
     flex-direction: column;
   }
 }
