@@ -14,6 +14,11 @@
     },
     "register": {
       "get-started": "Comenzar",
+      "role-restaurant": "Restaurante",
+      "role-supplier": "Proveedor",
+      "subscription-premium": "Premium",
+      "subscription-enterprise": "Enterprise",
+      "registration-failed": "Registro fallido",
       "phone": "Número de teléfono",
       "phone-example": "999 666 333",
       "role": "Rol",
@@ -35,7 +40,8 @@
       "email-invalid": "El correo electrónico no es válido.",
       "password-min": "La contraseña debe tener al menos 8 caracteres.",
       "phone-invalid": "El número de teléfono no es válido.",
-      "terms-required": "Debes aceptar los términos para continuar."
+      "terms-required": "Debes aceptar los términos para continuar.",
+      "invalid-credentials": "Correo o contraseña inválidos."
     }
   },
   "shared": {
@@ -118,6 +124,67 @@
         "restrictedMode": "Activar modo restringido",
         "password": "Contraseña de desbloqueo",
         "callout": "Solo el dueño puede cambiar la configuración del modo restringido."
+      }
+    },
+    "dashboardPage": {
+      "hero": {
+        "kicker": "Centro operativo",
+        "title": "Dashboard principal",
+        "description": "Resume inventario, sensores, comandas y pedidos abiertos en una sola vista para reaccionar rápido.",
+        "createOrder": "Crear pedido",
+        "reviewAlerts": "Revisar alertas"
+      },
+      "metrics": {
+        "healthyItems": "Items saludables",
+        "replenishmentHint": "{count} productos requieren reposición",
+        "activeAlerts": "Alertas activas",
+        "alertsHint": "Temperatura, stock y ocupación fuera de rango",
+        "occupiedTables": "Mesas ocupadas",
+        "tablesHint": "{count} mesas en servicio ahora",
+        "pendingOrders": "Pedidos pendientes",
+        "ordersHint": "Seguimiento rápido a proveedores prioritarios"
+      },
+      "sensors": {
+        "eyebrow": "Sensores",
+        "title": "Panel operativo",
+        "link": "Ver incidencias",
+        "range": "Rango {min} - {max}",
+        "empty": "No hay sensores cargados en este entorno."
+      },
+      "kitchen": {
+        "eyebrow": "Cocina",
+        "title": "Comandas activas",
+        "link": "Abrir cocina",
+        "takeAway": "Para llevar",
+        "table": "Mesa {number}",
+        "empty": "No hay comandas activas para mostrar.",
+        "status": {
+          "pending": "Pendiente",
+          "inPreparation": "En preparación",
+          "ready": "Lista",
+          "delivered": "Entregada",
+          "cancelled": "Anulada"
+        }
+      },
+      "inventory": {
+        "eyebrow": "Inventario",
+        "title": "Productos con bajo stock",
+        "link": "Ir a inventario",
+        "stockInfo": "{stock} disponibles de {minimum} mínimos",
+        "empty": "No hay productos críticos por ahora."
+      },
+      "purchasing": {
+        "eyebrow": "Abastecimiento",
+        "title": "Pedidos recientes",
+        "link": "Abrir pedidos",
+        "empty": "No hay pedidos recientes cargados."
+      },
+      "status": {
+        "disconnected": "Desconectado",
+        "outOfRange": "Fuera de rango",
+        "stable": "Estable",
+        "noDate": "Sin fecha",
+        "noStatus": "Sin estado"
       }
     },
     "subscriptionPage": {
@@ -467,9 +534,10 @@
       "kicker": "Restaurante",
       "title": "Inventario",
       "description": "Gestiona niveles de stock, mínimos y movimientos.",
-      "actions": {
-        "add": "Agregar insumo"
-      }
+    "actions": {
+      "add": "Agregar insumo"
+    },
+    "loading": "Cargando inventario..."
     },
     "metrics": {
       "items": "Productos",
@@ -485,6 +553,8 @@
       "allCategories": "Todas las categorías",
       "filterUnit": "Filtrar por unidad",
       "minimum": "MIN",
+      "idLabel": "ID: {id}",
+      "minimumLabel": "MIN: {value}",
       "empty": "No hay productos de inventario que coincidan con tu búsqueda.",
       "error": "No se pudo cargar el inventario.",
       "unassignedSupplier": "Proveedor sin asignar",
@@ -581,6 +651,9 @@
           "seafood": "Pescados y Mariscos"
         }
       },
+      "noContact": "Sin contacto",
+      "noEmail": "Sin correo",
+      "noPhone": "Sin teléfono",
       "footer": {
         "showing": "Mostrando {count} de {total} ítems totales",
         "previous": "Anterior",
@@ -637,6 +710,7 @@
     },
     "detail": {
       "kicker": "Detalle de la orden",
+      "loading": "Cargando detalles...",
       "meta": {
         "status": "Estado",
         "priority": "Prioridad",
@@ -679,6 +753,8 @@
       "occupancy-rate": "Tasa de ocupación"
     },
     "alerts": {
+      "defaultTitle": "Alerta",
+      "supplierTitle": "Alerta de Proveedor",
       "notifications": "Notificaciones",
       "no-active-alerts": "No hay alertas activas.",
       "severity-critical": "Crítico",
@@ -722,14 +798,20 @@
           "resolved": "Resuelta",
           "acknowledged": "Reconocida"
         },
-        "footer": "Mostrando {first} a {last} de {total} alertas activas"
+        "footer": "Mostrando {first} a {last} de {total} alertas activas",
+        "empty": "No se encontraron alertas activas.",
+        "loading": "Cargando alertas...",
+        "productDetail": "Producto / Detalle",
+        "na": "N/D"
       },
       "dialog": {
+        "headerIncident": "Detalle de Incidencia (IoT)",
         "header": "Detalles de la Alerta",
         "meta": {
           "source": "Origen",
           "date": "Fecha",
-          "sensor-id": "ID del Sensor"
+          "sensor-id": "ID del Sensor",
+          "dateTime": "Fecha y Hora"
         },
         "actions": {
           "close": "Cerrar",

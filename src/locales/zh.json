@@ -14,6 +14,11 @@
     },
     "register": {
       "get-started": "开始使用",
+      "role-restaurant": "餐厅",
+      "role-supplier": "供应商",
+      "subscription-premium": "高级版",
+      "subscription-enterprise": "企业版",
+      "registration-failed": "注册失败",
       "phone": "电话号码",
       "phone-example": "999 666 333",
       "role": "角色",
@@ -33,9 +38,10 @@
     },
     "validation": {
       "email-invalid": "电子邮件地址无效。",
-      "password-min": "密码必须至少为 8 个字符。",
+      "password-min": "密码必须至少为8个字符。",
       "phone-invalid": "电话号码无效。",
-      "terms-required": "您必须接受条款才能继续。"
+      "terms-required": "您必须接受条款才能继续。",
+      "invalid-credentials": "邮箱或密码无效。"
     }
   },
   "shared": {
@@ -118,6 +124,67 @@
         "restrictedMode": "啟用受限模式",
         "password": "解鎖密碼",
         "callout": "只有所有者可以更改受限模式設置。"
+      }
+    },
+    "dashboardPage": {
+      "hero": {
+        "kicker": "运营中心",
+        "title": "主仪表板",
+        "description": "在一张视图中汇总库存、传感器、厨房订单和未结订单，以便快速响应。",
+        "createOrder": "创建订单",
+        "reviewAlerts": "查看警报"
+      },
+      "metrics": {
+        "healthyItems": "健康项目",
+        "replenishmentHint": "{count} 件产品需要补货",
+        "activeAlerts": "活动警报",
+        "alertsHint": "温度、库存和占用率超出范围",
+        "occupiedTables": "已占用桌位",
+        "tablesHint": "{count} 张餐桌正在使用",
+        "pendingOrders": "待处理订单",
+        "ordersHint": "快速跟踪优先供应商"
+      },
+      "sensors": {
+        "eyebrow": "传感器",
+        "title": "运营面板",
+        "link": "查看事件",
+        "range": "范围 {min} - {max}",
+        "empty": "此环境中未加载任何传感器。"
+      },
+      "kitchen": {
+        "eyebrow": "厨房",
+        "title": "活动厨房订单",
+        "link": "打开厨房",
+        "takeAway": "外卖",
+        "table": "餐桌 {number}",
+        "empty": "没有要显示的活动厨房订单。",
+        "status": {
+          "pending": "待处理",
+          "inPreparation": "准备中",
+          "ready": "已完成",
+          "delivered": "已送达",
+          "cancelled": "已取消"
+        }
+      },
+      "inventory": {
+        "eyebrow": "库存",
+        "title": "低库存产品",
+        "link": "前往库存",
+        "stockInfo": "{stock} 可用，最低 {minimum}",
+        "empty": "暂时没有缺货产品。"
+      },
+      "purchasing": {
+        "eyebrow": "供应",
+        "title": "最近订单",
+        "link": "打开订单",
+        "empty": "没有加载最近的订单。"
+      },
+      "status": {
+        "disconnected": "已断开",
+        "outOfRange": "超出范围",
+        "stable": "稳定",
+        "noDate": "无日期",
+        "noStatus": "无状态"
       }
     },
     "subscriptionPage": {
@@ -467,9 +534,10 @@
       "kicker": "餐厅",
       "title": "库存",
       "description": "管理库存水平、最小值和库存变动。",
-      "actions": {
-        "add": "新增物资"
-      }
+    "actions": {
+      "add": "新增物资"
+    },
+    "loading": "正在加载库存..."
     },
     "metrics": {
       "items": "物品",
@@ -485,6 +553,8 @@
       "allCategories": "全部类别",
       "filterUnit": "按单位筛选",
       "minimum": "最低",
+      "idLabel": "ID: {id}",
+      "minimumLabel": "最低: {value}",
       "empty": "没有符合搜索条件的库存项目。",
       "error": "无法加载库存项目。",
       "unassignedSupplier": "未分配供应商",
@@ -581,6 +651,9 @@
           "seafood": "海鮮"
         }
       },
+      "noContact": "无联系人",
+      "noEmail": "无邮件",
+      "noPhone": "无电话",
       "footer": {
         "showing": "顯示 {total} 個項目中的 {count} 個",
         "previous": "上一步",
@@ -637,6 +710,7 @@
     },
     "detail": {
       "kicker": "订单详情",
+      "loading": "正在加载详情...",
       "meta": {
         "status": "状态",
         "priority": "优先级",
@@ -679,6 +753,8 @@
       "occupancy-rate": "入住率"
     },
     "alerts": {
+      "defaultTitle": "警报",
+      "supplierTitle": "供应商警报",
       "notifications": "通知",
       "no-active-alerts": "没有活动警报。",
       "severity-critical": "严重",
@@ -722,14 +798,20 @@
           "resolved": "已解决",
           "acknowledged": "已确认"
         },
-        "footer": "显示第 {first} 至 {last} 条，共 {total} 条活动警报"
+        "footer": "显示第 {first} 至 {last} 条，共 {total} 条活动警报",
+        "empty": "未找到活动警报。",
+        "loading": "正在加载警报...",
+        "productDetail": "产品 / 详情",
+        "na": "N/A"
       },
       "dialog": {
+        "headerIncident": "IoT 事件详情",
         "header": "警报详情",
         "meta": {
           "source": "来源",
           "date": "日期",
-          "sensor-id": "传感器 ID"
+          "sensor-id": "传感器 ID",
+          "dateTime": "日期和时间"
         },
         "actions": {
           "close": "关闭",

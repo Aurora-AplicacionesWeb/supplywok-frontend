@@ -14,6 +14,11 @@
     },
     "register": {
       "get-started": "Get Started",
+      "role-restaurant": "Restaurant",
+      "role-supplier": "Supplier",
+      "subscription-premium": "Premium",
+      "subscription-enterprise": "Enterprise",
+      "registration-failed": "Registration failed",
       "phone": "Phone number",
       "phone-example": "999 666 333",
       "role": "Role",
@@ -35,7 +40,8 @@
       "email-invalid": "Invalid email address.",
       "password-min": "Password must be at least 8 characters.",
       "phone-invalid": "Invalid phone number.",
-      "terms-required": "You must accept the terms to continue."
+      "terms-required": "You must accept the terms to continue.",
+      "invalid-credentials": "Invalid email or password."
     }
   },
   "shared": {
@@ -118,6 +124,67 @@
         "restrictedMode": "Enable restricted mode",
         "password": "Unlock password",
         "callout": "Only the owner can change restricted mode settings."
+      }
+    },
+    "dashboardPage": {
+      "hero": {
+        "kicker": "Operational Center",
+        "title": "Main Dashboard",
+        "description": "Summarize inventory, sensors, kitchen orders and open orders to react quickly.",
+        "createOrder": "Create Order",
+        "reviewAlerts": "Review Alerts"
+      },
+      "metrics": {
+        "healthyItems": "Healthy Items",
+        "replenishmentHint": "{count} product(s) require replenishment",
+        "activeAlerts": "Active Alerts",
+        "alertsHint": "Temperature, stock and occupancy out of range",
+        "occupiedTables": "Occupied Tables",
+        "tablesHint": "{count} table(s) in service now",
+        "pendingOrders": "Pending Orders",
+        "ordersHint": "Quick tracking of priority suppliers"
+      },
+      "sensors": {
+        "eyebrow": "Sensors",
+        "title": "Operations Panel",
+        "link": "View Incidents",
+        "range": "Range {min} - {max}",
+        "empty": "No sensors loaded in this environment."
+      },
+      "kitchen": {
+        "eyebrow": "Kitchen",
+        "title": "Active Kitchen Orders",
+        "link": "Open Kitchen",
+        "takeAway": "Take Away",
+        "table": "Table {number}",
+        "empty": "No active kitchen orders to show.",
+        "status": {
+          "pending": "Pending",
+          "inPreparation": "In Preparation",
+          "ready": "Ready",
+          "delivered": "Delivered",
+          "cancelled": "Cancelled"
+        }
+      },
+      "inventory": {
+        "eyebrow": "Inventory",
+        "title": "Low Stock Products",
+        "link": "Go to Inventory",
+        "stockInfo": "{stock} available of {minimum} minimum",
+        "empty": "No critical products for now."
+      },
+      "purchasing": {
+        "eyebrow": "Supply",
+        "title": "Recent Orders",
+        "link": "Open Orders",
+        "empty": "No recent orders loaded."
+      },
+      "status": {
+        "disconnected": "Disconnected",
+        "outOfRange": "Out of range",
+        "stable": "Stable",
+        "noDate": "No date",
+        "noStatus": "No status"
       }
     },
     "subscriptionPage": {
@@ -467,9 +534,10 @@
       "kicker": "Restaurant",
       "title": "Inventory",
       "description": "Manage stock levels, minimums and movements.",
-      "actions": {
-        "add": "Add supply"
-      }
+    "actions": {
+      "add": "Add supply"
+    },
+    "loading": "Loading inventory..."
     },
     "metrics": {
       "items": "Items",
@@ -485,6 +553,8 @@
       "allCategories": "All categories",
       "filterUnit": "Filter by unit",
       "minimum": "MIN",
+      "idLabel": "ID: {id}",
+      "minimumLabel": "MIN: {value}",
       "empty": "No inventory items match your search.",
       "error": "Unable to load inventory items.",
       "unassignedSupplier": "Unassigned supplier",
@@ -581,6 +651,9 @@
           "seafood": "Seafood"
         }
       },
+      "noContact": "No contact",
+      "noEmail": "No email",
+      "noPhone": "No phone",
       "footer": {
         "showing": "Showing {count} of {total} total items",
         "previous": "Previous",
@@ -637,6 +710,7 @@
     },
     "detail": {
       "kicker": "Order detail",
+      "loading": "Loading details...",
       "meta": {
         "status": "Status",
         "priority": "Priority",
@@ -679,6 +753,8 @@
       "occupancy-rate": "Occupancy rate"
     },
     "alerts": {
+      "defaultTitle": "Alert",
+      "supplierTitle": "Supplier Alert",
       "notifications": "Notifications",
       "no-active-alerts": "No active alerts.",
       "severity-critical": "Critical",
@@ -722,14 +798,20 @@
           "resolved": "Resolved",
           "acknowledged": "Acknowledged"
         },
-        "footer": "Showing {first} to {last} of {total} active alerts"
+        "footer": "Showing {first} to {last} of {total} active alerts",
+        "empty": "No active alerts found.",
+        "loading": "Loading alerts...",
+        "productDetail": "Product / Detail",
+        "na": "N/A"
       },
       "dialog": {
+        "headerIncident": "IoT Incident Detail",
         "header": "Alert Details",
         "meta": {
           "source": "Source",
           "date": "Date",
-          "sensor-id": "Sensor ID"
+          "sensor-id": "Sensor ID",
+          "dateTime": "Date and Time"
         },
         "actions": {
           "close": "Close",
