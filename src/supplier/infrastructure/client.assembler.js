@@ -13,7 +13,7 @@ export class ClientAssembler {
 
         const resources = response.data instanceof Array
             ? response.data
-            : response.data.clients ?? [];
+            : response.data?.clients ?? [];
 
         return resources.map(resource => this.toEntityFromResource(resource));
     }

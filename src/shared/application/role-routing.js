@@ -1,4 +1,5 @@
-export const normalizeRole = (role) => role?.toString().toLowerCase() ?? null;
+export const normalizeRole = (role) => role?.toString().trim().toLowerCase() ?? null;
+
 
 const ROLE_SECTION_PATHS = {
   restaurant: {

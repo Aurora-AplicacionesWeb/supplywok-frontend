@@ -1,40 +1,45 @@
 import {BaseApi} from "../../shared/infrastructure/base-api.js";
 import {BaseEndpoint} from "../../shared/infrastructure/base-endpoint.js";
 
-const supplierGetApiUrl = import.meta.env.VITE_SUPPLIER_GET_API_URL;
-const supplierCrudApiUrl = import.meta.env.VITE_SUPPLIER_CRUD_API_URL;
-const ordersEndpointPath = import.meta.env.VITE_PURCHASE_ORDERS_ENDPOINT_PATH;
-const catalogItemsEndpointPath = import.meta.env.VITE_CATALOG_ITEMS_ENDPOINT_PATH;
-const clientsEndpointPath = import.meta.env.VITE_CLIENTS_ENDPOINT_PATH;
-const alertsEndpointPath = import.meta.env.VITE_ALERTS_ENDPOINT_PATH;
-const demandForecastsEndpointPath = import.meta.env.VITE_DEMAND_FORECASTS_ENDPOINT_PATH;
-const deliveryRoutesEndpointPath = import.meta.env.VITE_DELIVERY_ROUTES_ENDPOINT_PATH;
-const supplierSettingsEndpointPath = import.meta.env.VITE_SUPPLIER_SETTINGS_ENDPOINT_PATH;
-const supplierSubscriptionsEndpointPath = import.meta.env.VITE_SUPPLIER_SUBSCRIPTIONS_ENDPOINT_PATH;
+const supplierId = import.meta.env.VITE_SUPPLIER_ID ?? '1';
+const ordersEndpointPath = import.meta.env.VITE_PURCHASE_ORDERS_ENDPOINT_PATH ?? '/purchase-orders';
+const catalogItemsEndpointPath = import.meta.env.VITE_CATALOG_ITEMS_ENDPOINT_PATH ?? '/suppliers/{supplierId}/catalog-items';
+const clientsEndpointPath = import.meta.env.VITE_CLIENTS_ENDPOINT_PATH ?? '/suppliers/{supplierId}/clients';
+const alertsEndpointPath = import.meta.env.VITE_ALERTS_ENDPOINT_PATH ?? '/supplier/alerts';
+
+const localSupplierState = {
+    deliveryRoutes: [],
+    demandForecast: { aggregate: [], clients: [] },
+    supplierSettings: {
+        id: Number(supplierId) || 1,
+        supplierName: 'Golden Wok Produce',
+        supportContact: 'soporte@goldenwok.pe',
+        notifications: { email: true, sms: false },
+        serviceZones: [],
+        contacts: []
+    },
+    supplierSubscription: []
+};
+
+function resolveSupplierScopedPath(endpointPath = '') {
+    return endpointPath
+        .replace('{supplierId}', supplierId)
+        .replace(':supplierId', supplierId);
+}
 
 export class SupplyManagementApi extends BaseApi {
     #supplyManagementEndpoint;
     #catalogItemsEndpoint;
     #clientsEndpoint;
     #alertsEndpoint;
-    #demandForecastsEndpoint;
-    #deliveryRoutesEndpoint;
-    #supplierSettingsEndpoint;
-    #supplierSubscriptionsEndpoint;
+
     constructor(){
         super();
-        const supplierCrudApi = new BaseApi(supplierCrudApiUrl);
-        const supplierGetApi = new BaseApi(supplierGetApiUrl);
 
-        this.#supplyManagementEndpoint= new BaseEndpoint(supplierCrudApi, ordersEndpointPath);
-        this.#catalogItemsEndpoint= new BaseEndpoint(supplierCrudApi, catalogItemsEndpointPath);
-        this.#alertsEndpoint= new BaseEndpoint(supplierCrudApi, alertsEndpointPath);
-
-        this.#clientsEndpoint= new BaseEndpoint(supplierGetApi, clientsEndpointPath);
-        this.#demandForecastsEndpoint= new BaseEndpoint(supplierGetApi, demandForecastsEndpointPath);
-        this.#deliveryRoutesEndpoint= new BaseEndpoint(supplierGetApi, deliveryRoutesEndpointPath);
-        this.#supplierSettingsEndpoint= new BaseEndpoint(supplierGetApi, supplierSettingsEndpointPath);
-        this.#supplierSubscriptionsEndpoint= new BaseEndpoint(supplierGetApi, supplierSubscriptionsEndpointPath);
+        this.#supplyManagementEndpoint = new BaseEndpoint(this, ordersEndpointPath);
+        this.#catalogItemsEndpoint = new BaseEndpoint(this, resolveSupplierScopedPath(catalogItemsEndpointPath));
+        this.#clientsEndpoint = new BaseEndpoint(this, resolveSupplierScopedPath(clientsEndpointPath));
+        this.#alertsEndpoint = new BaseEndpoint(this, alertsEndpointPath);
     }
     getOrders(){
         return this.#supplyManagementEndpoint.getAll();
@@ -87,22 +92,46 @@ export class SupplyManagementApi extends BaseApi {
     }
 
     getDemandForecast(){
-        return this.#demandForecastsEndpoint.getAll();
+        return Promise.resolve({
+            status: 200,
+            statusText: 'OK',
+            data: localSupplierState.demandForecast
+        });
     }
 
     getDeliveryRoutes(){
-        return this.#deliveryRoutesEndpoint.getAll();
+        return Promise.resolve({
+            status: 200,
+            statusText: 'OK',
+            data: localSupplierState.deliveryRoutes
+        });
     }
 
     getSupplierSettings(){
-        return this.#supplierSettingsEndpoint.getAll();
+        return Promise.resolve({
+            status: 200,
+            statusText: 'OK',
+            data: localSupplierState.supplierSettings
+        });
     }
 
     updateSupplierSettings(id, settings){
-        return this.#supplierSettingsEndpoint.update(id, settings);
+        localSupplierState.supplierSettings = {
+            ...settings,
+            id: Number(id ?? settings?.id ?? supplierId)
+        };
+        return Promise.resolve({
+            status: 200,
+            statusText: 'OK',
+            data: localSupplierState.supplierSettings
+        });
     }
 
     getSupplierSubscription(){
-        return this.#supplierSubscriptionsEndpoint.getAll();
+        return Promise.resolve({
+            status: 200,
+            statusText: 'OK',
+            data: localSupplierState.supplierSubscription
+        });
     }
 }

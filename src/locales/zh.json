@@ -295,7 +295,7 @@
     "clients": {
       "breadcrumb": "供应商",
       "title": "我的客户",
-      "subtitle": "按餐厅查看采购频率、平均客单价和需求走势。",
+      "subtitle": "查看与该供应商关联的餐厅。",
       "search": "搜索",
       "filters": {
         "status": "状态",
@@ -502,7 +502,7 @@
     },
     "dashboard": {
       "title": "供应商仪表板",
-      "subtitle": "传入订单、物流负载、客户与需求走势。",
+      "subtitle": "查看订单、物流负载和已关联客户。",
       "loading": "正在加载仪表板数据...",
       "stats": {
         "orders-received": "已接收订单",

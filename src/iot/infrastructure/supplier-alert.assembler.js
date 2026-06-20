@@ -6,8 +6,9 @@ export class SupplierAlertAssembler {
             id: resource.id,
             severity: resource.severity,
             detail: resource.detail,
-            date: resource.date,
-            status: resource.status
+            timestamp: resource.createdAt ?? resource.date,
+            status: resource.status,
+            source: resource.alertType ?? resource.source ?? 'Supplier'
         });
     }
 
@@ -19,7 +20,7 @@ export class SupplierAlertAssembler {
 
         const resources = response.data instanceof Array
             ? response.data
-            : response.data.alerts ?? [];
+            : response.data?.alerts ?? [];
 
         return resources.map(resource => this.toEntityFromResource(resource));
     }

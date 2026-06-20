@@ -16,4 +16,14 @@ export class UserAssembler {
       subscription: resource.subscription,
     });
   }
+
+  static toResourceFromEntity(user) {
+    return {
+      email: user.email,
+      password: user.password,
+      phoneNumber: user.phoneNumber,
+      role: user.role,
+      subscription: user.subscription,
+    };
+  }
 }

@@ -61,15 +61,7 @@ const ordersReceived = computed(() => purchaseOrders.value.length);
 const scheduledDeliveries = computed(() => {
     return deliveryRoutes.value.filter((route) => ['planned', 'in-progress'].includes(route.status)).length;
 });
-const demandOutlook = computed(() => {
-    if (!clients.value.length) {
-        return '+0%';
-    }
-
-    const total = clients.value.reduce((sum, client) => sum + Number(client.demandProjectionPercent ?? 0), 0);
-    const average = Math.round(total / clients.value.length);
-    return `+${average}%`;
-});
+const linkedClients = computed(() => clients.value.length);
 const urgentRequests = computed(() => {
     return alerts.value.filter((alert) => alert.status === 'pending').length;
 });
@@ -164,8 +156,8 @@ onMounted(() => {
             <StatCard
                 icon="pi-chart-line"
                 icon-class="stat-card__icon--forecast"
-                :value="demandOutlook"
-                :label="t('supplier-management.dashboard.stats.demand-outlook')"
+                :value="linkedClients"
+                :label="t('shared.sidebar.clients')"
             />
             <StatCard
                 icon="pi-bell"

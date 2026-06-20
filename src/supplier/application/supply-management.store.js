@@ -145,14 +145,19 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
      * @param {import('../domain/model/catalog-item.entity.js').CatalogItem} item - Catalog item entity to persist.
      * @returns {void}
      */
-    function addCatalogItem(item){
-        supplierManagementApi.createCatalogItem(item).then(response=>{
+    async function addCatalogItem(item){
+        try {
+            const response = await supplierManagementApi.createCatalogItem(
+                CatalogItemAssembler.toResourceFromEntity(item)
+            );
             const resource = response.data;
             const newItem = CatalogItemAssembler.toEntityFromResource(resource);
             catalogItems.value.push(newItem);
-        }).catch(error=>{
+            return true;
+        } catch (error) {
             errors.value.push(error);
-        });
+            return false;
+        }
     }
 
     /**
@@ -161,17 +166,23 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
      * @param {import('../domain/model/catalog-item.entity.js').CatalogItem} item - Catalog item entity to update.
      * @returns {void}
      */
-    function updateCatalogItem(item){
-        supplierManagementApi.updateCatalogItem(item.id, item).then(response=>{
+    async function updateCatalogItem(item){
+        try {
+            const response = await supplierManagementApi.updateCatalogItem(
+                item.id,
+                CatalogItemAssembler.toResourceFromEntity(item)
+            );
             const resource = response.data;
             const updatedItem = CatalogItemAssembler.toEntityFromResource(resource);
             const index = catalogItems.value.findIndex(i => i['id'] === updatedItem.id);
             if(index !== -1){
                 catalogItems.value[index] = updatedItem;
             }
-        }).catch(error=>{
+            return true;
+        } catch (error) {
             errors.value.push(error);
-        });
+            return false;
+        }
     }
 
     /**
@@ -180,16 +191,19 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
      * @param {string|number} id - Catalog item identifier.
      * @returns {void}
      */
-    function deleteCatalogItem(id){
-        supplierManagementApi.deleteCatalogItem(id).then(()=>{
+    async function deleteCatalogItem(id){
+        try {
+            await supplierManagementApi.deleteCatalogItem(id);
             const idNum = parseInt(id);
             const index = catalogItems.value.findIndex(i => i['id'] === idNum);
             if(index !== -1){
                 catalogItems.value.splice(index, 1);
             }
-        }).catch(error=>{
+            return true;
+        } catch (error) {
             errors.value.push(error);
-        });
+            return false;
+        }
     }
     // ── End Catalog Supplier section ──────────────────────────────────────────
 

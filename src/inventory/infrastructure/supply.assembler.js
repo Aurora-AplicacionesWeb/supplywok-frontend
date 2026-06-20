@@ -12,7 +12,7 @@ export class SupplyAssembler {
     }
     let resources = response.data instanceof Array
       ? response.data
-      : response.data['supplies'] ?? response.data['inventory'];
+      : response.data?.supplies ?? response.data?.inventory ?? [];
     return resources.map(r => this.toEntityFromResource(r));
   }
 }

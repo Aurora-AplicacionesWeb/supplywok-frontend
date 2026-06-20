@@ -1,14 +1,14 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js';
 import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
-const supplierCrudApiUrl = import.meta.env.VITE_SUPPLIER_CRUD_API_URL || 'http://localhost:3000/api/v1';
+const ordersApiUrl = import.meta.env.VITE_PURCHASE_ORDERS_API_URL || import.meta.env.VITE_SUPPLYWOK_API_URL || 'http://localhost:8091/api/v1';
 const ordersEndpointPath = import.meta.env.VITE_PURCHASE_ORDERS_ENDPOINT_PATH || '/purchase-orders';
 
 export class OrdersApi extends BaseApi {
     #ordersEndpoint;
 
     constructor() {
-        super(supplierCrudApiUrl);
+        super(ordersApiUrl);
         this.#ordersEndpoint = new BaseEndpoint(this, ordersEndpointPath);
     }
 

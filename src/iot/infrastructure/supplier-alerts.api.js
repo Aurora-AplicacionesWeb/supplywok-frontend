@@ -1,14 +1,13 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js';
 import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
-const supplierCrudApiUrl = import.meta.env.VITE_SUPPLIER_CRUD_API_URL;
-const alertsEndpointPath = import.meta.env.VITE_ALERTS_ENDPOINT_PATH || '/supplier-alerts';
+const alertsEndpointPath = import.meta.env.VITE_ALERTS_ENDPOINT_PATH || '/supplier/alerts';
 
 export class SupplierAlertsApi extends BaseApi {
     #alertsEndpoint;
 
     constructor() {
-        super(supplierCrudApiUrl);
+        super();
         this.#alertsEndpoint = new BaseEndpoint(this, alertsEndpointPath);
     }
 
@@ -17,6 +16,10 @@ export class SupplierAlertsApi extends BaseApi {
     }
 
     updateAlert(id, alert) {
-        return this.#alertsEndpoint.update(id, alert);
+        return this.acknowledgeAlert(id, alert);
+    }
+
+    acknowledgeAlert(id) {
+        return this.#alertsEndpoint.http.post(`${this.#alertsEndpoint.endpointPath}/${id}/acknowledge`);
     }
 }

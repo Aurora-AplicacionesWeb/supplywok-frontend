@@ -1,18 +1,15 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js';
 import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
-const inventoryBaseUrl = import.meta.env.VITE_INVENTORY_BASE_URL;
-const inventoryEndpointPath = import.meta.env.VITE_INVENTORY_ENDPOINT_PATH;
-const stockMovementEndpointPath = import.meta.env.VITE_STOCK_MOVEMENT_ENDPOINT_PATH;
+const inventoryEndpointPath = import.meta.env.VITE_SUPPLIES_ENDPOINT_PATH || '/supplies';
+const localStockMovements = [];
 
 export class InventoryManagementApi extends BaseApi {
   #inventoryEndpoint;
-  #stockMovementEndpoint;
 
   constructor() {
-    super(inventoryBaseUrl);
+    super();
     this.#inventoryEndpoint = new BaseEndpoint(this, inventoryEndpointPath);
-    this.#stockMovementEndpoint = new BaseEndpoint(this, stockMovementEndpointPath);
   }
 
   getSupplies() {
@@ -24,17 +21,18 @@ export class InventoryManagementApi extends BaseApi {
   }
 
   getStockMovements() {
-    return this.#stockMovementEndpoint.getAll();
+    return Promise.resolve({
+      status: 200,
+      statusText: 'OK',
+      data: [...localStockMovements]
+    });
   }
 
   getStockMovementsBySupplyId(supplyId) {
-    return this.#stockMovementEndpoint.getAll().then((response) => {
-      const movements = Array.isArray(response.data) ? response.data : [response.data];
-      return {
-        ...response,
-        data: movements.filter((movement) => movement.supplyId === supplyId)
-      };
-    });
+    return this.getStockMovements().then((response) => ({
+      ...response,
+      data: (response.data ?? []).filter((movement) => movement.supplyId === supplyId || movement.inventoryItemId === supplyId)
+    }));
   }
 
   createSupply(supply) {
@@ -69,29 +67,55 @@ export class InventoryManagementApi extends BaseApi {
 
   createStockMovement(movement) {
     const payload = {
-      id: movement.id,
+      id: movement.id ?? (localStockMovements.length + 1),
+      supplyId: movement.supplyId,
       inventoryItemId: movement.supplyId,
       type: movement.type,
       amount: movement.amount,
       date: movement.date,
       reason: movement.reason
     };
-    return this.#stockMovementEndpoint.create(payload);
+
+    localStockMovements.push(payload);
+    return Promise.resolve({
+      status: 201,
+      statusText: 'Created',
+      data: payload
+    });
   }
 
   updateStockMovement(id, movement) {
+    const index = localStockMovements.findIndex((item) => Number(item.id) === Number(id));
     const payload = {
-      id: movement.id,
+      id: movement.id ?? Number(id),
+      supplyId: movement.supplyId,
       inventoryItemId: movement.supplyId,
       type: movement.type,
       amount: movement.amount,
       date: movement.date,
       reason: movement.reason
     };
-    return this.#stockMovementEndpoint.update(id, payload);
+
+    if (index !== -1) {
+      localStockMovements.splice(index, 1, payload);
+    }
+
+    return Promise.resolve({
+      status: 200,
+      statusText: 'OK',
+      data: payload
+    });
   }
 
   deleteStockMovement(id) {
-    return this.#stockMovementEndpoint.delete(id);
+    const index = localStockMovements.findIndex((item) => Number(item.id) === Number(id));
+    if (index !== -1) {
+      localStockMovements.splice(index, 1);
+    }
+    return Promise.resolve({
+      status: 200,
+      statusText: 'OK',
+      data: null
+    });
   }
 }

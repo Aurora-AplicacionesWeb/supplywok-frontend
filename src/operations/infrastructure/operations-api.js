@@ -1,13 +1,30 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js';
 import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
-const baseUno = import.meta.env.VITE_SUPPLY_WOK_REST_MANAGE_UNO_URL   || 'https://my-json-server.typicode.com/Nounz27/db.server/';
-const baseDos = import.meta.env.VITE_SUPPLY_WOK_REST_MANAGE_DOS_URL  || 'https://my-json-server.typicode.com/Nounz27/db.server-2/';
+const dishesEndpointPath = import.meta.env.VITE_DISHES_ENDPOINT_PATH || '/dishes';
+const dishesCategoriesEndpointPath = import.meta.env.VITE_DISHES_CATEGORIES_ENDPOINT_PATH || '/dishes-categories';
+const kitchenOrdersEndpointPath = import.meta.env.VITE_COMANDAS_ENDPOINT_PATH || '/comandas';
+const tablesEndpointPath = import.meta.env.VITE_TABLES_ENDPOINT_PATH || '/tables';
 
-const dishesEndpointPath           = baseUno + 'dishes';
-const dishesCategoriesEndpointPath = baseUno + 'dishes-categories';
-const kitchenOrdersEndpointPath    = baseUno + 'kitchen-orders';
-const tablesEndpointPath           = baseDos + 'tables';
+const localDishes = [];
+const localDishCategories = [];
+
+function toBackendTableStatus(state) {
+    const normalized = String(state ?? '').toLowerCase();
+    if (normalized === 'busy') return 'OCCUPIED';
+    if (normalized === 'reserved') return 'RESERVED';
+    if (normalized === 'cleaning') return 'CLEANING';
+    return 'AVAILABLE';
+}
+
+function toBackendKitchenOrderStatus(state) {
+    const normalized = String(state ?? '').toLowerCase();
+    if (normalized === 'in_preparation') return 'IN_PREPARATION';
+    if (normalized === 'ready') return 'SERVED';
+    if (normalized === 'delivered') return 'CLOSED';
+    if (normalized === 'cancelled') return 'CLOSED';
+    return 'OPEN';
+}
 
 export class OperationsApi extends BaseApi {
     #dishesEndpoint;
@@ -17,7 +34,6 @@ export class OperationsApi extends BaseApi {
 
     constructor() {
         super();
-
         this.#dishesEndpoint = new BaseEndpoint(this, dishesEndpointPath);
         this.#dishesCategoriesEndpoint = new BaseEndpoint(this, dishesCategoriesEndpointPath);
         this.#kitchenOrdersEndpoint = new BaseEndpoint(this, kitchenOrdersEndpointPath);
@@ -25,11 +41,19 @@ export class OperationsApi extends BaseApi {
     }
 
     getDishes() {
-        return this.#dishesEndpoint.getAll();
+        return Promise.resolve({
+            status: 200,
+            statusText: 'OK',
+            data: [...localDishes]
+        });
     }
 
     getDishCategories() {
-        return this.#dishesCategoriesEndpoint.getAll();
+        return Promise.resolve({
+            status: 200,
+            statusText: 'OK',
+            data: [...localDishCategories]
+        });
     }
 
     getTables() {
@@ -37,7 +61,18 @@ export class OperationsApi extends BaseApi {
     }
 
     createTable(resource) {
-        return this.#tablesEndpoint.create(resource);
+        return this.#tablesEndpoint.create({
+            number: resource.number,
+            capacity: resource.capacity
+        }).then((response) => ({
+            ...response,
+            data: {
+                ...(response.data ?? {}),
+                location: resource.location ?? '',
+                state: resource.state ?? 'available',
+                active: resource.active ?? true
+            }
+        }));
     }
 
     deleteTable(id) {
@@ -53,18 +88,36 @@ export class OperationsApi extends BaseApi {
     }
 
     createKitchenOrder(resource) {
-        return this.#kitchenOrdersEndpoint.create(resource);
+        return this.#kitchenOrdersEndpoint.create({
+            tableId: resource.tableId ?? resource.table?.id ?? null
+        }).then((response) => ({
+            ...response,
+            data: {
+                ...(response.data ?? {}),
+                ...resource,
+                status: response.data?.status ?? resource.state ?? resource.status ?? 'pending'
+            }
+        }));
     }
 
     updateKitchenOrder(id, resource) {
-        return this.#kitchenOrdersEndpoint.update(id, resource);
+        return Promise.resolve({
+            status: 200,
+            statusText: 'OK',
+            data: {
+                id,
+                ...resource,
+                status: resource.state ?? resource.status ?? 'pending'
+            }
+        });
     }
 
     updateKitchenOrderStatus(id, newState, observation) {
-        var resource = { state: newState, observations: observation };
-        if (newState === 'ready') resource.hourReady = new Date().toISOString();
-        if (newState === 'delivered') resource.hourDelivered = new Date().toISOString();
-        return this.#kitchenOrdersEndpoint.update(id, resource);
+        const resource = { status: toBackendKitchenOrderStatus(newState), observations: observation };
+        return this.#kitchenOrdersEndpoint.http.put(
+            `${this.#kitchenOrdersEndpoint.endpointPath}/${id}/status`,
+            resource
+        );
     }
 
     deleteKitchenOrder(id) {
@@ -72,10 +125,23 @@ export class OperationsApi extends BaseApi {
     }
 
     updateTable(tableId, data) {
-        return this.#tablesEndpoint.update(tableId, data);
+        return this.#tablesEndpoint.http.put(
+            `${this.#tablesEndpoint.endpointPath}/${tableId}/status`,
+            { status: toBackendTableStatus(data.state ?? data.status) }
+        ).then((response) => ({
+            ...response,
+            data: {
+                ...(response.data ?? {}),
+                ...data,
+                status: response.data?.status ?? toBackendTableStatus(data.state ?? data.status)
+            }
+        }));
     }
 
     updateTableStatus(tableId, newState) {
-        return this.#tablesEndpoint.update(tableId, { state: newState });
+        return this.#tablesEndpoint.http.put(
+            `${this.#tablesEndpoint.endpointPath}/${tableId}/status`,
+            { status: toBackendTableStatus(newState) }
+        );
     }
 }

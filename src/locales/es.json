@@ -295,7 +295,7 @@
     "clients": {
       "breadcrumb": "PROVEEDOR",
       "title": "Mis clientes",
-      "subtitle": "Frecuencia de compra, ticket promedio y momentum de demanda por restaurante.",
+      "subtitle": "Restaurantes vinculados a este proveedor.",
       "search": "Buscar",
       "filters": {
         "status": "Estado",
@@ -502,7 +502,7 @@
     },
     "dashboard": {
       "title": "Dashboard del proveedor",
-      "subtitle": "Pedidos entrantes, carga logística, clientes y perspectiva de demanda.",
+      "subtitle": "Pedidos entrantes, carga logística y clientes vinculados.",
       "loading": "Cargando datos del dashboard...",
       "stats": {
         "orders-received": "Órdenes recibidas",

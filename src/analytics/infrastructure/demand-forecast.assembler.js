@@ -13,7 +13,7 @@ export class DemandForecastAssembler {
 
         const resources = response.data instanceof Array
             ? response.data
-            : response.data['demand-forecasts'] ?? [];
+            : response.data?.['demand-forecasts'] ?? (response.data ? [response.data] : []);
 
         return resources.map(resource => this.toEntityFromResource(resource));
     }
