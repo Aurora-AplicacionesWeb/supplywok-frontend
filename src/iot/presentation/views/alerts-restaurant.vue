@@ -118,6 +118,7 @@ const openDetails = (alert) => {
 
 onMounted(() => {
     store.loadSensors();
+    store.fetchRestaurantAlerts();
 });
 
 watch(

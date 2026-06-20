@@ -53,6 +53,7 @@ onMounted(async () => {
     await Promise.allSettled([
         inventoryStore.fetchAll(),
         monitoringStore.loadSensors(),
+        monitoringStore.fetchRestaurantAlerts(),
         purchaseStore.ensurePurchaseOrdersLoaded(),
         restaurantStore.fetchKitchenOrders(),
         restaurantStore.fetchTables()

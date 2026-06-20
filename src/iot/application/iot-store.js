@@ -3,7 +3,8 @@ import { ref, computed } from 'vue';
 import { Alert } from '../domain/model/alert.entity.js';
 import { IotMonitoringApi } from '../infrastructure/iot-monitoring.api.js';
 import { SupplierAlertsApi } from '../infrastructure/supplier-alerts.api.js';
-import { SupplierAlertAssembler } from '../infrastructure/supplier-alert.assembler.js';
+import { RestaurantAlertsApi } from '../infrastructure/restaurant-alerts.api.js';
+import { AlertAssembler } from '../infrastructure/alert.assembler.js';
 
 /**
  * Pinia store for managing IoT Monitoring state.
@@ -12,10 +13,12 @@ import { SupplierAlertAssembler } from '../infrastructure/supplier-alert.assembl
 export const iotStore = defineStore('iot', () => {
   const api = new IotMonitoringApi();
   const supplierApi = new SupplierAlertsApi();
+  const restaurantApi = new RestaurantAlertsApi();
 
   // --- State ---
   const sensors = ref([]);
-  const alertHistory = ref([]);
+  const restaurantAlerts = ref([]);
+  const restaurantAlertsLoaded = ref(false);
   const supplierAlerts = ref([]);
   const supplierAlertsLoaded = ref(false);
   const loading = ref(false);
@@ -27,18 +30,20 @@ export const iotStore = defineStore('iot', () => {
   const sensorsCount = computed(() => sensors.value.length);
 
   /** List of all alerts in the history. */
-  const allAlerts = computed(() => alertHistory.value);
+  const allAlerts = computed(() => restaurantAlerts.value);
 
   /** 
    * List of all active (Open) alerts. 
    * Sorted by severity (Critical first) and then by timestamp (newest first).
    */
   const activeAlerts = computed(() => {
-    return alertHistory.value
-      .filter(a => a.status === 'Open')
+    return restaurantAlerts.value
+      .filter(a => a.status?.toLowerCase() === 'open')
       .sort((a, b) => {
-        const severityMap = { 'Critical': 0, 'High': 1, 'Medium': 2, 'Low': 3 };
-        const diff = severityMap[a.severity] - severityMap[b.severity];
+        const severityMap = { 'critical': 0, 'high': 1, 'medium': 2, 'low': 3 };
+        const aSeverity = (a.severity || 'low').toLowerCase();
+        const bSeverity = (b.severity || 'low').toLowerCase();
+        const diff = (severityMap[aSeverity] ?? 3) - (severityMap[bSeverity] ?? 3);
         if (diff !== 0) return diff;
         return b.timestamp.getTime() - a.timestamp.getTime();
       });
@@ -46,7 +51,7 @@ export const iotStore = defineStore('iot', () => {
 
   /** The 3 most recent alerts for quick display. */
   const recentAlerts = computed(() => {
-    return [...alertHistory.value]
+    return [...restaurantAlerts.value]
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       .slice(0, 3);
   });
@@ -56,7 +61,6 @@ export const iotStore = defineStore('iot', () => {
     return activeAlerts.value.slice(0, 5);
   });
 
-  // ... (lowStockStorageCount, etc. remain the same as they check sensors directly)
   const lowStockStorageCount = computed(() => {
     const storage = sensors.value.filter(s => s.type === 'storage-pressure');
     if (storage.length === 0) return 0;
@@ -100,22 +104,6 @@ export const iotStore = defineStore('iot', () => {
 
   // --- Actions ---
 
-  /**
-   * Synchronizes alerts based on current sensor values.
-   */
-  const syncAlerts = () => {
-    for (const sensor of sensors.value) {
-      const newAlert = Alert.fromSensor(sensor);
-      const existingAlert = alertHistory.value.find(a => a.sensorId === sensor.id && a.status === 'Open');
-
-      if (newAlert && !existingAlert) {
-        alertHistory.value.unshift(newAlert);
-      } else if (!newAlert && existingAlert) {
-        existingAlert.resolve();
-      }
-    }
-  };
-
   /** 
    * Fetches the latest sensor data from the API.
    */
@@ -124,9 +112,25 @@ export const iotStore = defineStore('iot', () => {
     error.value = null;
     try {
       sensors.value = await api.getSensors();
-      syncAlerts();
     } catch (err) {
       error.value = formatError(err, 'Failed to load sensors');
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  /**
+   * Fetches restaurant alerts from backend.
+   */
+  const fetchRestaurantAlerts = async () => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await restaurantApi.getAlerts();
+      restaurantAlerts.value = AlertAssembler.toEntitiesFromResponse(response);
+      restaurantAlertsLoaded.value = true;
+    } catch (err) {
+      error.value = formatError(err, 'Failed to fetch restaurant alerts');
     } finally {
       loading.value = false;
     }
@@ -140,7 +144,7 @@ export const iotStore = defineStore('iot', () => {
     error.value = null;
     try {
       const response = await supplierApi.getAlerts();
-      supplierAlerts.value = SupplierAlertAssembler.toEntitiesFromResponse(response);
+      supplierAlerts.value = AlertAssembler.toEntitiesFromResponse(response);
       supplierAlertsLoaded.value = true;
     } catch (err) {
       error.value = formatError(err, 'Failed to fetch supplier alerts');
@@ -150,38 +154,44 @@ export const iotStore = defineStore('iot', () => {
   };
 
   /**
-   * Marks an alert as acknowledged (supports both supplier and sensor alerts).
+   * Marks a restaurant alert as acknowledged.
    */
-  const acknowledgeAlert = async (alertId) => {
+  const acknowledgeRestaurantAlert = async (alertId) => {
     const alertIdNum = parseInt(alertId);
-    
-    // 1. Check if it's a supplier alert
-    const existingSupplierAlert = supplierAlerts.value.find(a => a.id === alertIdNum);
-    if (existingSupplierAlert) {
-      if (existingSupplierAlert.status === 'acknowledged') {
-        return;
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await restaurantApi.acknowledgeAlert(alertIdNum);
+      const persisted = AlertAssembler.toEntityFromResource(response.data);
+      const index = restaurantAlerts.value.findIndex(a => a.id === persisted.id);
+      if (index !== -1) {
+        restaurantAlerts.value[index] = persisted;
       }
-      const updated = {
-        ...existingSupplierAlert,
-        status: 'acknowledged'
-      };
-      try {
-        const response = await supplierApi.updateAlert(alertIdNum, SupplierAlertAssembler.toResourceFromEntity(updated));
-        const persisted = SupplierAlertAssembler.toEntityFromResource(response.data);
-        const index = supplierAlerts.value.findIndex(a => a.id === persisted.id);
-        if (index !== -1) {
-          supplierAlerts.value[index] = persisted;
-        }
-      } catch (err) {
-        error.value = formatError(err, 'Failed to acknowledge supplier alert');
-      }
-      return;
+    } catch (err) {
+      error.value = formatError(err, 'Failed to acknowledge restaurant alert');
+    } finally {
+      loading.value = false;
     }
+  };
 
-    // 2. Otherwise treat as sensor alert
-    const alert = alertHistory.value.find(a => a.id === alertIdNum);
-    if (alert) {
-      alert.acknowledge();
+  /**
+   * Marks a supplier alert as acknowledged.
+   */
+  const acknowledgeSupplierAlert = async (alertId) => {
+    const alertIdNum = parseInt(alertId);
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await supplierApi.acknowledgeAlert(alertIdNum);
+      const persisted = AlertAssembler.toEntityFromResource(response.data);
+      const index = supplierAlerts.value.findIndex(a => a.id === persisted.id);
+      if (index !== -1) {
+        supplierAlerts.value[index] = persisted;
+      }
+    } catch (err) {
+      error.value = formatError(err, 'Failed to acknowledge supplier alert');
+    } finally {
+      loading.value = false;
     }
   };
 
@@ -204,7 +214,6 @@ export const iotStore = defineStore('iot', () => {
       const created = await api.createSensor(sensor);
       if (created) {
         sensors.value.push(created);
-        syncAlerts();
         return created;
       }
     } catch (err) {
@@ -226,7 +235,6 @@ export const iotStore = defineStore('iot', () => {
       const index = sensors.value.findIndex(s => s.id === updatedSensor.id);
       if (index !== -1) {
         sensors.value.splice(index, 1, updatedSensor);
-        syncAlerts();
       }
     } catch (err) {
       error.value = formatError(err, 'Failed to update sensor');
@@ -244,7 +252,6 @@ export const iotStore = defineStore('iot', () => {
     error.value = null;
     try {
       sensors.value = sensors.value.filter(s => s.id !== id);
-      syncAlerts();
     } catch (err) {
       error.value = formatError(err, 'Failed to delete sensor');
     } finally {
@@ -263,12 +270,11 @@ export const iotStore = defineStore('iot', () => {
     return fallback;
   };
 
-  // Auto-initialize store
-  loadSensors();
-
+  // Auto-initialization removed to prevent fetching before login. Components must fetch explicitly.
   return {
     sensors,
-    alertHistory,
+    restaurantAlerts,
+    restaurantAlertsLoaded,
     supplierAlerts,
     supplierAlertsLoaded,
     loading,
@@ -284,11 +290,13 @@ export const iotStore = defineStore('iot', () => {
     averageStorageTemperature,
     occupiedTablePercentage,
     loadSensors,
+    fetchRestaurantAlerts,
     fetchSupplierAlerts,
     getSensorById,
     addSensor,
     updateSensor,
     deleteSensor,
-    acknowledgeAlert
+    acknowledgeRestaurantAlert,
+    acknowledgeSupplierAlert
   };
 });

@@ -1,14 +1,14 @@
 import { Alert } from '../domain/model/alert.entity.js';
 
-export class SupplierAlertAssembler {
+export class AlertAssembler {
     static toEntityFromResource(resource) {
         return new Alert({
             id: resource.id,
+            sensorId: resource.sensorId || null,
             severity: resource.severity,
             detail: resource.detail,
-            timestamp: resource.createdAt ?? resource.date,
-            status: resource.status,
-            source: resource.alertType ?? resource.source ?? 'Supplier'
+            date: resource.date,
+            status: resource.status
         });
     }
 
@@ -20,7 +20,7 @@ export class SupplierAlertAssembler {
 
         const resources = response.data instanceof Array
             ? response.data
-            : response.data?.alerts ?? [];
+            : response.data.alerts ?? [];
 
         return resources.map(resource => this.toEntityFromResource(resource));
     }
@@ -28,6 +28,7 @@ export class SupplierAlertAssembler {
     static toResourceFromEntity(entity) {
         return {
             id: entity.id,
+            sensorId: entity.sensorId,
             severity: entity.severity,
             detail: entity.detail,
             date: entity.date,

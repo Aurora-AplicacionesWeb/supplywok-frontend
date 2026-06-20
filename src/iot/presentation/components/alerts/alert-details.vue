@@ -31,20 +31,10 @@ const isVisible = computed({
 
 const alertTitle = computed(() => {
   if (!props.alert) return '';
-  if (props.showSensor) {
-    if (props.alert.titleKey) {
-      return t(props.alert.titleKey, props.alert.messageParams);
-    }
-    return props.alert.detailText || props.alert.detail || t('iot.alerts.defaultTitle');
-  }
-  return props.alert.detailText || props.alert.detail || t('iot.alerts.supplierTitle');
+  return props.alert.detail || props.alert.detailText || (props.showSensor ? t('iot.alerts.defaultTitle') : t('iot.alerts.supplierTitle'));
 });
 
 const alertMessage = computed(() => {
-  if (!props.alert) return '';
-  if (props.showSensor && props.alert.messageKey) {
-    return t(props.alert.messageKey, props.alert.messageParams);
-  }
   return '';
 });
 
