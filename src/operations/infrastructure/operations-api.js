@@ -3,7 +3,7 @@ import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
 const dishesEndpointPath = import.meta.env.VITE_DISHES_ENDPOINT_PATH || '/dishes';
 const dishesCategoriesEndpointPath = import.meta.env.VITE_DISHES_CATEGORIES_ENDPOINT_PATH || '/dishes-categories';
-const kitchenOrdersEndpointPath = import.meta.env.VITE_COMANDAS_ENDPOINT_PATH || '/comandas';
+const kitchenOrdersEndpointPath = import.meta.env.VITE_KITCHEN_ORDERS_ENDPOINT_PATH || '/kitchen-orders';
 const tablesEndpointPath = import.meta.env.VITE_TABLES_ENDPOINT_PATH || '/tables';
 
 const localDishes = [];

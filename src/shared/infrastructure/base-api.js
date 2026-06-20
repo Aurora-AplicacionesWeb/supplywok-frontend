@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const platformApi = import.meta.env.VITE_SUPPLYWOK_API_URL ?? 'http://localhost:8091/api/v1';
+const platformApi = import.meta.env.VITE_SUPPLYWOK_API_URL;
 
 /**
  * Shared infrastructure base class that owns the configured Axios client.

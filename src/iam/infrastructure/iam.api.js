@@ -2,7 +2,7 @@ import { BaseApi } from '../../shared/infrastructure/base-api.js';
 import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 import { UserAssembler } from './assemblers/user.assembler.js';
 
-const iamApiUrl = import.meta.env.VITE_IAM_API_URL ?? 'https://6a03931d2afe8349b4b55a06.mockapi.io/supplywok';
+const iamApiUrl = import.meta.env.VITE_IAM_API_URL;
 const usersEndpointPath = import.meta.env.VITE_IAM_USERS_ENDPOINT_PATH ?? '/users';
 
 export class IamApi extends BaseApi {
