@@ -3,31 +3,57 @@ import { computed, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import useSupplierManagementStore from '../../application/supply-management.store.js';
-import SupplierDashboardStatCard from '../components/supplier-dashboard-stat-card.vue';
+import useOrdersStore from '../../../purchasing/application/orders.store.js';
+import useAnalyticsStore from '../../../analytics/application/analytics.store.js';
+import { iotStore } from '../../../iot/application/iot-store.js';
+import StatCard from '../../../shared/presentation/components/stat-card.vue';
 import SupplierActiveRoutesPanel from '../components/supplier-active-routes-panel.vue';
-import SupplierAggregateForecastCard from '../components/supplier-aggregate-forecast-card.vue';
+import SupplierAggregateForecastCard from '../../../analytics/presentation/components/aggregate-forecast-card.vue';
 
 const { t } = useI18n();
 const store = useSupplierManagementStore();
+const ordersStore = useOrdersStore();
+const analyticsStore = useAnalyticsStore();
+const restaurantIotStore = iotStore();
+
 const {
-    purchaseOrders,
-    purchaseOrdersLoaded,
     deliveryRoutes,
     deliveryRoutesLoaded,
-    demandForecast,
-    demandForecastLoaded,
-    alerts,
-    alertsLoaded,
     clients,
     clientsLoaded
 } = storeToRefs(store);
+
 const {
-    fetchPurchaseOrders,
+    purchaseOrders,
+    purchaseOrdersLoaded
+} = storeToRefs(ordersStore);
+
+const {
+    demandForecast,
+    demandForecastLoaded
+} = storeToRefs(analyticsStore);
+
+const {
+    supplierAlerts: alerts,
+    supplierAlertsLoaded: alertsLoaded
+} = storeToRefs(restaurantIotStore);
+
+const {
     fetchDeliveryRoutes,
-    fetchDemandForecast,
-    fetchAlerts,
     fetchClients
 } = store;
+
+const {
+    fetchPurchaseOrders
+} = ordersStore;
+
+const {
+    fetchDemandForecast
+} = analyticsStore;
+
+const {
+    fetchSupplierAlerts: fetchAlerts
+} = restaurantIotStore;
 
 const aggregateSeries = computed(() => demandForecast.value?.aggregate ?? []);
 
@@ -35,15 +61,7 @@ const ordersReceived = computed(() => purchaseOrders.value.length);
 const scheduledDeliveries = computed(() => {
     return deliveryRoutes.value.filter((route) => ['planned', 'in-progress'].includes(route.status)).length;
 });
-const demandOutlook = computed(() => {
-    if (!clients.value.length) {
-        return '+0%';
-    }
-
-    const total = clients.value.reduce((sum, client) => sum + Number(client.demandProjectionPercent ?? 0), 0);
-    const average = Math.round(total / clients.value.length);
-    return `+${average}%`;
-});
+const linkedClients = computed(() => clients.value.length);
 const urgentRequests = computed(() => {
     return alerts.value.filter((alert) => alert.status === 'pending').length;
 });
@@ -123,25 +141,25 @@ onMounted(() => {
         </header>
 
         <section class="dashboard-page__stats">
-            <SupplierDashboardStatCard
+            <StatCard
                 icon="pi-shopping-bag"
                 icon-class="stat-card__icon--orders"
                 :value="ordersReceived"
                 :label="t('supplier-management.dashboard.stats.orders-received')"
             />
-            <SupplierDashboardStatCard
+            <StatCard
                 icon="pi-truck"
                 icon-class="stat-card__icon--deliveries"
                 :value="scheduledDeliveries"
                 :label="t('supplier-management.dashboard.stats.scheduled-deliveries')"
             />
-            <SupplierDashboardStatCard
+            <StatCard
                 icon="pi-chart-line"
                 icon-class="stat-card__icon--forecast"
-                :value="demandOutlook"
-                :label="t('supplier-management.dashboard.stats.demand-outlook')"
+                :value="linkedClients"
+                :label="t('shared.sidebar.clients')"
             />
-            <SupplierDashboardStatCard
+            <StatCard
                 icon="pi-bell"
                 icon-class="stat-card__icon--alerts"
                 :value="urgentRequests"

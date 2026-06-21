@@ -3,7 +3,7 @@ import { computed, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import usePurchaseOrderStore from '../../application/purchase-order.store.js';
+import useOrdersStore from '../../application/orders.store.js';
 
 const props = defineProps({
     maxItems: {
@@ -13,7 +13,7 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
-const store = usePurchaseOrderStore();
+const store = useOrdersStore();
 const { purchaseOrders, purchaseOrdersCount, purchaseOrdersLoaded, loading, errors } = storeToRefs(store);
 const { ensurePurchaseOrdersLoaded } = store;
 

@@ -4,13 +4,13 @@ import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
-import { PurchaseOrder } from '../../domain/model/purchase-order.entity.js';
-import usePurchaseOrderStore from '../../application/purchase-order.store.js';
+import { Order } from '../../domain/model/order.entity.js';
+import useOrdersStore from '../../application/orders.store.js';
 
 const emit = defineEmits(['saved']);
 
 const { t } = useI18n();
-const store = usePurchaseOrderStore();
+const store = useOrdersStore();
 const { validationErrors, supplierDirectory } = storeToRefs(store);
 const { addPurchaseOrder, clearValidationScope, validateOrderItem, ensureSuppliersLoaded } = store;
 
@@ -89,7 +89,7 @@ async function handleSubmit() {
         clearValidationScope('draftLine');
     }
 
-    const purchaseOrder = new PurchaseOrder({
+    const purchaseOrder = new Order({
         code: buildPurchaseOrderCode(),
         supplierId: Number(form.supplierId),
         supplierName: form.supplierName,

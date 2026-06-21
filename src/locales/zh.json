@@ -14,6 +14,11 @@
     },
     "register": {
       "get-started": "开始使用",
+      "role-restaurant": "餐厅",
+      "role-supplier": "供应商",
+      "subscription-premium": "高级版",
+      "subscription-enterprise": "企业版",
+      "registration-failed": "注册失败",
       "phone": "电话号码",
       "phone-example": "999 666 333",
       "role": "角色",
@@ -33,9 +38,10 @@
     },
     "validation": {
       "email-invalid": "电子邮件地址无效。",
-      "password-min": "密码必须至少为 8 个字符。",
+      "password-min": "密码必须至少为8个字符。",
       "phone-invalid": "电话号码无效。",
-      "terms-required": "您必须接受条款才能继续。"
+      "terms-required": "您必须接受条款才能继续。",
+      "invalid-credentials": "邮箱或密码无效。"
     }
   },
   "shared": {
@@ -120,6 +126,67 @@
         "callout": "只有所有者可以更改受限模式設置。"
       }
     },
+    "dashboardPage": {
+      "hero": {
+        "kicker": "运营中心",
+        "title": "主仪表板",
+        "description": "在一张视图中汇总库存、传感器、厨房订单和未结订单，以便快速响应。",
+        "createOrder": "创建订单",
+        "reviewAlerts": "查看警报"
+      },
+      "metrics": {
+        "healthyItems": "健康项目",
+        "replenishmentHint": "{count} 件产品需要补货",
+        "activeAlerts": "活动警报",
+        "alertsHint": "温度、库存和占用率超出范围",
+        "occupiedTables": "已占用桌位",
+        "tablesHint": "{count} 张餐桌正在使用",
+        "pendingOrders": "待处理订单",
+        "ordersHint": "快速跟踪优先供应商"
+      },
+      "sensors": {
+        "eyebrow": "传感器",
+        "title": "运营面板",
+        "link": "查看事件",
+        "range": "范围 {min} - {max}",
+        "empty": "此环境中未加载任何传感器。"
+      },
+      "kitchen": {
+        "eyebrow": "厨房",
+        "title": "活动厨房订单",
+        "link": "打开厨房",
+        "takeAway": "外卖",
+        "table": "餐桌 {number}",
+        "empty": "没有要显示的活动厨房订单。",
+        "status": {
+          "pending": "待处理",
+          "inPreparation": "准备中",
+          "ready": "已完成",
+          "delivered": "已送达",
+          "cancelled": "已取消"
+        }
+      },
+      "inventory": {
+        "eyebrow": "库存",
+        "title": "低库存产品",
+        "link": "前往库存",
+        "stockInfo": "{stock} 可用，最低 {minimum}",
+        "empty": "暂时没有缺货产品。"
+      },
+      "purchasing": {
+        "eyebrow": "供应",
+        "title": "最近订单",
+        "link": "打开订单",
+        "empty": "没有加载最近的订单。"
+      },
+      "status": {
+        "disconnected": "已断开",
+        "outOfRange": "超出范围",
+        "stable": "稳定",
+        "noDate": "无日期",
+        "noStatus": "无状态"
+      }
+    },
     "subscriptionPage": {
       "kicker": "訂閱",
       "title": "可用方案",
@@ -157,6 +224,16 @@
       },
       "messages": {
         "switchSuccess": "視圖現在反映了 {plan} 方案。商業模塊準備就緒後，將其連接到付款流程。"
+      },
+      "stripe": {
+        "eyebrow": "Stripe 結帳",
+        "title": "選擇並支付訂閱",
+        "loading": "正在載入付款選項...",
+        "error": "無法載入 Stripe 價格表。",
+        "setupTitle": "缺少 Stripe 設定",
+        "setupDescription": "請在環境變數中加入公開金鑰和價格表 ID 以啟用結帳。",
+        "pending": "待處理",
+        "ready": "就緒"
       }
     }
   },
@@ -218,7 +295,7 @@
     "clients": {
       "breadcrumb": "供应商",
       "title": "我的客户",
-      "subtitle": "按餐厅查看采购频率、平均客单价和需求走势。",
+      "subtitle": "查看与该供应商关联的餐厅。",
       "search": "搜索",
       "filters": {
         "status": "状态",
@@ -425,7 +502,7 @@
     },
     "dashboard": {
       "title": "供应商仪表板",
-      "subtitle": "传入订单、物流负载、客户与需求走势。",
+      "subtitle": "查看订单、物流负载和已关联客户。",
       "loading": "正在加载仪表板数据...",
       "stats": {
         "orders-received": "已接收订单",
@@ -457,9 +534,10 @@
       "kicker": "餐厅",
       "title": "库存",
       "description": "管理库存水平、最小值和库存变动。",
-      "actions": {
-        "add": "新增物资"
-      }
+    "actions": {
+      "add": "新增物资"
+    },
+    "loading": "正在加载库存..."
     },
     "metrics": {
       "items": "物品",
@@ -475,6 +553,8 @@
       "allCategories": "全部类别",
       "filterUnit": "按单位筛选",
       "minimum": "最低",
+      "idLabel": "ID: {id}",
+      "minimumLabel": "最低: {value}",
       "empty": "没有符合搜索条件的库存项目。",
       "error": "无法加载库存项目。",
       "unassignedSupplier": "未分配供应商",
@@ -571,6 +651,9 @@
           "seafood": "海鮮"
         }
       },
+      "noContact": "无联系人",
+      "noEmail": "无邮件",
+      "noPhone": "无电话",
       "footer": {
         "showing": "顯示 {total} 個項目中的 {count} 個",
         "previous": "上一步",
@@ -627,6 +710,7 @@
     },
     "detail": {
       "kicker": "订单详情",
+      "loading": "正在加载详情...",
       "meta": {
         "status": "状态",
         "priority": "优先级",
@@ -669,6 +753,8 @@
       "occupancy-rate": "入住率"
     },
     "alerts": {
+      "defaultTitle": "警报",
+      "supplierTitle": "供应商警报",
       "notifications": "通知",
       "no-active-alerts": "没有活动警报。",
       "severity-critical": "严重",
@@ -712,19 +798,46 @@
           "resolved": "已解决",
           "acknowledged": "已确认"
         },
-        "footer": "显示第 {first} 至 {last} 条，共 {total} 条活动警报"
+        "footer": "显示第 {first} 至 {last} 条，共 {total} 条活动警报",
+        "empty": "未找到活动警报。",
+        "loading": "正在加载警报...",
+        "productDetail": "产品 / 详情",
+        "na": "N/A"
       },
       "dialog": {
+        "headerIncident": "IoT 事件详情",
         "header": "警报详情",
         "meta": {
           "source": "来源",
           "date": "日期",
-          "sensor-id": "传感器 ID"
+          "sensor-id": "传感器 ID",
+          "dateTime": "日期和时间"
         },
         "actions": {
           "close": "关闭",
           "acknowledge": "确认"
         }
+      }
+    },
+    "sensors": {
+      "create-button": "創建傳感器",
+      "types": {
+        "kitchen-temperature": "廚房溫度",
+        "storage-temperature": "冷庫溫度",
+        "table-pressure": "餐桌壓力 (佔用)",
+        "storage-pressure": "倉庫壓力 (庫存)"
+      },
+      "create-dialog": {
+        "title": "創建新 IoT 傳感器",
+        "name": "傳感器名稱",
+        "name-placeholder": "例如：烤架 1，肉類冷凍庫...",
+        "type": "傳感器類型",
+        "min-value": "最小值",
+        "max-value": "最大值",
+        "last-value": "初始讀數 (數值)",
+        "enabled": "啟用/活性傳感器",
+        "cancel": "取消",
+        "submit": "確認創建"
       }
     }
   },
@@ -745,9 +858,7 @@
     "name": "菜名",
     "description": "描述",
     "price": "價錢",
-    "outstanding": "精選",
-    "categoryId": "分類編號",
-    "categoryName": "分類名稱"
+    "outstanding": "精選"
   },
   "dishesCategories": {
     "title": "菜式分類",
@@ -801,7 +912,7 @@
       }
     }
   },
-  "restaurantManagement": {
+  "operations": {
     "dishMenuPage": {
       "kicker": "菜單",
       "title": "菜式菜單",
@@ -871,7 +982,8 @@
       "dateCreated": "創建時間",
       "edit": "編輯",
       "delete": "刪除",
-      "confirmDelete": "確定要刪除此訂單嗎？"
+      "confirmDelete": "確定要刪除此訂單嗎？",
+      "confirmHeader": "確認刪除"
     },
     "tablesAndOccupancyPage": {
       "kicker": "餐桌",
@@ -892,6 +1004,8 @@
       "allLocations": "所有位置",
       "addTable": "新增餐桌",
       "confirmAddTable": "新增",
+      "confirmDeleteTable": "確定要刪除此餐桌嗎？",
+      "confirmUpdateTable": "更新餐桌",
       "cancel": "取消",
       "locations": {
         "main_hall": "主廳",
@@ -901,6 +1015,8 @@
       "viewDetails": "查看詳情",
       "tableDetails": "餐桌詳情",
       "deleteTable": "刪除餐桌",
+      "edit": "編輯",
+      "editTable": "編輯餐桌",
       "close": "關閉",
       "people": "人"
     },
@@ -922,8 +1038,8 @@
         "title": "廚房票據",
         "seeAll": "查看所有廚房票據"
       },
-      "activeCommands": {
-        "label": "廚房指令"
+      "activeOrders": {
+        "label": "活躍訂單"
       }
     },
     "reportsPage": {

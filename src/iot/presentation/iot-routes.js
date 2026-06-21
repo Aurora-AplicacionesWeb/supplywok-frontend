@@ -1,4 +1,4 @@
-const iotAlertsView = () => import('./views/alerts-view.vue');
+const iotAlertsView = () => import('./views/alerts-restaurant.vue');
 
 const iotRoutes = [
   { path: '/iot/alerts', name: 'restaurant-alerts', component: iotAlertsView, meta: { i18nKey: 'shared.titles.alerts', role: 'restaurant' } },

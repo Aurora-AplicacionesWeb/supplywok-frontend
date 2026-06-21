@@ -38,7 +38,6 @@ import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import AlertItem from './alert-item.vue';
 import { iotStore } from '../../../application/iot-store.js';
-import useSupplierManagementStore from '../../../../supplier/application/supply-management.store.js';
 import { useIamStore } from '../../../../iam/application/iam-store.js';
 import useSessionStore from '../../../../shared/application/session.store.js';
 import { getRoleFromPath, normalizeRole } from '../../../../shared/application/role-routing.js';
@@ -48,7 +47,6 @@ const { t } = useI18n();
 const iamStore = useIamStore();
 const sessionStore = useSessionStore();
 const restaurantIotStore = iotStore();
-const supplierStore = useSupplierManagementStore();
 
 /** Controls the visibility of the alerts popup. */
 const isOpen = ref(false);
@@ -72,9 +70,9 @@ const activeRole = computed(() => {
  */
 const displayAlerts = computed(() => {
   if (activeRole.value === 'supplier') {
-    return supplierStore.alerts
+    return restaurantIotStore.supplierAlerts
       .filter(a => a.status === 'pending')
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       .slice(0, 5)
       .map(a => {
         let mappedSeverity = 'normal';
@@ -91,7 +89,7 @@ const displayAlerts = computed(() => {
           title: t('supplier-management.alerts.notification-title'),
           message: translatedMessage,
           severity: mappedSeverity,
-          timestamp: new Date(a.date)
+          timestamp: a.timestamp
         };
       });
   }
@@ -100,8 +98,8 @@ const displayAlerts = computed(() => {
 });
 
 onMounted(() => {
-  if (activeRole.value === 'supplier' && !supplierStore.alertsLoaded) {
-    supplierStore.fetchAlerts();
+  if (activeRole.value === 'supplier' && !restaurantIotStore.supplierAlertsLoaded) {
+    restaurantIotStore.fetchSupplierAlerts();
   }
 });
 </script>

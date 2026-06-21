@@ -1,10 +1,9 @@
 const supplierDashboard = () => import('./views/dashboard-supplier.vue');
-const supplierOrders = () => import('./views/orders-supplier.vue');
+const supplierOrders = () => import('../../purchasing/presentation/views/supplier-orders.vue');
 const supplierClients = () => import('./views/clients-supplier.vue');
 const supplierDelivery = () => import('./views/delivery-supplier.vue');
-const supplierForecast = () => import('./views/demand-forecast.vue');
 const supplierCatalog = () => import('./views/catalog-supplier.vue');
-const supplierAlerts = () => import('./views/alerts-supplier.vue');
+const supplierAlerts = () => import('../../iot/presentation/views/alerts-supplier.vue');
 const supplierSettings = () => import('./views/settings-supplier.vue');
 const supplierSubscription = () => import('./views/subscription-supplier.vue');
 
@@ -19,7 +18,6 @@ const supplyManagementRoutes = [
     { path: '/supplier/orders/:orderId/view', name: 'supplier-orders-view', component: supplierOrders, meta: { title: 'Orders', role: 'supplier' } },
     { path: '/supplier/clients', name: 'supplier-clients', component: supplierClients, meta: { title: 'Clients', role: 'supplier' } },
     { path: '/supplier/delivery', name: 'supplier-delivery', component: supplierDelivery, meta: { title: 'Delivery', role: 'supplier' } },
-    { path: '/supplier/forecast', name: 'supplier-forecast', component: supplierForecast, meta: { title: 'Forecast', role: 'supplier' } },
     { path: '/supplier/catalog', name: 'supplier-catalog', component: supplierCatalog, meta: { title: 'Catalog', role: 'supplier' } },
     { path: '/supplier/catalog/new', name: 'supplier-catalog-new', component: supplierCatalog, meta: { title: 'Catalog', role: 'supplier' } },
     { path: '/supplier/catalog/:itemId/edit', name: 'supplier-catalog-edit', component: supplierCatalog, meta: { title: 'Catalog', role: 'supplier' } },

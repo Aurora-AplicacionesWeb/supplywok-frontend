@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const platformApi = import.meta.env.VITE_SUPPLY_WOK_API_URL ?? 'http://localhost:3000/api/v1';
+const platformApi = import.meta.env.VITE_SUPPLYWOK_API_URL;
 
 /**
  * Shared infrastructure base class that owns the configured Axios client.
@@ -19,7 +19,7 @@ export class BaseApi {
     constructor(customBaseUrl) {
         this.#http = axios.create({
             baseURL: customBaseUrl ?? platformApi,
-            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+            headers: { 'Content-Type': 'application/json' }
         });
     }
 

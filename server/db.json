@@ -6,7 +6,6 @@
       "capacity": 4,
       "location": "Main Hall",
       "state": "available",
-      "kitchenOrderId": 1,
       "active": true
     },
     {
@@ -15,7 +14,6 @@
       "capacity": 6,
       "location": "Main Hall",
       "state": "busy",
-      "kitchenOrderId": 1,
       "active": true
     },
     {
@@ -24,7 +22,6 @@
       "capacity": 2,
       "location": "Bar",
       "state": "available",
-      "kitchenOrderId": 2,
       "active": true
     },
     {
@@ -33,7 +30,6 @@
       "capacity": 8,
       "location": "Terrace",
       "state": "busy",
-      "kitchenOrderId": null,
       "active": true
     },
     {
@@ -42,34 +38,6 @@
       "capacity": 4,
       "location": "Main Hall",
       "state": "available",
-      "kitchenOrderId": null,
-      "active": true
-    },
-    {
-      "id": 6,
-      "number": "T-06",
-      "capacity": 4,
-      "location": "Main Hall",
-      "state": "available",
-      "kitchenOrderId": 3,
-      "active": true
-    },
-    {
-      "id": 7,
-      "number": "T-07",
-      "capacity": 6,
-      "location": "Terrace",
-      "state": "available",
-      "kitchenOrderId": 3,
-      "active": true
-    },
-    {
-      "id": 8,
-      "number": "T-08",
-      "capacity": 2,
-      "location": "Bar",
-      "state": "available",
-      "kitchenOrderId": 2,
       "active": true
     }
   ],
@@ -118,300 +86,189 @@
       "name": "Arroz Chaufa",
       "description": "Arroz salteado con huevo, verduras y pollo",
       "price": 22.5,
-      "categoryId": 1,
-      "categoryName": "Rice",
       "active": true,
-      "outstanding": true
+      "outstanding": true,
+      "dishCategoryId": 1
     },
     {
       "id": 2,
       "code": "CHF002",
-      "name": "Arroz Chaufa Especial",
-      "description": "Arroz salteado con camarones, langostinos y carne",
-      "price": 28,
-      "categoryId": 1,
-      "categoryName": "Rice",
+      "name": "Tallarín Saltado",
+      "description": "Fideos salteados con verduras y carne",
+      "price": 21,
       "active": true,
-      "outstanding": true
+      "outstanding": true,
+      "dishCategoryId": 2
     },
     {
       "id": 3,
       "code": "CHF003",
-      "name": "Tallarín Saltado",
-      "description": "Fideos salteados con verduras y carne",
-      "price": 21,
-      "categoryId": 2,
-      "categoryName": "Noodles",
-      "active": true,
-      "outstanding": true
-    },
-    {
-      "id": 4,
-      "code": "CHF004",
       "name": "Sopa Wantán",
       "description": "Sopa tradicional con wantanes de pollo",
       "price": 18,
-      "categoryId": 3,
-      "categoryName": "Soups",
       "active": true,
-      "outstanding": false
+      "outstanding": false,
+      "dishCategoryId": 3
     },
     {
-      "id": 5,
-      "code": "CHF005",
-      "name": "Lomo Saltado",
-      "description": "Clásico lomo saltado con papas fritas y arroz",
-      "price": 26.5,
-      "categoryId": 4,
-      "categoryName": "Special Dishes",
-      "active": true,
-      "outstanding": true
-    },
-    {
-      "id": 6,
+      "id": 4,
       "code": "BEB001",
       "name": "Inca Kola",
       "description": "Gaseosa dorada peruana",
       "price": 8,
-      "categoryId": 6,
-      "categoryName": "Drinks",
       "active": true,
-      "outstanding": false
+      "outstanding": false,
+      "dishCategoryId": 6
     },
     {
-      "id": 7,
-      "code": "BEB002",
-      "name": "Coca Cola",
-      "description": "Gaseosa tradicional",
-      "price": 8,
-      "categoryId": 6,
-      "categoryName": "Drinks",
-      "active": true,
-      "outstanding": false
-    },
-    {
-      "id": 8,
-      "code": "BEB003",
-      "name": "Limonada",
-      "description": "Bebida hecha a base de limón",
-      "price": 8.5,
-      "categoryId": 6,
-      "categoryName": "Drinks",
-      "active": true,
-      "outstanding": false
-    },
-    {
-      "id": 9,
-      "code": "CHF006",
-      "name": "Pollo Tipakay",
-      "description": "Pollo frito al estilo chifa bañado en una salsa agridulce de tamarindo, servido con piña adicional",
-      "price": 24,
-      "categoryId": 4,
-      "categoryName": "Special Dishes",
-      "active": true,
-      "outstanding": true
-    },
-    {
-      "id": 10,
-      "code": "CHF007",
+      "id": 5,
+      "code": "CHF005",
       "name": "Pollo Chijaukay",
       "description": "Pollo deshuesado rebozado y frito, bañado en una salsa de ostión, sillao y aceite de ajonjolí, servido con nabo encurtido",
       "price": 24,
-      "categoryId": 4,
-      "categoryName": "Special Dishes",
       "active": true,
-      "outstanding": true
+      "outstanding": true,
+      "dishCategoryId": 4
     },
     {
-      "id": 11,
-      "code": "CHF008",
-      "name": "Kam Lu Wantán",
-      "description": "Wantanes fritos acompañados de una salsa agridulce de tamarindo, trozos de pollo, chancho asado, piña y verduras",
-      "price": 22,
-      "categoryId": 4,
-      "categoryName": "Special Dishes",
-      "active": true,
-      "outstanding": true
-    },
-    {
-      "id": 12,
+      "id": 6,
       "code": "PST001",
       "name": "Min Pao Dulce",
       "description": "Panecillos al vapor, suaves y rellenos de pasta de frejol dulce o crema",
       "price": 12,
-      "categoryId": 5,
-      "categoryName": "Desserts",
       "active": true,
-      "outstanding": true
-    },
-    {
-      "id": 13,
-      "code": "PST002",
-      "name": "Chin Toi",
-      "description": "Bolitas fritas de harina de arroz cubiertas de ajonjolí, rellenas de frejol colado",
-      "price": 11,
-      "categoryId": 5,
-      "categoryName": "Desserts",
-      "active": true,
-      "outstanding": true
-    },
-    {
-      "id": 14,
-      "code": "PST003",
-      "name": "Flan chino",
-      "description": "Una versión ligera del flan tradicional, aromatizado con ingredientes locales",
-      "price": 10,
-      "categoryId": 5,
-      "categoryName": "Desserts",
-      "active": true,
-      "outstanding": true
+      "outstanding": true,
+      "dishCategoryId": 5
     }
   ],
   "kitchen-orders": [
     {
       "id": 1,
       "number": "C001",
+      "table": {
+        "id": 2,
+        "number": "T-02",
+        "capacity": 6,
+        "location": "Main Hall",
+        "state": "busy",
+        "active": true
+      },
       "tableId": 2,
-      "tableNumber": 2,
       "typeService": "table_service",
       "state": "in_preparation",
       "observations": "",
       "dateCreated": "2026-05-09T18:09:00.000Z",
       "hourReady": "2026-05-09T18:35:00Z",
       "hourDelivered": null,
-      "preparationTime": null
+      "preparationTime": null,
+      "totalPrice": 66,
+      "dishes": [
+        {
+          "id": 1,
+          "code": "CHF001",
+          "name": "Arroz Chaufa",
+          "description": "Arroz salteado con huevo, verduras y pollo",
+          "quantity": 2,
+          "price": 22.5,
+          "active": true,
+          "outstanding": true,
+          "dishCategoryId": 1
+        },
+        {
+          "id": 2,
+          "code": "CHF002",
+          "name": "Tallarín Saltado",
+          "description": "Fideos salteados con verduras y carne",
+          "quantity": 1,
+          "price": 21,
+          "active": true,
+          "outstanding": true,
+          "dishCategoryId": 2
+        }
+      ]
     },
     {
       "id": 2,
       "number": "C002",
+      "table": null,
       "tableId": null,
-      "tableNumber": null,
       "typeService": "to_take_home",
       "state": "ready",
       "observations": "Cliente: Sr. Rodríguez",
       "dateCreated": "2026-05-09T18:15:00Z",
       "hourReady": "2026-05-09T18:35:00Z",
       "hourDelivered": null,
-      "preparationTime": null
+      "preparationTime": null,
+      "totalPrice": 42,
+      "dishes": [
+        {
+          "id": 3,
+          "code": "CHF003",
+          "name": "Sopa Wantán",
+          "description": "Sopa tradicional con wantanes de pollo",
+          "quantity": 1,
+          "price": 18,
+          "active": true,
+          "outstanding": false,
+          "dishCategoryId": 3
+        },
+        {
+          "id": 5,
+          "code": "CHF005",
+          "name": "Pollo Chijaukay",
+          "description": "Pollo deshuesado rebozado y frito, bañado en una salsa de ostión, sillao y aceite de ajonjolí, servido con nabo encurtido",
+          "quantity": 1,
+          "price": 24,
+          "active": true,
+          "outstanding": true,
+          "dishCategoryId": 4
+        }
+      ]
     },
     {
       "id": 3,
       "number": "C003",
+      "table": {
+        "id": 5,
+        "number": "T-05",
+        "capacity": 4,
+        "location": "Main Hall",
+        "state": "available",
+        "active": true
+      },
       "tableId": 5,
-      "tableNumber": "5",
       "typeService": "table_service",
       "state": "ready",
       "observations": "",
       "dateCreated": "2026-05-09T18:00:00Z",
       "hourReady": null,
       "hourDelivered": null,
-      "preparationTime": null
-    }
-  ],
-  "kitchen-order-items": [
-    {
-      "id": 1,
-      "kitchenOrderId": 1,
-      "dishId": 1,
-      "dishName": "Arroz Chaufa",
-      "quantity": 2,
-      "unitPrice": 22.5,
-      "totalPrice": 45,
-      "state": "in_preparation",
-      "observations": "uno sin ají"
-    },
-    {
-      "id": 2,
-      "kitchenOrderId": 1,
-      "dishId": 6,
-      "dishName": "Inca Kola",
-      "quantity": 3,
-      "unitPrice": 8,
-      "totalPrice": 24,
-      "state": "delivered",
-      "observations": ""
-    },
-    {
-      "id": 3,
-      "kitchenOrderId": 2,
-      "dishId": 5,
-      "dishName": "Lomo Saltado",
-      "quantity": 1,
-      "unitPrice": 26.5,
-      "totalPrice": 26.5,
-      "state": "pending",
-      "observations": ""
-    },
-    {
-      "id": 4,
-      "kitchenOrderId": 2,
-      "dishId": 7,
-      "dishName": "Coca Cola",
-      "quantity": 2,
-      "unitPrice": 8,
-      "totalPrice": 16,
-      "state": "delivered",
-      "observations": ""
-    },
-    {
-      "id": 5,
-      "kitchenOrderId": 3,
-      "dishId": 3,
-      "dishName": "Tallarín Saltado",
-      "quantity": 3,
-      "unitPrice": 21,
-      "totalPrice": 63,
-      "state": "ready",
-      "observations": ""
-    },
-    {
-      "id": 6,
-      "kitchenOrderId": 3,
-      "dishId": 14,
-      "dishName": "Flan chino",
-      "quantity": 2,
-      "unitPrice": 10,
-      "totalPrice": 20,
-      "state": "ready",
-      "observations": ""
-    }
-  ],
-  "kitchen-locks": [
-    {
-      "id": 1,
-      "userId": 1,
-      "stateLocked": false,
-      "hashPassword": "desarrollo123",
-      "lastLocked": "2026-05-08T20:00:00Z",
-      "lastUnlocked": "2026-05-08T22:00:00Z",
-      "failAttempts": 0,
-      "lockedUntil": true
-    }
-  ],
-  "history-state-kitchen-orders": [
-    {
-      "id": 1,
-      "kitchenOrderId": 1,
-      "previousState": null,
-      "newState": "pending",
-      "dateChange": "2026-05-09T18:30:00Z",
-      "observation": "Comanda creada"
-    },
-    {
-      "id": 2,
-      "kitchenOrderId": 2,
-      "previousState": "pending",
-      "newState": "in_preparation",
-      "dateChange": "2026-05-09T18:35:00Z",
-      "observation": null
-    },
-    {
-      "id": 3,
-      "kitchenOrderId": 3,
-      "previousState": "in_preparation",
-      "newState": "ready",
-      "dateChange": "2026-05-09T18:45:00Z",
-      "observation": "Listo para entrega"
+      "preparationTime": null,
+      "totalPrice": 28,
+      "dishes": [
+        {
+          "id": 4,
+          "code": "BEB001",
+          "name": "Inca Kola",
+          "description": "Gaseosa dorada peruana",
+          "quantity": 2,
+          "price": 8,
+          "active": true,
+          "outstanding": false,
+          "dishCategoryId": 6
+        },
+        {
+          "id": 6,
+          "code": "PST001",
+          "name": "Min Pao Dulce",
+          "description": "Panecillos al vapor, suaves y rellenos de pasta de frejol dulce o crema",
+          "quantity": 1,
+          "price": 12,
+          "active": true,
+          "outstanding": true,
+          "dishCategoryId": 5
+        }
+      ]
     }
   ],
   "catalog-items": [
@@ -450,96 +307,102 @@
   ],
   "inventory": [
     {
-      "id": 1001,
-      "restaurantId": 1,
-      "name": "Tomatoes",
-      "category": "VEGETABLES",
-      "supplierId": 201,
-      "supplierName": "Golden Wok Produce",
-      "unitOfMeasure": "KILOGRAMS",
+      "id": 1,
+      "restaurantId": 101,
+      "name": "Tomate",
+      "currentStock": 45,
+      "minimumStockLevel": 10,
+      "unitOfMeasure": "KILOGRAMS"
+    },
+    {
+      "id": 2,
+      "restaurantId": 101,
+      "name": "Aceite de oliva",
+      "currentStock": 18,
+      "minimumStockLevel": 5,
+      "unitOfMeasure": "LITERS"
+    },
+    {
+      "id": 3,
+      "restaurantId": 102,
+      "name": "Papas",
+      "currentStock": 80,
+      "minimumStockLevel": 20,
+      "unitOfMeasure": "KILOGRAMS"
+    },
+    {
+      "id": 4,
+      "restaurantId": 102,
+      "name": "Servilletas",
+      "currentStock": 250,
+      "minimumStockLevel": 50,
+      "unitOfMeasure": "UNITS"
+    },
+    {
+      "id": 5,
+      "restaurantId": 103,
+      "name": "Sal",
+      "currentStock": 12,
+      "minimumStockLevel": 4,
+      "unitOfMeasure": "GRAMS"
+    },
+    {
+      "id": 6,
+      "restaurantId": 102,
+      "name": "Agua",
       "currentStock": 50,
-      "minimumStockLevel": 20
+      "minimumStockLevel": 160,
+      "unitOfMeasure": "LITERS"
     },
     {
-      "id": 1002,
-      "restaurantId": 1,
-      "name": "Olive Oil",
-      "category": "SAUCES",
-      "supplierId": 203,
-      "supplierName": "Orient Pantry Co.",
-      "unitOfMeasure": "LITERS",
-      "currentStock": 15,
-      "minimumStockLevel": 10
-    },
-    {
-      "id": 1003,
-      "restaurantId": 1,
-      "name": "Salt",
-      "category": "PANTRY",
-      "supplierId": 203,
-      "supplierName": "Orient Pantry Co.",
-      "unitOfMeasure": "GRAMS",
-      "currentStock": 500,
-      "minimumStockLevel": 300
-    },
-    {
-      "id": 1004,
-      "restaurantId": 1,
-      "name": "Jasmine rice",
-      "category": "GRAINS",
-      "supplierId": 201,
-      "supplierName": "Golden Wok Produce",
-      "unitOfMeasure": "KILOGRAMS",
-      "currentStock": 2,
-      "minimumStockLevel": 5
-    },
-    {
-      "id": 1005,
-      "restaurantId": 1,
-      "name": "Sesame oil",
-      "category": "SAUCES",
-      "supplierId": 203,
-      "supplierName": "Orient Pantry Co.",
-      "unitOfMeasure": "LITERS",
-      "currentStock": 1,
-      "minimumStockLevel": 2
-    },
-    {
-      "id": 1006,
-      "restaurantId": 1,
-      "name": "Oyster sauce",
-      "category": "SAUCES",
-      "supplierId": 203,
-      "supplierName": "Orient Pantry Co.",
-      "unitOfMeasure": "LITERS",
-      "currentStock": 3,
-      "minimumStockLevel": 3
+      "id": 7,
+      "restaurantId": 103,
+      "name": "Carne",
+      "currentStock": 50,
+      "minimumStockLevel": 60,
+      "unitOfMeasure": "GRAMS"
     }
   ],
   "stock-movements": [
     {
       "id": 1,
-      "inventoryItemId": 1001,
+      "inventoryId": 1,
       "type": "ENTRY",
-      "amount": 25,
-      "date": "2026-05-10T00:00:00.000Z",
-      "reason": "Weekly supply"
+      "amount": 50,
+      "date": "2026-05-09T08:00:00.000Z",
+      "reason": "Compra a proveedor"
     },
     {
       "id": 2,
-      "inventoryItemId": 1001,
+      "inventoryId": 1,
       "type": "EXIT",
-      "amount": 10,
-      "date": "2026-05-11T00:00:00.000Z",
-      "reason": "Daily usage"
+      "amount": 5,
+      "date": "2026-05-09T10:30:00.000Z",
+      "reason": "Uso en cocina"
     },
     {
       "id": 3,
-      "inventoryItemId": 1002,
+      "inventoryId": 2,
       "type": "ENTRY",
-      "amount": 5,
-      "date": "2026-05-12T00:00:00.000Z",
-      "reason": "Restocking"
+      "amount": 20,
+      "date": "2026-05-09T09:15:00.000Z",
+      "reason": "Reposición semanal"
+    },
+    {
+      "id": 4,
+      "inventoryId": 3,
+      "type": "ADJUSTMENT",
+      "amount": 2,
+      "date": "2026-05-09T11:45:00.000Z",
+      "reason": "Ajuste de inventario"
+    },
+    {
+      "id": 5,
+      "inventoryId": 4,
+      "type": "EXIT",
+      "amount": 25,
+      "date": "2026-05-09T12:20:00.000Z",
+      "reason": "Consumo diario"
     }
   ],
   "purchase-orders": [
@@ -746,25 +609,114 @@
   ],
   "suppliers": [
     {
-      "id": 201,
+      "id": "201",
       "name": "Golden Wok Produce",
       "contactName": "Mariela Soto",
+      "email": "msoto@goldenwok.pe",
       "phone": "+51 999 111 222",
-      "category": "Grains and pantry"
+      "category": "Grains and pantry",
+      "linkedDate": "2026-04-21",
+      "sla": "98% SLA",
+      "responseTime": "1.6 H"
     },
     {
-      "id": 202,
+      "id": "202",
       "name": "Andes Cold Chain",
       "contactName": "Luis Cardenas",
+      "email": "lcardenas@andescold.pe",
       "phone": "+51 999 333 444",
-      "category": "Cold products"
+      "category": "Cold products",
+      "linkedDate": "2026-04-20",
+      "sla": "95% SLA",
+      "responseTime": "2.1 H"
     },
     {
-      "id": 203,
+      "id": "203",
       "name": "Orient Pantry Co.",
       "contactName": "Zhen Liu",
+      "email": "zliu@orientpantry.pe",
       "phone": "+51 999 555 666",
-      "category": "Asian sauces and oils"
+      "category": "Asian sauces and oils",
+      "linkedDate": "2026-04-19",
+      "sla": "91% SLA",
+      "responseTime": "2.9 H"
+    },
+    {
+      "id": "204",
+      "name": "Pacific Dumpling Hub",
+      "contactName": "Julia Wong",
+      "email": "jwong@pacificdumpling.pe",
+      "phone": "+51 964 404 700",
+      "category": "Asian sauces and oils",
+      "linkedDate": "2026-04-18",
+      "sla": "94% SLA",
+      "responseTime": "3.4 H"
+    },
+    {
+      "id": "205",
+      "name": "Urban Service Goods",
+      "contactName": "Sofia Tello",
+      "email": "stello@urbanservice.pe",
+      "phone": "+51 955 443 220",
+      "category": "Seafood",
+      "linkedDate": "2026-04-17",
+      "sla": "89% SLA",
+      "responseTime": "2.4 H"
+    },
+    {
+      "id": "206",
+      "name": "Dragon Fresh Proteins",
+      "contactName": "Renato Ponce",
+      "email": "rponce@dragonfresh.pe",
+      "phone": "+51 987 200 410",
+      "category": "Cold products",
+      "linkedDate": "2026-04-16",
+      "sla": "96% SLA",
+      "responseTime": "1.9 H"
+    },
+    {
+      "id": "207",
+      "name": "Lotus Rice Traders",
+      "contactName": "Patricia Huaman",
+      "email": "phuaman@lotusrice.pe",
+      "phone": "+51 976 120 540",
+      "category": "Grains and pantry",
+      "linkedDate": "2026-04-15",
+      "sla": "97% SLA",
+      "responseTime": "1.4 H"
+    },
+    {
+      "id": "208",
+      "name": "Red Harbor Seafood",
+      "contactName": "Diego Salvatierra",
+      "email": "dsalvatierra@redharbor.pe",
+      "phone": "+51 944 501 610",
+      "category": "Seafood",
+      "linkedDate": "2026-04-14",
+      "sla": "90% SLA",
+      "responseTime": "3.1 H"
+    },
+    {
+      "id": "209",
+      "name": "Silk Route Ingredients",
+      "contactName": "Camila Zheng",
+      "email": "czheng@silkroute.pe",
+      "phone": "+51 988 654 770",
+      "category": "Asian sauces and oils",
+      "linkedDate": "2026-04-13",
+      "sla": "93% SLA",
+      "responseTime": "2.7 H"
+    },
+    {
+      "id": "210",
+      "name": "Terrace Garden Greens",
+      "contactName": "Alvaro Medina",
+      "email": "amedina@terracegreens.pe",
+      "phone": "+51 966 845 390",
+      "category": "Grains and pantry",
+      "linkedDate": "2026-04-12",
+      "sla": "92% SLA",
+      "responseTime": "2.2 H"
     }
   ],
   "clients": [
@@ -986,108 +938,6 @@
       ]
     }
   ],
-  "products": [
-    {
-      "id": 1,
-      "name": "Arroz Largo Grano",
-      "category": "GRAINS",
-      "unit": "kg",
-      "price": 3.5,
-      "stock": 500,
-      "available": true,
-      "description": "Arroz de grano largo importado"
-    },
-    {
-      "id": 2,
-      "name": "Fideos de Arroz",
-      "category": "GRAINS",
-      "unit": "kg",
-      "price": 4.2,
-      "stock": 200,
-      "available": true,
-      "description": "Fideos de arroz para tallarín saltado"
-    },
-    {
-      "id": 3,
-      "name": "Pollo Entero",
-      "category": "PROTEIN",
-      "unit": "kg",
-      "price": 8.5,
-      "stock": 150,
-      "available": true,
-      "description": "Pollo fresco de granja"
-    },
-    {
-      "id": 4,
-      "name": "Carne de Res",
-      "category": "PROTEIN",
-      "unit": "kg",
-      "price": 22,
-      "stock": 80,
-      "available": true,
-      "description": "Carne de res para lomo y wok"
-    },
-    {
-      "id": 5,
-      "name": "Cerdo Troceado",
-      "category": "PROTEIN",
-      "unit": "kg",
-      "price": 15,
-      "stock": 60,
-      "available": true,
-      "description": "Cerdo para chicharrón y preparaciones chifa"
-    },
-    {
-      "id": 6,
-      "name": "Salsa Soya Oscura",
-      "category": "SAUCES",
-      "unit": "lt",
-      "price": 6.5,
-      "stock": 100,
-      "available": true,
-      "description": "Salsa de soya oscura importada"
-    },
-    {
-      "id": 7,
-      "name": "Salsa Oyster",
-      "category": "SAUCES",
-      "unit": "lt",
-      "price": 9,
-      "stock": 80,
-      "available": true,
-      "description": "Salsa de ostión para wok"
-    },
-    {
-      "id": 8,
-      "name": "Brócoli Fresco",
-      "category": "VEGETABLES",
-      "unit": "kg",
-      "price": 3,
-      "stock": 120,
-      "available": true,
-      "description": "Brócoli fresco de primera calidad"
-    },
-    {
-      "id": 9,
-      "name": "Zanahoria",
-      "category": "VEGETABLES",
-      "unit": "kg",
-      "price": 1.8,
-      "stock": 200,
-      "available": true,
-      "description": "Zanahoria fresca"
-    },
-    {
-      "id": 10,
-      "name": "Col China",
-      "category": "VEGETABLES",
-      "unit": "kg",
-      "price": 2.5,
-      "stock": 0,
-      "available": false,
-      "description": "Col china o repollo chino"
-    }
-  ],
   "alerts": [
     {
       "id": 1,
@@ -1197,6 +1047,486 @@
           "name": "Carla Chen",
           "state": "active"
         }
+      ]
+    }
+  ],
+  "sensors": [
+    {
+      "id": 1,
+      "name": "food warehouse",
+      "minValue": -10,
+      "maxValue": 40,
+      "enabled": true,
+      "lastValue": 3.5,
+      "type": "storage-temperature"
+    },
+    {
+      "id": 2,
+      "name": "kitchen 1",
+      "minValue": 50,
+      "maxValue": 250,
+      "enabled": true,
+      "lastValue": 300,
+      "type": "kitchen-temperature"
+    },
+    {
+      "id": 3,
+      "name": "Kitchen 2",
+      "minValue": 10,
+      "maxValue": 80,
+      "enabled": true,
+      "lastValue": 72.5,
+      "type": "kitchen-temperature"
+    },
+    {
+      "id": 4,
+      "name": "rice cooker",
+      "minValue": 60,
+      "maxValue": 90,
+      "enabled": true,
+      "lastValue": 65.2,
+      "type": "kitchen-temperature"
+    },
+    {
+      "id": 5,
+      "name": "freezer meatspace",
+      "minValue": -25,
+      "maxValue": -18,
+      "enabled": true,
+      "lastValue": -10,
+      "type": "storage-temperature"
+    },
+    {
+      "id": 6,
+      "name": "air conditioner",
+      "minValue": 1,
+      "maxValue": 5,
+      "enabled": true,
+      "lastValue": 4.8,
+      "type": "kitchen-temperature"
+    },
+    {
+      "id": 7,
+      "name": "soda fountain",
+      "minValue": 15,
+      "maxValue": 25,
+      "enabled": true,
+      "lastValue": 30,
+      "type": "kitchen-temperature"
+    },
+    {
+      "id": 8,
+      "name": "vines",
+      "minValue": 12,
+      "maxValue": 18,
+      "enabled": true,
+      "lastValue": 14,
+      "type": "storage-temperature"
+    },
+    {
+      "id": 9,
+      "name": "zone 1",
+      "minValue": -35,
+      "maxValue": 10,
+      "enabled": true,
+      "lastValue": -12.3,
+      "type": "storage-temperature"
+    },
+    {
+      "id": 10,
+      "name": "zone 2",
+      "minValue": 18,
+      "maxValue": 30,
+      "enabled": false,
+      "lastValue": 26.7,
+      "type": "storage-temperature"
+    },
+    {
+      "id": 11,
+      "name": "grill",
+      "minValue": 150,
+      "maxValue": 190,
+      "enabled": true,
+      "lastValue": 178.4,
+      "type": "kitchen-temperature"
+    },
+    {
+      "id": 12,
+      "name": "table 1",
+      "minValue": 0,
+      "maxValue": 100,
+      "enabled": true,
+      "lastValue": 90,
+      "type": "table-pressure"
+    },
+    {
+      "id": 13,
+      "name": "rice spot",
+      "minValue": 10,
+      "maxValue": 200,
+      "enabled": true,
+      "lastValue": 5,
+      "type": "storage-pressure"
+    },
+    {
+      "id": 14,
+      "name": "table 2",
+      "minValue": 0,
+      "maxValue": 100,
+      "enabled": true,
+      "lastValue": 15,
+      "type": "table-pressure"
+    },
+    {
+      "id": 15,
+      "name": "flour pallet",
+      "minValue": 50,
+      "maxValue": 1000,
+      "enabled": true,
+      "lastValue": 450,
+      "type": "storage-pressure"
+    },
+    {
+      "id": 16,
+      "name": "table 3",
+      "minValue": 0,
+      "maxValue": 100,
+      "enabled": true,
+      "lastValue": 0,
+      "type": "table-pressure"
+    },
+    {
+      "id": 17,
+      "name": "sugar sacks",
+      "minValue": 20,
+      "maxValue": 500,
+      "enabled": true,
+      "lastValue": 120,
+      "type": "storage-pressure"
+    },
+    {
+      "id": 18,
+      "name": "table 4",
+      "minValue": 0,
+      "maxValue": 100,
+      "enabled": true,
+      "lastValue": 85,
+      "type": "table-pressure"
+    },
+    {
+      "id": 19,
+      "name": "oil crates",
+      "minValue": 5,
+      "maxValue": 300,
+      "enabled": true,
+      "lastValue": 210,
+      "type": "storage-pressure"
+    },
+    {
+      "id": 20,
+      "name": "table 5",
+      "minValue": 0,
+      "maxValue": 100,
+      "enabled": true,
+      "lastValue": 12,
+      "type": "table-pressure"
+    },
+    {
+      "id": 21,
+      "name": "potato bin",
+      "minValue": 0,
+      "maxValue": 600,
+      "enabled": true,
+      "lastValue": 55,
+      "type": "storage-pressure"
+    },
+    {
+      "id": 22,
+      "name": "table 6",
+      "minValue": 0,
+      "maxValue": 100,
+      "enabled": false,
+      "lastValue": 0,
+      "type": "table-pressure"
+    },
+    {
+      "id": 23,
+      "name": "pasta storage",
+      "minValue": 10,
+      "maxValue": 400,
+      "enabled": true,
+      "lastValue": 310,
+      "type": "storage-pressure"
+    },
+    {
+      "id": 24,
+      "name": "table 7",
+      "minValue": 0,
+      "maxValue": 100,
+      "enabled": true,
+      "lastValue": 95,
+      "type": "table-pressure"
+    },
+    {
+      "id": 25,
+      "name": "canned goods rack",
+      "minValue": 50,
+      "maxValue": 800,
+      "enabled": true,
+      "lastValue": 720,
+      "type": "storage-pressure"
+    },
+    {
+      "id": 26,
+      "name": "vip table 1",
+      "minValue": 0,
+      "maxValue": 150,
+      "enabled": true,
+      "lastValue": 110,
+      "type": "table-pressure"
+    },
+    {
+      "id": 27,
+      "name": "beverage crates",
+      "minValue": 0,
+      "maxValue": 500,
+      "enabled": true,
+      "lastValue": -5,
+      "type": "storage-pressure"
+    },
+    {
+      "id": 28,
+      "name": "vip table 2",
+      "minValue": 0,
+      "maxValue": 150,
+      "enabled": true,
+      "lastValue": 0,
+      "type": "table-pressure"
+    },
+    {
+      "id": 29,
+      "name": "cleaning supplies",
+      "minValue": 5,
+      "maxValue": 200,
+      "enabled": true,
+      "lastValue": 2,
+      "type": "storage-pressure"
+    },
+    {
+      "id": 30,
+      "name": "terrace table 1",
+      "minValue": 0,
+      "maxValue": 100,
+      "enabled": true,
+      "lastValue": 40,
+      "type": "table-pressure"
+    },
+    {
+      "id": 31,
+      "name": "frozen meat pallet",
+      "minValue": 100,
+      "maxValue": 2000,
+      "enabled": true,
+      "lastValue": 1450,
+      "type": "storage-pressure"
+    },
+    {
+      "name": "sdaf",
+      "minValue": -5,
+      "maxValue": 100,
+      "enabled": true,
+      "lastValue": 25,
+      "type": "storage-temperature",
+      "id": "32"
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "email": "chef.marcos@restaurante.com",
+      "password": "Password123!",
+      "phoneNumber": "912 345 678",
+      "role": "Restaurant",
+      "subscription": "Premium"
+    },
+    {
+      "id": 2,
+      "email": "ventas@logistica-nacional.com",
+      "password": "SupplierPass99",
+      "phoneNumber": "987 654 321",
+      "role": "Supplier",
+      "subscription": "Enterprise"
+    },
+    {
+      "id": 3,
+      "email": "admin@wok-express.pe",
+      "password": "SecureWok2024",
+      "phoneNumber": "955 443 221",
+      "role": "Restaurant",
+      "subscription": "Enterprise"
+    },
+    {
+      "id": 4,
+      "email": "contacto@distribuidora-oriental.com",
+      "password": "StockMaster456",
+      "phoneNumber": "900 112 334",
+      "role": "Supplier",
+      "subscription": "Premium"
+    },
+    {
+      "id": 5,
+      "email": "gerencia@sushi-premium.cl",
+      "password": "SushiPass789",
+      "phoneNumber": "922 887 665",
+      "role": "Restaurant",
+      "subscription": "Premium"
+    },
+    {
+      "id": 6,
+      "email": "abastos@mayorista-global.mx",
+      "password": "SupplyChain01",
+      "phoneNumber": "911 223 344",
+      "role": "Supplier",
+      "subscription": "Enterprise"
+    },
+    {
+      "id": 7,
+      "email": "info@la-parrilla-argentina.com",
+      "password": "MeatLover2024",
+      "phoneNumber": "933 445 566",
+      "role": "Restaurant",
+      "subscription": "Premium"
+    },
+    {
+      "id": 8,
+      "email": "ventas@empaques-eco.com",
+      "password": "GreenEco77!",
+      "phoneNumber": "966 778 899",
+      "role": "Supplier",
+      "subscription": "Premium"
+    },
+    {
+      "id": 9,
+      "email": "owner@bistro-moderno.es",
+      "password": "BistroKey12",
+      "phoneNumber": "944 556 677",
+      "role": "Restaurant",
+      "subscription": "Enterprise"
+    },
+    {
+      "id": 10,
+      "email": "compras@importadora-directa.co",
+      "password": "DirectImport00",
+      "phoneNumber": "977 889 900",
+      "role": "Supplier",
+      "subscription": "Enterprise"
+    },
+    {
+      "password": "bsdasdsasdasd",
+      "phoneNumber": "c",
+      "role": "Restaurant",
+      "subscription": "Enterprise",
+      "id": "11",
+      "email": "a@a.com"
+    },
+    {
+      "password": "asdasdasdasd",
+      "phoneNumber": "12212311123123",
+      "role": "Supplier",
+      "subscription": "Premium",
+      "id": "12",
+      "email": "a@a.com"
+    },
+    {
+      "password": "asdadfasdfasf",
+      "phoneNumber": "123456789",
+      "role": "Restaurant",
+      "subscription": "Premium",
+      "id": "13",
+      "email": "a@a.com"
+    },
+    {
+      "password": "123456789",
+      "phoneNumber": "123456789",
+      "role": "Restaurant",
+      "subscription": "Premium",
+      "id": "14",
+      "email": "a@a.com"
+    },
+    {
+      "password": "12345678",
+      "phoneNumber": "111111111",
+      "role": "Restaurant",
+      "subscription": "Enterprise",
+      "id": "15",
+      "email": "prueba@sdc.com"
+    },
+    {
+      "password": "123456789",
+      "phoneNumber": "123456789",
+      "role": "Restaurant",
+      "subscription": "Premium",
+      "id": "16",
+      "email": "a@a.com"
+    },
+    {
+      "password": "123456789",
+      "phoneNumber": "13456789",
+      "role": "Supplier",
+      "subscription": "Premium",
+      "id": "17",
+      "email": "a@a.com"
+    },
+    {
+      "password": "SupplyWok123",
+      "phoneNumber": "981 299 290",
+      "role": "Restaurant",
+      "subscription": "Premium",
+      "id": "18",
+      "email": "ventas@goldenwok.pe"
+    },
+    {
+      "password": "test1234",
+      "phoneNumber": "999999999",
+      "role": "Restaurant",
+      "subscription": "Premium",
+      "id": "19",
+      "email": "mpajes2006@gmail.com"
+    }
+  ],
+  "report": [
+    {
+      "id": 1,
+      "inventoryTrend": [
+        { "month": "Jan", "value": 120 },
+        { "month": "Feb", "value": 150 },
+        { "month": "Mar", "value": 220 },
+        { "month": "Apr", "value": 180 },
+        { "month": "May", "value": 250 },
+        { "month": "Jun", "value": 290 }
+      ],
+      "weeklyConsumption": [
+        { "week": "W1", "value": 45 },
+        { "week": "W2", "value": 55 },
+        { "week": "W3", "value": 40 },
+        { "week": "W4", "value": 60 },
+        { "week": "W5", "value": 65 },
+        { "week": "W6", "value": 50 }
+      ],
+      "topSuppliersOrders": [
+        { "supplier": "Golden Wok Produce", "value": 85 },
+        { "supplier": "Andes Cold Chain", "value": 70 },
+        { "supplier": "Orient Pantry Co.", "value": 50 },
+        { "supplier": "Lotus Rice Traders", "value": 40 }
+      ],
+      "temperatureFluctuations": [
+        { "day": "Mon", "value": 4 },
+        { "day": "Tue", "value": 3.8 },
+        { "day": "Wed", "value": 4.2 },
+        { "day": "Thu", "value": 5.0 },
+        { "day": "Fri", "value": 4.5 },
+        { "day": "Sat", "value": 3.9 },
+        { "day": "Sun", "value": 4.1 }
       ]
     }
   ]

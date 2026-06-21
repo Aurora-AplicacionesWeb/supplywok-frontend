@@ -2,25 +2,28 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import useRestaurantManagementStore from '../../application/restaurant-management.store.js';
+import useOperationsStore from '../../application/operations.store.js';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
+import ConfirmDialog from 'primevue/confirmdialog';
+import { useConfirm } from 'primevue/useconfirm';
 
 const props = defineProps({
   table: { type: Object, required: true }
 });
 
 const { t } = useI18n();
-const store = useRestaurantManagementStore();
+const store = useOperationsStore();
 const route = useRoute();
 const router = useRouter();
+const confirm = useConfirm();
 
 const isFree = computed(() => props.table.state === 'available');
 const isOccupied = computed(() => props.table.state === 'busy');
 
 const stateLabel = computed(() => {
-  if (isFree.value) return t('restaurantManagement.tablesAndOccupancyPage.free');
-  if (isOccupied.value) return t('restaurantManagement.tablesAndOccupancyPage.occupied');
+  if (isFree.value) return t('operations.tablesAndOccupancyPage.free');
+  if (isOccupied.value) return t('operations.tablesAndOccupancyPage.occupied');
   return props.table.state;
 });
 
@@ -49,8 +52,14 @@ const showDetails = computed({
 });
 
 function handleDelete() {
-  if (!confirm(t('restaurantManagement.tablesAndOccupancyPage.deleteTable'))) return;
-  store.deleteTable(props.table.id).then(() => router.push('/operations/tables'));
+  confirm.require({
+    message: t('operations.tablesAndOccupancyPage.confirmDeleteTable'),
+    header: t('operations.tablesAndOccupancyPage.deleteTable'),
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: t('operations.tablesAndOccupancyPage.cancel'),
+    acceptLabel: t('operations.tablesAndOccupancyPage.deleteTable'),
+    accept: () => store.deleteTable(props.table.id).then(() => router.push('/operations/tables'))
+  });
 }
 </script>
 
@@ -64,7 +73,7 @@ function handleDelete() {
       <div class="flex flex-column flex-1" :style="{ gap: '2px' }">
         <strong class="flex align-items-center gap-1 font-heading" :style="{ color: '#40342d', fontSize: '18px' }">
           <i class="pi pi-table" :style="{ fontSize: '14px', color: '#7d7065' }" />
-          {{ table.code ||String(table.number).padStart(2, '0') }}
+          {{ String(table.number).padStart(2, '0') }}
         </strong>
         <span class="flex align-items-center gap-1" :style="{ fontSize: '12px', color: '#8e8177' }">
           <i class="pi pi-users" /> {{ table.capacity }}
@@ -82,27 +91,27 @@ function handleDelete() {
         class="border-none bg-transparent cursor-pointer p-0 mt-2 view-details-btn"
         @click="router.push(`${tablePathPrefix}/view`)"
     >
-      {{ t('restaurantManagement.tablesAndOccupancyPage.viewDetails') }}
+      {{ t('operations.tablesAndOccupancyPage.viewDetails') }}
     </button>
 
     <pv-dialog
         v-model:visible="showDetails"
         modal
-        :header="t('restaurantManagement.tablesAndOccupancyPage.tableDetails')"
+        :header="t('operations.tablesAndOccupancyPage.tableDetails')"
         :style="{ width: 'min(400px, calc(100vw - 32px))' }"
         :draggable="false"
     >
       <div class="flex flex-column gap-3 p-3">
         <div class="flex flex-column gap-1">
-          <label class="detail-label">{{ t('restaurantManagement.tablesAndOccupancyPage.tableNumber') }}</label>
-          <span class="detail-value">{{ table.code || String(table.number).padStart(2, '0') }}</span>
+          <label class="detail-label">{{ t('operations.tablesAndOccupancyPage.tableNumber') }}</label>
+          <span class="detail-value">{{ String(table.number).padStart(2, '0') }}</span>
         </div>
         <div class="flex flex-column gap-1">
-          <label class="detail-label">{{ t('restaurantManagement.tablesAndOccupancyPage.capacity') }}</label>
-          <span class="detail-value">{{ table.capacity }} {{ t('restaurantManagement.tablesAndOccupancyPage.people') }}</span>
+          <label class="detail-label">{{ t('operations.tablesAndOccupancyPage.capacity') }}</label>
+          <span class="detail-value">{{ table.capacity }} {{ t('operations.tablesAndOccupancyPage.people') }}</span>
         </div>
         <div class="flex flex-column gap-1">
-          <label class="detail-label">{{ t('restaurantManagement.tablesAndOccupancyPage.state') }}</label>
+          <label class="detail-label">{{ t('operations.tablesAndOccupancyPage.state') }}</label>
           <span
               class="inline-block font-bold uppercase border-round px-2 py-1"
               :style="{ fontSize: '12px', letterSpacing: '0.05em', width: 'fit-content', ...stateStyle }"
@@ -114,20 +123,22 @@ function handleDelete() {
       <template #footer>
         <div class="flex justify-content-between gap-2">
           <Button
-              :label="t('restaurantManagement.tablesAndOccupancyPage.deleteTable')"
+              :label="t('operations.tablesAndOccupancyPage.deleteTable')"
               icon="pi pi-trash"
               severity="danger"
               @click="handleDelete"
           />
           <Button
-              :label="t('restaurantManagement.tablesAndOccupancyPage.close')"
+              :label="t('operations.tablesAndOccupancyPage.edit')"
+              icon="pi pi-pencil"
               severity="secondary"
               outlined
-              @click="showDetails = false"
+              @click="showDetails = false; router.push(`${tablePathPrefix}/edit`)"
           />
         </div>
       </template>
     </pv-dialog>
+    <ConfirmDialog />
   </article>
 </template>
 

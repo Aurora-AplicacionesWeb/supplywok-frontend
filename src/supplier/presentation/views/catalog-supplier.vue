@@ -19,6 +19,11 @@ const isFormOpen = ref(false);
 const isEditing = ref(false);
 const isDeleteDialogVisible = ref(false);
 const pendingDeleteItem = ref(null);
+const unitOptions = [
+  { label: 'KG', value: 'KG' },
+  { label: 'LTR', value: 'LTR' },
+  { label: 'BOX', value: 'BOX' }
+];
 const form = reactive({
   id: null,
   name: '',
@@ -42,7 +47,7 @@ const isFormValid = computed(() => {
   return Boolean(
     form.name.trim() &&
     form.category.trim() &&
-    Number(form.price) >= 0 &&
+    Number(form.price) > 0 &&
     form.unit.trim() &&
     form.deliveryConditions.trim()
   );
@@ -83,7 +88,7 @@ function closeForm() {
   resetForm();
 }
 
-function saveCatalogItem() {
+async function saveCatalogItem() {
   if (!isFormValid.value) return;
 
   const item = new CatalogItem({
@@ -96,9 +101,11 @@ function saveCatalogItem() {
   });
 
   if (isEditing.value) {
-    updateCatalogItem(item);
+    const wasUpdated = await updateCatalogItem(item);
+    if (!wasUpdated) return;
   } else {
-    addCatalogItem(item);
+    const wasCreated = await addCatalogItem(item);
+    if (!wasCreated) return;
   }
 
   closeForm();
@@ -109,9 +116,10 @@ function requestDeleteCatalogItem(item) {
   isDeleteDialogVisible.value = true;
 }
 
-function confirmDeleteCatalogItem() {
+async function confirmDeleteCatalogItem() {
   if (!pendingDeleteItem.value) return;
-  deleteCatalogItem(pendingDeleteItem.value.id);
+  const wasDeleted = await deleteCatalogItem(pendingDeleteItem.value.id);
+  if (!wasDeleted) return;
   pendingDeleteItem.value = null;
   router.push('/supplier/catalog');
 }
@@ -187,7 +195,7 @@ watch(
           <span>{{ t('supplier-management.catalog.form.price') }}</span>
           <pv-input-number
             v-model="form.price"
-            :min="0"
+            :min="0.01"
             :min-fraction-digits="0"
             :max-fraction-digits="2"
             input-id="catalog-item-price"
@@ -196,7 +204,12 @@ watch(
         </label>
         <label class="catalog-form__field">
           <span>{{ t('supplier-management.catalog.form.unit') }}</span>
-          <pv-input-text v-model="form.unit" />
+          <select v-model="form.unit">
+            <option disabled value="">Select unit</option>
+            <option v-for="option in unitOptions" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
         </label>
         <label class="catalog-form__field catalog-form__field--wide">
           <span>{{ t('supplier-management.catalog.form.delivery-conditions') }}</span>
@@ -355,12 +368,14 @@ watch(
 .catalog-form :deep(.p-inputtext),
 .catalog-form :deep(.p-inputnumber),
 .catalog-form :deep(.p-inputnumber-input),
+.catalog-form select,
 .catalog-page__search :deep(.p-inputtext) {
   width: 100%;
 }
 
 .catalog-form :deep(.p-inputtext),
 .catalog-form :deep(.p-inputnumber-input),
+.catalog-form select,
 .catalog-page__search :deep(.p-inputtext) {
   min-height: 36px;
   color: #344457;

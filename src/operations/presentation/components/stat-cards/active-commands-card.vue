@@ -1,17 +1,21 @@
-<template>
-  <IotStatCard
-    iconSrc="/images/icons/kitchen-ticket-icon.svg"
-    :value="activeCount"
-    label="restaurantManagement.dashboard.activeCommands.label"
-  />
-</template>
-
 <script setup>
 import { computed } from 'vue';
 import IotStatCard from '../../../../iot/presentation/components/stat-cards/iot-stat-card.vue';
-import useRestaurantManagementStore from '../../../application/restaurant-management.store.js';
+import useOperationsStore from '../../../application/operations.store.js';
 
-const store = useRestaurantManagementStore();
+const store = useOperationsStore();
 
 const activeCount = computed(() => store.activeKitchenOrders.length);
 </script>
+
+<template>
+  <IotStatCard
+      iconSrc="/images/icons/kitchen-ticket-icon.svg"
+      :value="activeCount"
+      label="operations.dashboard.activeOrders.label"
+  />
+</template>
+
+<style scoped>
+
+</style>

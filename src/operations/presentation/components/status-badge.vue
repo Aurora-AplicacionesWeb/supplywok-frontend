@@ -9,7 +9,7 @@ const props = defineProps({
 const { t } = useI18n();
 
 const label = computed(() => {
-  return t(`restaurantManagement.shared.status.${props.status}`) || props.status;
+  return t(`operations.shared.status.${props.status}`) || props.status;
 });
 
 const colorMap = {

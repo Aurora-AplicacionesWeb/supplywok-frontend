@@ -9,9 +9,9 @@
 <script setup>
 import { computed } from 'vue';
 import IotStatCard from '../../../../iot/presentation/components/stat-cards/iot-stat-card.vue';
-import usePurchaseOrderStore from '../../../application/purchase-order.store.js';
+import useOrdersStore from '../../../application/orders.store.js';
 
-const store = usePurchaseOrderStore();
+const store = useOrdersStore();
 
 const pendingCount = computed(() => store.pendingPurchaseOrdersCount);
 </script>

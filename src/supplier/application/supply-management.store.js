@@ -1,14 +1,11 @@
 import {defineStore} from "pinia";
 import {computed, ref} from "vue";
 import { SupplyManagementApi } from "../infrastructure/supply-management-api.js";
-import {OrdersAssembler} from "../infrastructure/orders.assembler.js";
+
 import {CatalogItemAssembler} from "../infrastructure/catalog-item.assembler.js";
 import {ClientAssembler} from "../infrastructure/client.assembler.js";
-import {SupplierAlertAssembler} from "../infrastructure/supplier-alert.assembler.js";
-import {DemandForecastAssembler} from "../infrastructure/demand-forecast.assembler.js";
 import {DeliveryRouteAssembler} from "../infrastructure/delivery-route.assembler.js";
 import {SupplierSettingsAssembler} from "../infrastructure/supplier-settings.assembler.js";
-import {SupplierSubscriptionAssembler} from "../infrastructure/supplier-subscription.assembler.js";
 const supplierManagementApi = new SupplyManagementApi();
 
 /**
@@ -19,93 +16,6 @@ const supplierManagementApi = new SupplyManagementApi();
  */
 const useSupplierManagementStore = defineStore('supplierManagement', () => {
     const errors=ref([]);
-    const purchaseOrders = ref([]);
-    const purchaseOrdersLoaded = ref(false);
-
-    /**
-     * Number of loaded purchase orders.
-     *
-     * @type {import('vue').ComputedRef<number>}
-     */
-    const purchaseOrdersCount =
-        computed(()=> purchaseOrdersLoaded ? purchaseOrders.value.length:0);
-
-    /**
-     * Loads supplier purchase orders from infrastructure and updates the application state.
-     *
-     * @returns {void}
-     */
-    function fetchPurchaseOrders(){
-        supplierManagementApi.getOrders().then(response=>{
-            purchaseOrders.value=OrdersAssembler.toEntitiesFromResponse(response);
-            purchaseOrdersLoaded.value=true;
-        }).catch(error=>{
-            errors.value.push(error);
-        });
-    }
-
-    /**
-     * Finds a purchase order by its identifier from the local state.
-     *
-     * @param {string|number} id - Purchase order identifier.
-     * @returns {import('../domain/model/orders.entity.js').Orders|undefined} Matching purchase order, if found.
-     */
-    function getPurchaseOrdersById(id){
-        let idNum=parseInt(id);
-        return purchaseOrders.value.find(order=>order['id']===idNum);
-    }
-
-    /**
-     * Creates a purchase order through infrastructure and appends it to local state.
-     *
-     * @param {import('../domain/model/orders.entity.js').Orders} order - Purchase order entity to persist.
-     * @returns {void}
-     */
-    function addPurchaseOrders(order){
-        supplierManagementApi.createOrder(order).then(response=>{
-            const resource=response.data;
-            const newOrder=OrdersAssembler.toEntityFromResource(resource);
-            purchaseOrders.value.push(newOrder);
-        }).catch(error=>{
-            errors.value.push(error);
-        });
-    }
-
-    /**
-     * Updates a purchase order through infrastructure and replaces it in local state.
-     *
-     * @param {import('../domain/model/orders.entity.js').Orders} order - Purchase order entity to update.
-     * @returns {void}
-     */
-    function updatePurchaseOrders(order){
-        supplierManagementApi.updateOrder(order).then(response=> {
-            const resource=response.data;
-            const updatedOrder=OrdersAssembler.toEntityFromResource(resource);
-            const index=purchaseOrders.value.findIndex(o=>o['id']===updatedOrder.id);
-            if(index !== -1){
-                purchaseOrders.value[index]=updatedOrder;
-            }
-        }).catch(error=>{
-            errors.value.push(error);
-        });
-    }
-
-    /**
-     * Deletes a purchase order through infrastructure and removes it from local state.
-     *
-     * @param {string|number} id - Purchase order identifier.
-     * @returns {void}
-     */
-    function deletePurchaseOrders(id){
-        supplierManagementApi.deleteOrder(id).then(response=>{
-            const index=purchaseOrders.value.findIndex(o=>o['id']===id);
-            if(index !== -1){
-                purchaseOrders.value.splice(index,1);
-            }
-        }).catch(error=>{
-            errors.value.push(error);
-        })
-    }
 
     // ── Catalog Supplier section ──────────────────────────────────────────────
     // State and use cases for the supplier's product catalog (CatalogItem aggregate).
@@ -114,16 +24,10 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
     const catalogItemsLoaded = ref(false);
     const clients = ref([]);
     const clientsLoaded = ref(false);
-    const alerts = ref([]);
-    const alertsLoaded = ref(false);
-    const demandForecast = ref(null);
-    const demandForecastLoaded = ref(false);
     const deliveryRoutes = ref([]);
     const deliveryRoutesLoaded = ref(false);
     const supplierSettings = ref(null);
     const supplierSettingsLoaded = ref(false);
-    const supplierSubscription = ref(null);
-    const supplierSubscriptionLoaded = ref(false);
 
     /**
      * Number of loaded catalog items.
@@ -141,16 +45,6 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
     const clientsCount =
         computed(() => clientsLoaded.value ? clients.value.length : 0);
 
-    /**
-     * Number of loaded supplier alerts.
-     *
-     * @type {import('vue').ComputedRef<number>}
-     */
-    const alertsCount =
-        computed(() => alertsLoaded.value ? alerts.value.length : 0);
-
-    const demandForecastClientCount =
-        computed(() => demandForecastLoaded.value ? demandForecast.value?.clients?.length ?? 0 : 0);
     const deliveryRoutesCount =
         computed(() => deliveryRoutesLoaded.value ? deliveryRoutes.value.length : 0);
 
@@ -182,33 +76,6 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
         });
     }
 
-    /**
-     * Loads supplier alerts from infrastructure and updates local state.
-     *
-     * @returns {void}
-     */
-    function fetchAlerts(){
-        supplierManagementApi.getAlerts().then(response=>{
-            alerts.value = SupplierAlertAssembler.toEntitiesFromResponse(response);
-            alertsLoaded.value = true;
-        }).catch(error=>{
-            errors.value.push(error);
-        });
-    }
-
-    /**
-     * Loads supplier demand forecast from infrastructure and updates local state.
-     *
-     * @returns {void}
-     */
-    function fetchDemandForecast(){
-        supplierManagementApi.getDemandForecast().then(response=>{
-            demandForecast.value = DemandForecastAssembler.toEntityFromResponse(response);
-            demandForecastLoaded.value = true;
-        }).catch(error=>{
-            errors.value.push(error);
-        });
-    }
 
     /**
      * Loads delivery routes from infrastructure and updates local state.
@@ -262,52 +129,6 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
     }
 
     /**
-     * Loads supplier subscription information from infrastructure.
-     *
-     * @returns {void}
-     */
-    function fetchSupplierSubscription(){
-        supplierManagementApi.getSupplierSubscription().then(response=>{
-            supplierSubscription.value = SupplierSubscriptionAssembler.toEntityFromResponse(response);
-            supplierSubscriptionLoaded.value = true;
-        }).catch(error=>{
-            errors.value.push(error);
-        });
-    }
-
-    /**
-     * Acknowledges one supplier alert and updates local state.
-     *
-     * @param {string|number} id - Alert identifier.
-     * @returns {Promise<void>}
-     */
-    async function acknowledgeAlert(id){
-        const idNum = parseInt(id);
-        const existingAlert = alerts.value.find(alert => alert.id === idNum);
-
-        if (!existingAlert || existingAlert.status === 'acknowledged') {
-            return;
-        }
-
-        const updatedAlert = {
-            ...existingAlert,
-            status: 'acknowledged'
-        };
-
-        try {
-            const response = await supplierManagementApi.updateAlert(idNum, updatedAlert);
-            const persistedAlert = SupplierAlertAssembler.toEntityFromResource(response.data);
-            const index = alerts.value.findIndex(alert => alert.id === persistedAlert.id);
-
-            if (index !== -1) {
-                alerts.value[index] = persistedAlert;
-            }
-        } catch (error) {
-            errors.value.push(error);
-        }
-    }
-
-    /**
      * Finds a catalog item by its identifier from the local state.
      *
      * @param {string|number} id - Catalog item identifier.
@@ -324,14 +145,19 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
      * @param {import('../domain/model/catalog-item.entity.js').CatalogItem} item - Catalog item entity to persist.
      * @returns {void}
      */
-    function addCatalogItem(item){
-        supplierManagementApi.createCatalogItem(item).then(response=>{
+    async function addCatalogItem(item){
+        try {
+            const response = await supplierManagementApi.createCatalogItem(
+                CatalogItemAssembler.toResourceFromEntity(item)
+            );
             const resource = response.data;
             const newItem = CatalogItemAssembler.toEntityFromResource(resource);
             catalogItems.value.push(newItem);
-        }).catch(error=>{
+            return true;
+        } catch (error) {
             errors.value.push(error);
-        });
+            return false;
+        }
     }
 
     /**
@@ -340,17 +166,23 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
      * @param {import('../domain/model/catalog-item.entity.js').CatalogItem} item - Catalog item entity to update.
      * @returns {void}
      */
-    function updateCatalogItem(item){
-        supplierManagementApi.updateCatalogItem(item.id, item).then(response=>{
+    async function updateCatalogItem(item){
+        try {
+            const response = await supplierManagementApi.updateCatalogItem(
+                item.id,
+                CatalogItemAssembler.toResourceFromEntity(item)
+            );
             const resource = response.data;
             const updatedItem = CatalogItemAssembler.toEntityFromResource(resource);
             const index = catalogItems.value.findIndex(i => i['id'] === updatedItem.id);
             if(index !== -1){
                 catalogItems.value[index] = updatedItem;
             }
-        }).catch(error=>{
+            return true;
+        } catch (error) {
             errors.value.push(error);
-        });
+            return false;
+        }
     }
 
     /**
@@ -359,29 +191,24 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
      * @param {string|number} id - Catalog item identifier.
      * @returns {void}
      */
-    function deleteCatalogItem(id){
-        supplierManagementApi.deleteCatalogItem(id).then(()=>{
+    async function deleteCatalogItem(id){
+        try {
+            await supplierManagementApi.deleteCatalogItem(id);
             const idNum = parseInt(id);
             const index = catalogItems.value.findIndex(i => i['id'] === idNum);
             if(index !== -1){
                 catalogItems.value.splice(index, 1);
             }
-        }).catch(error=>{
+            return true;
+        } catch (error) {
             errors.value.push(error);
-        });
+            return false;
+        }
     }
     // ── End Catalog Supplier section ──────────────────────────────────────────
 
     return{
-        purchaseOrders,
         errors,
-        purchaseOrdersLoaded,
-        purchaseOrdersCount,
-        fetchPurchaseOrders,
-        getPurchaseOrdersById,
-        addPurchaseOrders,
-        updatePurchaseOrders,
-        deletePurchaseOrders,
         // ── Catalog Supplier exports ──
         catalogItems,
         catalogItemsLoaded,
@@ -389,28 +216,16 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
         clients,
         clientsLoaded,
         clientsCount,
-        alerts,
-        alertsLoaded,
-        alertsCount,
-        demandForecast,
-        demandForecastLoaded,
-        demandForecastClientCount,
         deliveryRoutes,
         deliveryRoutesLoaded,
         deliveryRoutesCount,
         supplierSettings,
         supplierSettingsLoaded,
-        supplierSubscription,
-        supplierSubscriptionLoaded,
         fetchCatalogItems,
         fetchClients,
-        fetchAlerts,
-        fetchDemandForecast,
         fetchDeliveryRoutes,
         fetchSupplierSettings,
         updateSupplierSettings,
-        fetchSupplierSubscription,
-        acknowledgeAlert,
         getCatalogItemById,
         addCatalogItem,
         updateCatalogItem,

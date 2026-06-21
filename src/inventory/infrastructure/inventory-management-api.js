@@ -1,66 +1,121 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js';
 import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
-const inventoryBaseUrl = import.meta.env.VITE_INVENTORY_BASE_URL;
-const inventoryEndpointPath = import.meta.env.VITE_INVENTORY_ENDPOINT_PATH;
-const stockMovementEndpointPath = import.meta.env.VITE_STOCK_MOVEMENT_ENDPOINT_PATH;
+const inventoryEndpointPath = import.meta.env.VITE_SUPPLIES_ENDPOINT_PATH || '/supplies';
+const localStockMovements = [];
 
-/**
- * Inventory management API adapter backed by json-server collections.
- */
 export class InventoryManagementApi extends BaseApi {
   #inventoryEndpoint;
-  #stockMovementEndpoint;
 
   constructor() {
-    super(inventoryBaseUrl);
+    super();
     this.#inventoryEndpoint = new BaseEndpoint(this, inventoryEndpointPath);
-    this.#stockMovementEndpoint = new BaseEndpoint(this, stockMovementEndpointPath);
   }
 
-  getInventoryItems() {
+  getSupplies() {
     return this.#inventoryEndpoint.getAll();
   }
 
-  getInventoryItemById(id) {
+  getSupplyById(id) {
     return this.#inventoryEndpoint.getById(id);
   }
 
   getStockMovements() {
-    return this.#stockMovementEndpoint.getAll();
-  }
-
-  getStockMovementsByInventoryId(inventoryItemId) {
-    return this.#stockMovementEndpoint.getAll().then((response) => {
-      const movements = Array.isArray(response.data) ? response.data : [response.data];
-      return {
-        ...response,
-        data: movements.filter((movement) => movement.inventoryItemId === inventoryItemId)
-      };
+    return Promise.resolve({
+      status: 200,
+      statusText: 'OK',
+      data: [...localStockMovements]
     });
   }
 
-  createInventoryItem(item) {
-    return this.#inventoryEndpoint.create(item);
+  getStockMovementsBySupplyId(supplyId) {
+    return this.getStockMovements().then((response) => ({
+      ...response,
+      data: (response.data ?? []).filter((movement) => movement.supplyId === supplyId || movement.inventoryItemId === supplyId)
+    }));
   }
 
-  updateInventoryItem(id, item) {
-    return this.#inventoryEndpoint.update(id, item);
+  createSupply(supply) {
+    const payload = {
+      id: supply.id,
+      name: supply.name,
+      unitOfMeasure: supply.unitOfMeasure,
+      currentStock: supply.currentStock,
+      minimumStockLevel: supply.minimumStockLevel,
+      category: supply.category,
+      supplierId: supply.supplierId
+    };
+    return this.#inventoryEndpoint.create(payload);
   }
 
-  deleteInventoryItem(id) {
+  updateSupply(id, supply) {
+    const payload = {
+      id: supply.id,
+      name: supply.name,
+      unitOfMeasure: supply.unitOfMeasure,
+      currentStock: supply.currentStock,
+      minimumStockLevel: supply.minimumStockLevel,
+      category: supply.category,
+      supplierId: supply.supplierId
+    };
+    return this.#inventoryEndpoint.update(id, payload);
+  }
+
+  deleteSupply(id) {
     return this.#inventoryEndpoint.delete(id);
   }
 
   createStockMovement(movement) {
-    return this.#stockMovementEndpoint.create(movement);
+    const payload = {
+      id: movement.id ?? (localStockMovements.length + 1),
+      supplyId: movement.supplyId,
+      inventoryItemId: movement.supplyId,
+      type: movement.type,
+      amount: movement.amount,
+      date: movement.date,
+      reason: movement.reason
+    };
+
+    localStockMovements.push(payload);
+    return Promise.resolve({
+      status: 201,
+      statusText: 'Created',
+      data: payload
+    });
   }
 
   updateStockMovement(id, movement) {
-    return this.#stockMovementEndpoint.update(id, movement);
+    const index = localStockMovements.findIndex((item) => Number(item.id) === Number(id));
+    const payload = {
+      id: movement.id ?? Number(id),
+      supplyId: movement.supplyId,
+      inventoryItemId: movement.supplyId,
+      type: movement.type,
+      amount: movement.amount,
+      date: movement.date,
+      reason: movement.reason
+    };
+
+    if (index !== -1) {
+      localStockMovements.splice(index, 1, payload);
+    }
+
+    return Promise.resolve({
+      status: 200,
+      statusText: 'OK',
+      data: payload
+    });
   }
 
   deleteStockMovement(id) {
-    return this.#stockMovementEndpoint.delete(id);
+    const index = localStockMovements.findIndex((item) => Number(item.id) === Number(id));
+    if (index !== -1) {
+      localStockMovements.splice(index, 1);
+    }
+    return Promise.resolve({
+      status: 200,
+      statusText: 'OK',
+      data: null
+    });
   }
 }

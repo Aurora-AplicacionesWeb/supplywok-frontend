@@ -1,3 +1,5 @@
+import { BaseApi } from '../../shared/infrastructure/base-api.js';
+import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 import { SensorAssembler } from './sensor.assembler.js';
 
 /**
@@ -6,20 +8,9 @@ import { SensorAssembler } from './sensor.assembler.js';
  */
 export class IotMonitoringApi {
   constructor() {
-    this.baseUrl = import.meta.env.VITE_SUPPLYWOK_API_URL || 'http://localhost:3000/api/v1';
-    this.endpoint = import.meta.env.VITE_SUPPLYWOK_API_SENSORS_ENDPOINT_PATH;
-  }
-
-  /**
-   * Internal helper to fetch JSON data.
-   * @private
-   */
-  async _fetchData(url, options = {}) {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-      throw new Error(`Error fetching data: ${response.statusText}`);
-    }
-    return response.json();
+    const sensorsEndpointPath = import.meta.env.VITE_SENSORS_ENDPOINT_PATH || '/sensors';
+    this.api = new BaseApi();
+    this.sensorsEndpoint = new BaseEndpoint(this.api, sensorsEndpointPath);
   }
 
   /**
@@ -28,11 +19,26 @@ export class IotMonitoringApi {
    */
   async getSensors() {
     try {
-      const data = await this._fetchData(`${this.baseUrl}${this.endpoint}`);
-      return SensorAssembler.toEntitiesFromResponse(data);
+      const response = await this.sensorsEndpoint.getAll();
+      return SensorAssembler.toEntitiesFromResponse(response.data ?? response);
     } catch (error) {
       console.error('Failed to get sensors:', error);
       return [];
+    }
+  }
+
+  /**
+   * Creates a new sensor on the API.
+   * @param {Object} sensorData - The raw sensor data.
+   * @returns {Promise<Sensor|null>}
+   */
+  async createSensor(sensorData) {
+    try {
+      const response = await this.sensorsEndpoint.create(sensorData);
+      return SensorAssembler.toEntityFromResource(response.data ?? response);
+    } catch (error) {
+      console.error('Failed to create sensor:', error);
+      return null;
     }
   }
 

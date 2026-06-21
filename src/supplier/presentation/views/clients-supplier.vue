@@ -31,9 +31,9 @@ const filteredClients = computed(() => {
         }
 
         return [
+            client.id,
             client.name,
             client.district,
-            client.frequency,
             client.status
         ].some((value) => String(value ?? '').toLowerCase().includes(query));
     });
@@ -43,15 +43,6 @@ const visibleClientsText = computed(() => t('supplier-management.clients.visible
     visible: filteredClients.value.length,
     total: clientsCount.value
 }));
-
-function formatTicket(value) {
-    return `$${Number(value ?? 0).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-}
-
-function formatDemand(value) {
-    const normalizedValue = Number(value ?? 0);
-    return `${normalizedValue >= 0 ? '+' : ''}${normalizedValue}%`;
-}
 
 function formatStatus(value) {
     return String(value ?? '').replace(/^\w/, (letter) => letter.toUpperCase());
@@ -95,25 +86,14 @@ onMounted(() => {
                 :value="filteredClients"
                 responsive-layout="scroll"
             >
+                <pv-column field="id" header="ID" />
                 <pv-column field="name" :header="t('supplier-management.clients.columns.client')" />
                 <pv-column field="district" :header="t('supplier-management.clients.columns.district')" />
-                <pv-column field="frequency" :header="t('supplier-management.clients.columns.frequency')" />
-                <pv-column :header="t('supplier-management.clients.columns.ticket')">
-                    <template #body="{ data }">
-                        {{ formatTicket(data.averageTicket) }}
-                    </template>
-                </pv-column>
-                <pv-column :header="t('supplier-management.clients.columns.demand')">
-                    <template #body="{ data }">
-                        <span class="clients-page__demand">{{ formatDemand(data.demandProjectionPercent) }}</span>
-                    </template>
-                </pv-column>
                 <pv-column :header="t('supplier-management.clients.columns.status')">
                     <template #body="{ data }">
                         {{ formatStatus(data.status) }}
                     </template>
                 </pv-column>
-                <pv-column field="lastOrderDate" :header="t('supplier-management.clients.columns.last-order-date')" />
                 <template #empty>
                     <span class="clients-page__empty">{{ t('supplier-management.clients.empty') }}</span>
                 </template>
@@ -224,11 +204,6 @@ onMounted(() => {
 .clients-table :deep(.p-datatable-tbody > tr > td) {
     color: #4b433c;
     font-weight: 500;
-}
-
-.clients-page__demand {
-    color: #9b7524;
-    font-weight: 700;
 }
 
 .clients-page__empty {

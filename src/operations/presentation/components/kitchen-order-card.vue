@@ -6,23 +6,24 @@ import StatusBadge from './status-badge.vue';
 
 const props = defineProps({
   order: { type: Object, required: true },
-  readonly: { type: Boolean, default: false }
+  readonly: { type: Boolean, default: false },
+  tableCode: { type: String, default: '' }
 });
 
 const emit = defineEmits(['status-change']);
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const serviceTypeLabel = computed(() => {
-  return t(`restaurantManagement.shared.serviceType.${props.order.typeService}`) || props.order.typeService;
+  return t(`operations.shared.serviceType.${props.order.typeService}`) || props.order.typeService;
 });
 
 const itemCount = computed(() => {
-  const items = props.order.item || props.order.items || [];
-  return items.reduce((sum, i) => sum + (i.quantity || 0), 0);
+  const dishes = props.order.dishes || [];
+  return dishes.reduce((sum, d) => sum + (d.quantity || 0), 0);
 });
 
-const itemList = computed(() => {
-  return props.order.item || props.order.items || [];
+const dishList = computed(() => {
+  return props.order.dishes || [];
 });
 </script>
 
@@ -33,8 +34,8 @@ const itemList = computed(() => {
         <strong class="font-heading font-semibold text-lg">{{ order.number || `#${order.id}` }}</strong>
         <StatusBadge :status="order.state" />
       </div>
-      <span v-if="order.tableNumber" class="font-semibold" :style="{ color: '#7d7065', fontSize: '12px', whiteSpace: 'nowrap' }">
-                <i class="pi pi-table mr-1" /> {{ order.tableNumber }}
+      <span v-if="tableCode || order.table?.number" class="font-semibold" :style="{ color: '#7d7065', fontSize: '12px', whiteSpace: 'nowrap' }">
+                <i class="pi pi-table mr-1" /> {{ tableCode || order.table?.number }}
             </span>
       <span v-else class="font-semibold" :style="{ color: '#7d7065', fontSize: '12px', whiteSpace: 'nowrap' }">
                 <i class="pi pi-shopping-bag mr-1" /> {{ serviceTypeLabel }}
@@ -42,9 +43,9 @@ const itemList = computed(() => {
     </div>
 
     <div class="flex flex-column gap-1">
-      <div v-for="item in itemList" :key="item.id || item.dishId" class="flex justify-content-between gap-2 text-sm">
-        <span class="text-color">{{ item.dishName }}</span>
-        <span class="font-semibold" :style="{ color: '#7d7065', whiteSpace: 'nowrap' }">x{{ item.quantity }}</span>
+      <div v-for="dish in dishList" :key="dish.id" class="flex justify-content-between gap-2 text-sm">
+        <span class="text-color">{{ dish.name }}</span>
+        <span class="font-semibold" :style="{ color: '#7d7065', whiteSpace: 'nowrap' }">x{{ dish.quantity }}</span>
       </div>
     </div>
 
@@ -55,22 +56,22 @@ const itemList = computed(() => {
     <div class="flex justify-content-between" :style="{ fontSize: '11px', color: '#8e8177' }">
             <span>
                 <i class="pi pi-clock mr-1" />
-                {{ new Date(order.dateCreated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+                {{ new Date(order.dateCreated).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) }}
             </span>
-      <span>{{ itemCount }} items</span>
+      <span>{{ itemCount }} {{ t('operations.kitchenTicketsPage.items') }}</span>
     </div>
 
     <div v-if="!readonly" class="flex gap-2 flex-wrap">
       <template v-if="order.state === 'pending'">
         <Button
-            :label="t('restaurantManagement.kitchenTicketsPage.markInPreparation')"
+            :label="t('operations.kitchenTicketsPage.markInPreparation')"
             icon="pi pi-play"
             severity="info"
             size="small"
             @click="emit('status-change', { orderId: order.id, newState: 'in_preparation' })"
         />
         <Button
-            :label="t('restaurantManagement.kitchenTicketsPage.cancel')"
+            :label="t('operations.kitchenTicketsPage.cancel')"
             icon="pi pi-times"
             severity="danger"
             size="small"
@@ -80,14 +81,14 @@ const itemList = computed(() => {
       </template>
       <template v-else-if="order.state === 'in_preparation'">
         <Button
-            :label="t('restaurantManagement.kitchenTicketsPage.markReady')"
+            :label="t('operations.kitchenTicketsPage.markReady')"
             icon="pi pi-check"
             severity="success"
             size="small"
             @click="emit('status-change', { orderId: order.id, newState: 'ready' })"
         />
         <Button
-            :label="t('restaurantManagement.kitchenTicketsPage.cancel')"
+            :label="t('operations.kitchenTicketsPage.cancel')"
             icon="pi pi-times"
             severity="danger"
             size="small"
@@ -97,7 +98,7 @@ const itemList = computed(() => {
       </template>
       <template v-else-if="order.state === 'ready'">
         <Button
-            :label="t('restaurantManagement.kitchenTicketsPage.markDelivered')"
+            :label="t('operations.kitchenTicketsPage.markDelivered')"
             icon="pi pi-send"
             severity="secondary"
             size="small"

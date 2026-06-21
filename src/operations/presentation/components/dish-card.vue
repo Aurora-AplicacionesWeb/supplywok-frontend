@@ -42,7 +42,7 @@ const { t } = useI18n();
     </div>
     <div class="flex align-items-end">
       <Button
-          :label="props.compact ? '' : t('restaurantManagement.dishMenuPage.addToOrder')"
+          :label="props.compact ? '' : t('operations.dishMenuPage.addToOrder')"
           icon="pi pi-plus"
           severity="danger"
           :text="props.compact"
