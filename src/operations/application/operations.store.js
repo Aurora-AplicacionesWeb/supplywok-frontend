@@ -6,11 +6,7 @@ import { TableAssembler } from '../infrastructure/table.assembler.js';
 import { DishAssembler } from '../infrastructure/dish.assembler.js';
 import { DishCategoryAssembler } from '../infrastructure/dish-category.assembler.js';
 import { KitchenOrderAssembler } from '../infrastructure/kitchen-order.assembler.js';
-import { Table } from '../domain/model/table.entity.js';
 import { Dish } from '../domain/model/dish.entity.js';
-import { DishCategory } from '../domain/model/dish-category.entity.js';
-import { KitchenOrder } from '../domain/model/kitchen-order.entity.js';
-
 const operationsApi = new OperationsApi();
 const translate = (key) => i18n.global.t(key);
 
@@ -221,13 +217,34 @@ const useOperationsStore = defineStore('operations', () => {
         };
 
         loading.value = true;
+        // 1) crear orden → 2) agregar platos → 3) recargar
         return operationsApi.createKitchenOrder(orderData).then(response => {
-            const newOrder = KitchenOrderAssembler.toEntityFromResource(response.data);
-            kitchenOrders.value.push(newOrder);
-            initNewKitchenOrder(null, 'to_take_home');
-            return newOrder;
+            const newOrderId = response.data?.id ?? response.data?.kitchenOrderId;
+            if (!newOrderId) {
+                const newOrder = KitchenOrderAssembler.toEntityFromResource(response.data);
+                kitchenOrders.value.push(newOrder);
+                initNewKitchenOrder(null, 'to_take_home');
+                loading.value = false;
+                return newOrder;
+            }
+            const dishPromises = newOrderDishes.value.map(function(dish) {
+                return operationsApi.addDishToKitchenOrder(newOrderId, {
+                    id: dish.id,
+                    quantity: dish.quantity
+                });
+            });
+            return Promise.all(dishPromises).then(function() {
+                return operationsApi.getKitchenOrderById(newOrderId);
+            }).then(function(fullOrderResponse) {
+                const newOrder = KitchenOrderAssembler.toEntityFromResource(fullOrderResponse.data);
+                kitchenOrders.value.push(newOrder);
+                initNewKitchenOrder(null, 'to_take_home');
+                loading.value = false;
+                return newOrder;
+            });
         }).catch(error => {
             errors.value.push(error);
+            loading.value = false;
             return null;
         });
     }
@@ -273,28 +290,17 @@ const useOperationsStore = defineStore('operations', () => {
     function updateKitchenOrder(orderId, orderData) {
         loading.value = true;
         const existing = kitchenOrders.value.find(o => o.id === orderId);
-        const dateCreated = existing?.dateCreated
-            ? (existing.dateCreated instanceof Date ? existing.dateCreated.toISOString() : existing.dateCreated)
-            : new Date().toISOString();
 
-        const selectedTable = orderData.tableId
-            ? tables.value.find(t => t.id === orderData.tableId) || null
-            : existing?.table || null;
-
-        const fullData = {
-            id: orderId,
+        const payload = {
             number: existing?.number || '',
-            dateCreated,
-            state: existing?.state || 'pending',
-            table: selectedTable,
-            dishes: serializeOrderDishes(orderData.dishes || existing?.dishes || []),
-            observations: orderData.observations ?? existing?.observations ?? '',
+            tableId: orderData.tableId ?? existing?.tableId ?? existing?.table?.id ?? null,
             typeService: orderData.typeService ?? existing?.typeService ?? '',
-            totalPrice: orderData.dishes
-                ? (orderData.dishes || []).reduce((sum, d) => sum + (d.quantity || 0) * (d.price || 0), 0)
-                : existing?.totalPrice ?? 0
+            observations: orderData.observations ?? existing?.observations ?? '',
+            dateCreated: existing?.dateCreated
+                ? (existing.dateCreated instanceof Date ? existing.dateCreated.toISOString() : existing.dateCreated)
+                : new Date().toISOString()
         };
-        return operationsApi.updateKitchenOrder(orderId, fullData).then(response => {
+        return operationsApi.updateKitchenOrder(orderId, payload).then(response => {
             const updated = KitchenOrderAssembler.toEntityFromResource(response.data);
             const index = kitchenOrders.value.findIndex(o => o.id === orderId);
             if (index !== -1) kitchenOrders.value[index] = updated;

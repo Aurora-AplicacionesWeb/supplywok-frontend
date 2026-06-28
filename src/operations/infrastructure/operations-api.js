@@ -2,28 +2,34 @@ import { BaseApi } from '../../shared/infrastructure/base-api.js';
 import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
 const dishesEndpointPath = import.meta.env.VITE_DISHES_ENDPOINT_PATH || '/dishes';
-const dishesCategoriesEndpointPath = import.meta.env.VITE_DISHES_CATEGORIES_ENDPOINT_PATH || '/dishes-categories';
+const dishesCategoriesEndpointPath = import.meta.env.VITE_DISHES_CATEGORIES_ENDPOINT_PATH || '/dish-categories';
 const kitchenOrdersEndpointPath = import.meta.env.VITE_KITCHEN_ORDERS_ENDPOINT_PATH || '/kitchen-orders';
 const tablesEndpointPath = import.meta.env.VITE_TABLES_ENDPOINT_PATH || '/tables';
 
-const localDishes = [];
-const localDishCategories = [];
+// #MOCK: const localDishes = [];
+// #MOCK: const localDishCategories = [];
 
 function toBackendTableStatus(state) {
     const normalized = String(state ?? '').toLowerCase();
-    if (normalized === 'busy') return 'OCCUPIED';
-    if (normalized === 'reserved') return 'RESERVED';
-    if (normalized === 'cleaning') return 'CLEANING';
-    return 'AVAILABLE';
+    if (normalized === 'busy') return 'Busy';
+    return 'Available';
 }
 
 function toBackendKitchenOrderStatus(state) {
     const normalized = String(state ?? '').toLowerCase();
-    if (normalized === 'in_preparation') return 'IN_PREPARATION';
-    if (normalized === 'ready') return 'SERVED';
-    if (normalized === 'delivered') return 'CLOSED';
-    if (normalized === 'cancelled') return 'CLOSED';
-    return 'OPEN';
+    if (normalized === 'pending') return 'Pending';
+    if (normalized === 'in_preparation') return 'InPreparation';
+    if (normalized === 'ready') return 'Ready';
+    if (normalized === 'delivered') return 'Delivered';
+    if (normalized === 'cancelled') return 'Cancelled';
+    return 'Pending';
+}
+
+function toBackendTypeService(typeService) {
+    const normalized = String(typeService ?? '').toLowerCase();
+    if (normalized === 'table_service') return 'TableService';
+    if (normalized === 'to_take_home') return 'ToTakeHomeService';
+    return 'ToTakeHomeService';
 }
 
 export class OperationsApi extends BaseApi {
@@ -41,19 +47,11 @@ export class OperationsApi extends BaseApi {
     }
 
     getDishes() {
-        return Promise.resolve({
-            status: 200,
-            statusText: 'OK',
-            data: [...localDishes]
-        });
+        return this.#dishesEndpoint.getAll();
     }
 
     getDishCategories() {
-        return Promise.resolve({
-            status: 200,
-            statusText: 'OK',
-            data: [...localDishCategories]
-        });
+        return this.#dishesCategoriesEndpoint.getAll();
     }
 
     getTables() {
@@ -63,16 +61,11 @@ export class OperationsApi extends BaseApi {
     createTable(resource) {
         return this.#tablesEndpoint.create({
             number: resource.number,
-            capacity: resource.capacity
-        }).then((response) => ({
-            ...response,
-            data: {
-                ...(response.data ?? {}),
-                location: resource.location ?? '',
-                state: resource.state ?? 'available',
-                active: resource.active ?? true
-            }
-        }));
+            capacity: resource.capacity,
+            location: resource.location ?? '',
+            active: resource.active ?? true,
+            status: toBackendTableStatus(resource.state ?? 'available')
+        });
     }
 
     deleteTable(id) {
@@ -88,27 +81,37 @@ export class OperationsApi extends BaseApi {
     }
 
     createKitchenOrder(resource) {
-        return this.#kitchenOrdersEndpoint.create({
-            tableId: resource.tableId ?? resource.table?.id ?? null
-        }).then((response) => ({
-            ...response,
-            data: {
-                ...(response.data ?? {}),
-                ...resource,
-                status: response.data?.status ?? resource.state ?? resource.status ?? 'pending'
+        const payload = {
+            number: resource.number,
+            tableId: resource.tableId ?? resource.table?.id ?? null,
+            typeService: toBackendTypeService(resource.typeService),
+            observations: resource.observations ?? '',
+            dateOnly: resource.dateCreated
+                ? new Date(resource.dateCreated).toISOString().split('T')[0]
+                : new Date().toISOString().split('T')[0]
+        };
+        return this.#kitchenOrdersEndpoint.create(payload);
+    }
+
+    addDishToKitchenOrder(orderId, dishResource) {
+        return this.http.post(
+            `${kitchenOrdersEndpointPath}/${orderId}/dishes`,
+            {
+                dishId: dishResource.dishId ?? dishResource.id,
+                quantity: dishResource.quantity ?? 1
             }
-        }));
+        );
     }
 
     updateKitchenOrder(id, resource) {
-        return Promise.resolve({
-            status: 200,
-            statusText: 'OK',
-            data: {
-                id,
-                ...resource,
-                status: resource.state ?? resource.status ?? 'pending'
-            }
+        return this.#kitchenOrdersEndpoint.update(id, {
+            number: resource.number,
+            tableId: resource.tableId,
+            typeService: resource.typeService ? toBackendTypeService(resource.typeService) : undefined,
+            observations: resource.observations,
+            dateOnly: resource.dateCreated
+                ? new Date(resource.dateCreated).toISOString().split('T')[0]
+                : undefined
         });
     }
 
@@ -125,23 +128,12 @@ export class OperationsApi extends BaseApi {
     }
 
     updateTable(tableId, data) {
-        return this.#tablesEndpoint.http.put(
-            `${this.#tablesEndpoint.endpointPath}/${tableId}/status`,
-            { status: toBackendTableStatus(data.state ?? data.status) }
-        ).then((response) => ({
-            ...response,
-            data: {
-                ...(response.data ?? {}),
-                ...data,
-                status: response.data?.status ?? toBackendTableStatus(data.state ?? data.status)
-            }
-        }));
-    }
-
-    updateTableStatus(tableId, newState) {
-        return this.#tablesEndpoint.http.put(
-            `${this.#tablesEndpoint.endpointPath}/${tableId}/status`,
-            { status: toBackendTableStatus(newState) }
-        );
+        return this.#tablesEndpoint.update(tableId, {
+            number: data.number,
+            capacity: data.capacity,
+            location: data.location,
+            active: data.active ?? true,
+            status: toBackendTableStatus(data.state ?? data.status ?? 'available')
+        });
     }
 }

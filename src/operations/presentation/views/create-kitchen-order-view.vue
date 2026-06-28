@@ -25,7 +25,7 @@ const {
   selectServiceType, setNewOrderObservations, setNewOrderDishes,
   addItemToOrder, removeItemFromOrder,
   updateItemQuantity, createKitchenOrder, updateKitchenOrder,
-  fetchKitchenOrderById, initNewKitchenOrder, clearCurrentOrder
+  fetchKitchenOrderById
 } = store;
 
 const showMenu = ref(false);
