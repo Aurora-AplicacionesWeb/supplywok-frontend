@@ -2,11 +2,12 @@ import {KitchenOrder} from "../domain/model/kitchen-order.entity.js";
 
 export class KitchenOrderAssembler {
     static normalizeState(status) {
-        const normalized = String(status ?? '').toUpperCase();
-        if (normalized === 'OPEN') return 'pending';
-        if (normalized === 'IN_PREPARATION') return 'in_preparation';
-        if (normalized === 'SERVED') return 'ready';
-        if (normalized === 'CLOSED') return 'delivered';
+        const normalized = String(status ?? '');
+        if (normalized === 'Pending') return 'pending';
+        if (normalized === 'InPreparation') return 'in_preparation';
+        if (normalized === 'Ready') return 'ready';
+        if (normalized === 'Delivered') return 'delivered';
+        if (normalized === 'Cancelled') return 'cancelled';
         return String(status ?? '').toLowerCase();
     }
 
@@ -26,7 +27,8 @@ export class KitchenOrderAssembler {
         }
         const resources = response.data instanceof Array
             ? response.data
-            : response.data.comandas ?? response.data['kitchenOrders'] ?? [];
+            // #MOCK: response.data.comandas ?? response.data['kitchenOrders'] ?? [];
+            : response.data ?? [];
 
         return resources.map(resource => this.toEntityFromResource(resource));
     }

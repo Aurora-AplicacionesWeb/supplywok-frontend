@@ -2,11 +2,9 @@ import {Table} from "../domain/model/table.entity.js";
 
 export class TableAssembler {
     static normalizeState(status) {
-        const normalized = String(status ?? '').toUpperCase();
-        if (normalized === 'AVAILABLE') return 'available';
-        if (normalized === 'OCCUPIED') return 'busy';
-        if (normalized === 'RESERVED') return 'reserved';
-        if (normalized === 'CLEANING') return 'cleaning';
+        const normalized = String(status ?? '');
+        if (normalized === 'Available') return 'available';
+        if (normalized === 'Busy') return 'busy';
         return String(status ?? '').toLowerCase();
     }
 
@@ -25,7 +23,7 @@ export class TableAssembler {
         }
         const resources = response.data instanceof Array
             ? response.data
-            : response.data.tables ?? response.data['tables'] ?? [];
+            : response.data ?? [];
 
         return resources.map(resource => this.toEntityFromResource(resource));
     }
