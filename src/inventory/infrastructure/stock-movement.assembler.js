@@ -8,7 +8,8 @@ export class StockMovementAssembler {
       type: resource.type,
       amount: resource.amount,
       date: resource.date,
-      reason: resource.reason
+      reason: resource.reason,
+      supply: resource.supply ?? null
     });
   }
 
@@ -19,7 +20,7 @@ export class StockMovementAssembler {
     }
     let resources = response.data instanceof Array
       ? response.data
-      : response.data?.stockMovements ?? response.data?.movements ?? [];
+      : response.data ?? [];
     return resources.map(r => this.toEntityFromResource(r));
   }
 }

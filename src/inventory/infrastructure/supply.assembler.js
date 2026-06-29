@@ -2,7 +2,15 @@ import { Supply } from '../domain/model/supply.entity.js';
 
 export class SupplyAssembler {
   static toEntityFromResource(resource) {
-    return new Supply({...resource});
+    return new Supply({
+      id: resource.id,
+      name: resource.name,
+      unitOfMeasure: resource.unitOfMeasure,
+      currentStock: resource.currentStock,
+      minimumStockLevel: resource.minimumStockLevel,
+      category: resource.category,
+      supplierName: resource.supplierName ?? ''
+    });
   }
 
   static toEntitiesFromResponse(response) {
@@ -12,7 +20,7 @@ export class SupplyAssembler {
     }
     let resources = response.data instanceof Array
       ? response.data
-      : response.data?.supplies ?? response.data?.inventory ?? [];
+      : response.data ?? [];
     return resources.map(r => this.toEntityFromResource(r));
   }
 }
