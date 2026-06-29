@@ -14,7 +14,7 @@ export class KitchenOrderAssembler {
     static toEntityFromResource(resource) {
         return new KitchenOrder({
             ...resource,
-            state: resource.state ?? this.normalizeState(resource.status),
+            state: this.normalizeState(resource.state ?? resource.status),
             dateCreated: resource.dateCreated ?? resource.createdAt,
             dishes: resource.dishes ?? resource.items ?? []
         })

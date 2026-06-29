@@ -7,7 +7,7 @@ export class KitchenOrder {
                     preparationTime=null, totalPrice= 0.0,dishes=null,table = null}) {
         this.id = id;
         this.number = number;
-        this.tableId = this.table?.id ?? tableId ?? null;
+        this.tableId = tableId ?? this.table?.id ?? null;
         this.table = table instanceof Table ? table : (table ? new Table(table) : null);
         this.typeService = typeService;
         this.state = state;

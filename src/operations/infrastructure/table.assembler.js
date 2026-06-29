@@ -11,7 +11,7 @@ export class TableAssembler {
     static toEntityFromResource(resource) {
         return new Table({
             ...resource,
-            state: resource.state ?? this.normalizeState(resource.status),
+            state: this.normalizeState(resource.state ?? resource.status),
             active: resource.active ?? true
         })
     }
