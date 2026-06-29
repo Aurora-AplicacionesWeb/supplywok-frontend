@@ -6,7 +6,6 @@ const inventoryEndpointPath = import.meta.env.VITE_SUPPLIES_ENDPOINT_PATH || '/s
 export class InventoryManagementApi extends BaseApi {
   #inventoryEndpoint;
   #transactionsEndpoint;
-  #transactionsBySupplyEndpoint;
   #totalStockEndpoint;
 
   constructor() {

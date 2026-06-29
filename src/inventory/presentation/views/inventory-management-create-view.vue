@@ -19,10 +19,14 @@ const form = ref({
 const saving = ref(false);
 
 function handleSave() {
+  if (!form.value.name || !form.value.unitOfMeasure) return;
   saving.value = true;
-  store.createSupply({ ...form.value });
-  saving.value = false;
-  router.push('/inventory/items');
+  store.createSupply({ ...form.value }).then(function () {
+    saving.value = false;
+    router.push('/inventory/items');
+  }).catch(function () {
+    saving.value = false;
+  });
 }
 
 function handleCancel() {

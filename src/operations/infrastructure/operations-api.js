@@ -6,9 +6,6 @@ const dishesCategoriesEndpointPath = import.meta.env.VITE_DISHES_CATEGORIES_ENDP
 const kitchenOrdersEndpointPath = import.meta.env.VITE_KITCHEN_ORDERS_ENDPOINT_PATH || '/kitchen-orders';
 const tablesEndpointPath = import.meta.env.VITE_TABLES_ENDPOINT_PATH || '/tables';
 
-// #MOCK: const localDishes = [];
-// #MOCK: const localDishCategories = [];
-
 function toBackendTableStatus(state) {
     const normalized = String(state ?? '').toLowerCase();
     if (normalized === 'busy') return 'Busy';
@@ -27,8 +24,8 @@ function toBackendKitchenOrderStatus(state) {
 
 function toBackendTypeService(typeService) {
     const normalized = String(typeService ?? '').toLowerCase();
-    if (normalized === 'table_service') return 'TableService';
-    if (normalized === 'to_take_home') return 'ToTakeHomeService';
+    if (normalized === 'table_service' || normalized === 'tableservice') return 'TableService';
+    if (normalized === 'to_take_home' || normalized === 'totakehome') return 'ToTakeHomeService';
     return 'ToTakeHomeService';
 }
 
@@ -83,7 +80,7 @@ export class OperationsApi extends BaseApi {
     createKitchenOrder(resource) {
         const payload = {
             number: resource.number,
-            tableId: resource.tableId ?? resource.table?.id ?? 0,
+            tableId: resource.tableId ?? resource.table?.id ?? null,
             typeService: toBackendTypeService(resource.typeService),
             observations: resource.observations ?? '',
             dateCreated: resource.dateCreated
@@ -97,7 +94,7 @@ export class OperationsApi extends BaseApi {
         return this.http.post(
             `${kitchenOrdersEndpointPath}/${orderId}/dishes`,
             {
-                dishId: dishResource.dishId ?? dishResource.id,
+                id: dishResource.id,
                 quantity: dishResource.quantity ?? 1
             }
         );
@@ -118,7 +115,7 @@ export class OperationsApi extends BaseApi {
     updateKitchenOrderStatus(id, newState, observation) {
         const resource = { status: toBackendKitchenOrderStatus(newState), observations: observation };
         return this.#kitchenOrdersEndpoint.http.put(
-            `${this.#kitchenOrdersEndpoint.endpointPath}/${id}/status`,
+            `${this.#kitchenOrdersEndpoint.endpointPath}/status/${id}`,
             resource
         );
     }

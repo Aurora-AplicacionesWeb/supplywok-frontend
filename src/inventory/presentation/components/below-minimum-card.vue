@@ -1,15 +1,11 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 import useInventoryManagementStore from '../../application/inventory-management.store.js';
 
 const { t } = useI18n();
 const store = useInventoryManagementStore();
-
-const visibleLowStockSupplies = computed(() => {
-  return store.lowStockSupplies;
-});
 
 onMounted(() => {
   if (!store.suppliesLoaded) store.fetchAll();
@@ -34,7 +30,7 @@ function getStatusClass(item) {
       <div>
         <h2 class="below-minimum-card__title">{{ t('inventoryManagement.belowMinimum.title') }}</h2>
         <p class="below-minimum-card__caption">
-          {{ t('inventoryManagement.belowMinimum.caption', { count: visibleLowStockSupplies.length }) }}
+          {{ t('inventoryManagement.belowMinimum.caption', { count: store.lowStockSupplies.length }) }}
         </p>
       </div>
     </div>
@@ -43,7 +39,7 @@ function getStatusClass(item) {
       {{ t('inventoryManagement.loading') }}
     </div>
 
-    <div v-else-if="!visibleLowStockSupplies.length" class="below-minimum-card__state">
+    <div v-else-if="!store.lowStockSupplies.length" class="below-minimum-card__state">
       {{ t('inventoryManagement.belowMinimum.empty') }}
     </div>
 
@@ -54,7 +50,7 @@ function getStatusClass(item) {
         <span>{{ t('inventoryManagement.belowMinimum.columns.status') }}</span>
       </div>
 
-      <div v-for="item in visibleLowStockSupplies" :key="item.id" class="below-minimum-card__row">
+      <div v-for="item in store.lowStockSupplies" :key="item.id" class="below-minimum-card__row">
         <strong>{{ item.name }}</strong>
         <span>{{ item.currentStock }} {{ item.unitOfMeasure }}</span>
         <span class="below-minimum-card__badge" :class="getStatusClass(item)">

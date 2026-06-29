@@ -935,6 +935,20 @@
         "drinks": "Bebidas"
       }
     },
+    "store": {
+      "validation": {
+        "minItems": "Debes agregar al menos un plato antes de crear la comanda.",
+        "selectTable": "Debes seleccionar una mesa antes de crear la comanda.",
+        "dishAddFailed": "No se pudieron agregar {n} plato(s) a la comanda."
+      },
+      "errors": {
+        "fetchOrders500": "No se pudieron cargar las comandas - el servidor tiene un error interno.",
+        "fetchOrder500": "No se pudieron cargar los detalles de la comanda - el servidor tiene un error interno.",
+        "updateFailed": "No se pudo actualizar la comanda.",
+        "deleteFailed": "No se pudo eliminar la comanda.",
+        "statusUpdateFailed": "No se pudo actualizar el estado de la comanda."
+      }
+    },
     "createKitchenOrderPage": {
       "kicker": "Nueva Orden",
       "title": "Crear Comanda de Cocina",

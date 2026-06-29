@@ -103,7 +103,7 @@ const useInventoryManagementStore = defineStore('inventory', () => {
 
   function createSupply(supply) {
     loading.value = true;
-    api.createSupply(supply).then(response => {
+    return api.createSupply(supply).then(response => {
       const created = SupplyAssembler.toEntityFromResource(response.data ?? response);
       supplies.value.unshift(created);
       loading.value = false;
@@ -113,14 +113,13 @@ const useInventoryManagementStore = defineStore('inventory', () => {
     });
   }
 
-  function updateSupply(id, supply, onSuccess) {
+  function updateSupply(id, supply) {
     loading.value = true;
-    api.updateSupply(id, supply).then(response => {
+    return api.updateSupply(id, supply).then(response => {
       const updated = SupplyAssembler.toEntityFromResource(response.data ?? response);
       const index = supplies.value.findIndex((s) => s.id === id);
       if (index >= 0) supplies.value.splice(index, 1, updated);
       loading.value = false;
-      if (onSuccess) onSuccess();
     }).catch(error => {
       errors.value.push(error);
       loading.value = false;
@@ -129,7 +128,7 @@ const useInventoryManagementStore = defineStore('inventory', () => {
 
   function deleteSupply(id) {
     loading.value = true;
-    api.deleteSupply(id).then(() => {
+    return api.deleteSupply(id).then(() => {
       supplies.value = supplies.value.filter((s) => s.id !== id);
       loading.value = false;
     }).catch(error => {
@@ -140,7 +139,7 @@ const useInventoryManagementStore = defineStore('inventory', () => {
 
   function createStockMovement(movementEntity) {
     loading.value = true;
-    api.createStockMovement(movementEntity).then(response => {
+    return api.createStockMovement(movementEntity).then(response => {
       const created = StockMovementAssembler.toEntityFromResource(response.data ?? response);
       stockMovements.value.push(created);
 

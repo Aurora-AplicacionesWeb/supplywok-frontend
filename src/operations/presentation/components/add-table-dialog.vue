@@ -14,9 +14,9 @@ const route = useRoute();
 const router = useRouter();
 
 const locationOptions = computed(() => [
-  t('operations.tablesAndOccupancyPage.locations.main_hall'),
-  t('operations.tablesAndOccupancyPage.locations.terrace'),
-  t('operations.tablesAndOccupancyPage.locations.bar')
+  { label: t('operations.tablesAndOccupancyPage.locations.main_hall'), value: 'main_hall' },
+  { label: t('operations.tablesAndOccupancyPage.locations.terrace'), value: 'terrace' },
+  { label: t('operations.tablesAndOccupancyPage.locations.bar'), value: 'bar' }
 ]);
 const statusOptions = ['available', 'busy'];
 
@@ -106,7 +106,7 @@ function handleSave() {
       </div>
       <div class="flex flex-column gap-1">
         <label class="dialog-label">{{ t('operations.tablesAndOccupancyPage.location') }}</label>
-        <Select v-model="newTable.location" :options="locationOptions" :placeholder="t('operations.tablesAndOccupancyPage.location')" :showClear="true" class="w-full" />
+        <Select v-model="newTable.location" :options="locationOptions" optionLabel="label" optionValue="value" :placeholder="t('operations.tablesAndOccupancyPage.location')" :showClear="true" class="w-full" />
       </div>
       <div class="flex flex-column gap-1">
         <label class="dialog-label">{{ t('operations.tablesAndOccupancyPage.state') }}</label>

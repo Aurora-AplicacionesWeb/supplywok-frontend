@@ -44,9 +44,11 @@ const saving = ref(false);
 function handleSave() {
   if (!form.value.name || !form.value.unitOfMeasure) return;
   saving.value = true;
-  store.updateSupply(itemId, { ...form.value }, function () {
+  store.updateSupply(itemId, { ...form.value }).then(function () {
     saving.value = false;
     router.push('/inventory/items');
+  }).catch(function () {
+    saving.value = false;
   });
 }
 

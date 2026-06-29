@@ -86,7 +86,7 @@ onMounted(function() {
     if (dishCategories.value.length === 0) return fetchDishCategories();
   }).then(function () {
     if (editId.value) loadEditOrder(editId.value);
-  });
+  }).catch(function () {});
 });
 </script>
 
