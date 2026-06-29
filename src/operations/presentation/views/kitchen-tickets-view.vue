@@ -9,6 +9,7 @@ import KpiCardsRow from '../components/kpi-cards-row.vue';
 import StatusBadge from '../components/status-badge.vue';
 import Button from 'primevue/button';
 import ConfirmDialog from 'primevue/confirmdialog';
+import Message from 'primevue/message';
 import { useConfirm } from 'primevue/useconfirm';
 
 const { t } = useI18n();
@@ -18,7 +19,7 @@ const confirm = useConfirm();
 
 const {
   kitchenOrders, tables, pendingKitchenOrders, inPreparationKitchenOrders,
-  readyKitchenOrders, loading
+  readyKitchenOrders, loading, errors
 } = storeToRefs(store);
 
 const {
@@ -111,6 +112,15 @@ onMounted(() => {
           @click="goToNewTicket"
       />
     </div>
+
+    <Message
+        v-for="(err, i) in errors"
+        :key="i"
+        severity="error"
+        :closable="true"
+        :life="6000"
+        class="w-full"
+    >{{ err?.message ?? err?.toString?.() ?? err }}</Message>
 
     <div v-if="loading" class="flex justify-content-center py-5 loading-spinner">
       <i class="pi pi-spin pi-spinner" />

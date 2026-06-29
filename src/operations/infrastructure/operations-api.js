@@ -64,7 +64,7 @@ export class OperationsApi extends BaseApi {
             capacity: resource.capacity,
             location: resource.location ?? '',
             active: resource.active ?? true,
-            status: toBackendTableStatus(resource.state ?? 'available')
+            state: toBackendTableStatus(resource.state ?? 'available')
         });
     }
 
@@ -83,10 +83,10 @@ export class OperationsApi extends BaseApi {
     createKitchenOrder(resource) {
         const payload = {
             number: resource.number,
-            tableId: resource.tableId ?? resource.table?.id ?? null,
+            tableId: resource.tableId ?? resource.table?.id ?? 0,
             typeService: toBackendTypeService(resource.typeService),
             observations: resource.observations ?? '',
-            dateOnly: resource.dateCreated
+            dateCreated: resource.dateCreated
                 ? new Date(resource.dateCreated).toISOString().split('T')[0]
                 : new Date().toISOString().split('T')[0]
         };
@@ -106,10 +106,10 @@ export class OperationsApi extends BaseApi {
     updateKitchenOrder(id, resource) {
         return this.#kitchenOrdersEndpoint.update(id, {
             number: resource.number,
-            tableId: resource.tableId,
+            tableId: resource.tableId ?? 0,
             typeService: resource.typeService ? toBackendTypeService(resource.typeService) : undefined,
             observations: resource.observations,
-            dateOnly: resource.dateCreated
+            dateCreated: resource.dateCreated
                 ? new Date(resource.dateCreated).toISOString().split('T')[0]
                 : undefined
         });
@@ -133,7 +133,7 @@ export class OperationsApi extends BaseApi {
             capacity: data.capacity,
             location: data.location,
             active: data.active ?? true,
-            status: toBackendTableStatus(data.state ?? data.status ?? 'available')
+            state: toBackendTableStatus(data.state ?? data.status ?? 'available')
         });
     }
 }
