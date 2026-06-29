@@ -84,7 +84,10 @@ function handleCancel() {
         <div class="inventory-edit-form__row">
           <label class="inventory-edit-form__field">
             <span>Current Stock</span>
-            <input v-model.number="form.currentStock" type="number" min="0" required />
+            <input v-model.number="form.currentStock" type="number" min="0" disabled />
+            <small class="inventory-edit-form__hint">
+              {{ t('inventoryManagement.form.currentStockHint') }}
+            </small>
           </label>
 
           <label class="inventory-edit-form__field">
@@ -194,6 +197,12 @@ function handleCancel() {
   color: #221b2a;
   font-size: 1rem;
   outline: none;
+}
+
+.inventory-edit-form__hint {
+  color: #a07832;
+  font-size: 0.82rem;
+  margin-top: 4px;
 }
 
 .inventory-edit-form__field input:focus {

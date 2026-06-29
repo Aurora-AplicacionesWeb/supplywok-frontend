@@ -55,7 +55,6 @@ export class InventoryManagementApi extends BaseApi {
     const payload = {
       name: supply.name,
       unitOfMeasure: supply.unitOfMeasure,
-      currentStock: supply.currentStock,
       minimumStockLevel: supply.minimumStockLevel,
       category: supply.category
     };
