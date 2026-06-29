@@ -11,8 +11,8 @@ const visibleLowStockSupplies = computed(() => {
   return store.lowStockSupplies;
 });
 
-onMounted(async () => {
-  if (!store.suppliesLoaded) await store.fetchAll();
+onMounted(() => {
+  if (!store.suppliesLoaded) store.fetchAll();
 });
 
 function getStockStatusLabel(item) {

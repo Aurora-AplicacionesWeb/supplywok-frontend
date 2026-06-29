@@ -52,6 +52,22 @@ const useInventoryManagementStore = defineStore('inventory', () => {
     return Array.from(units);
   });
 
+  function fetchAll() {
+    loading.value = true;
+    api.getSupplies().then(response => {
+      supplies.value = SupplyAssembler.toEntitiesFromResponse(response);
+      suppliesLoaded.value = true;
+      return api.getStockMovements();
+    }).then(response => {
+      stockMovements.value = StockMovementAssembler.toEntitiesFromResponse(response);
+      stockMovementsLoaded.value = true;
+      loading.value = false;
+    }).catch(error => {
+      errors.value.push(error);
+      loading.value = false;
+    });
+  }
+
   function fetchSupplies() {
     loading.value = true;
     api.getSupplies().then(response => {
@@ -76,34 +92,12 @@ const useInventoryManagementStore = defineStore('inventory', () => {
     });
   }
 
-  function attachMovementsToSupplies() {
-    const movementsBySupply = stockMovements.value.reduce((map, movement) => {
-      const key = movement.supplyId;
-      if (!map[key]) map[key] = [];
-      map[key].push(movement);
-      return map;
-    }, {});
-
-    supplies.value.forEach((supply) => {
-      const attached = movementsBySupply[supply.id] ?? [];
-      supply.movements = attached;
-    });
-  }
-
-  function fetchAll() {
-    loading.value = true;
-    api.getSupplies().then(response => {
-      supplies.value = SupplyAssembler.toEntitiesFromResponse(response);
-      suppliesLoaded.value = true;
-      return api.getStockMovements();
-    }).then(response => {
-      stockMovements.value = StockMovementAssembler.toEntitiesFromResponse(response);
-      stockMovementsLoaded.value = true;
-      attachMovementsToSupplies();
-      loading.value = false;
+  function fetchSuppliesTotalStock() {
+    return api.getSuppliesTotalStock().then(response => {
+      return response.data?.totalStock ?? response.data ?? 0;
     }).catch(error => {
       errors.value.push(error);
-      loading.value = false;
+      return 0;
     });
   }
 
@@ -119,13 +113,14 @@ const useInventoryManagementStore = defineStore('inventory', () => {
     });
   }
 
-  function updateSupply(id, supply) {
+  function updateSupply(id, supply, onSuccess) {
     loading.value = true;
     api.updateSupply(id, supply).then(response => {
       const updated = SupplyAssembler.toEntityFromResource(response.data ?? response);
       const index = supplies.value.findIndex((s) => s.id === id);
       if (index >= 0) supplies.value.splice(index, 1, updated);
       loading.value = false;
+      if (onSuccess) onSuccess();
     }).catch(error => {
       errors.value.push(error);
       loading.value = false;
@@ -151,9 +146,8 @@ const useInventoryManagementStore = defineStore('inventory', () => {
 
       const supply = supplies.value.find((s) => s.id === created.supplyId);
       if (supply) {
-        if (created.type === 'ENTRY') supply.currentStock += created.amount;
-        else if (created.type === 'EXIT') supply.currentStock -= created.amount;
-        else if (created.type === 'ADJUSTMENT') supply.currentStock += created.amount;
+        if (created.type === 'Entry' || created.type === 'entry') supply.currentStock += created.amount;
+        else if (created.type === 'Exit' || created.type === 'exit') supply.currentStock -= created.amount;
       }
 
       loading.value = false;
@@ -177,8 +171,8 @@ const useInventoryManagementStore = defineStore('inventory', () => {
     supplyUnits,
     fetchSupplies,
     fetchStockMovements,
+    fetchSuppliesTotalStock,
     fetchAll,
-    attachMovementsToSupplies,
     createSupply,
     updateSupply,
     deleteSupply,
