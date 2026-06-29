@@ -2,7 +2,12 @@ import { DemandForecast } from '../domain/model/demand-forecast.entity.js';
 
 export class DemandForecastAssembler {
     static toEntityFromResource(resource) {
-        return new DemandForecast({ ...resource });
+        return new DemandForecast({
+            id: resource.id,
+            aggregate: resource.aggregate ?? resource.aggregateForecast ?? [],
+            clients: resource.clients ?? [],
+            ...resource
+        });
     }
 
     static toEntitiesFromResponse(response) {
@@ -13,7 +18,7 @@ export class DemandForecastAssembler {
 
         const resources = response.data instanceof Array
             ? response.data
-            : response.data?.['demand-forecasts'] ?? (response.data ? [response.data] : []);
+            : response.data ? [response.data] : [];
 
         return resources.map(resource => this.toEntityFromResource(resource));
     }
