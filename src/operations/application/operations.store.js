@@ -6,11 +6,7 @@ import { TableAssembler } from '../infrastructure/table.assembler.js';
 import { DishAssembler } from '../infrastructure/dish.assembler.js';
 import { DishCategoryAssembler } from '../infrastructure/dish-category.assembler.js';
 import { KitchenOrderAssembler } from '../infrastructure/kitchen-order.assembler.js';
-import { Table } from '../domain/model/table.entity.js';
 import { Dish } from '../domain/model/dish.entity.js';
-import { DishCategory } from '../domain/model/dish-category.entity.js';
-import { KitchenOrder } from '../domain/model/kitchen-order.entity.js';
-
 const operationsApi = new OperationsApi();
 const translate = (key) => i18n.global.t(key);
 
@@ -160,7 +156,10 @@ const useOperationsStore = defineStore('operations', () => {
             kitchenOrders.value = KitchenOrderAssembler.toEntitiesFromResponse(ordersResponse);
             loading.value = false;
         }).catch(error => {
-            errors.value.push(error);
+            const status = error?.response?.status;
+            errors.value.push(status === 500
+                ? translate('operations.store.errors.fetchOrders500')
+                : (error?.message ?? error));
             loading.value = false;
         });
     }
@@ -172,37 +171,24 @@ const useOperationsStore = defineStore('operations', () => {
             currentKitchenOrder.value = order;
             loading.value = false;
         }).catch(error => {
-            errors.value.push(error);
+            const status = error?.response?.status;
+            errors.value.push(status === 500
+                ? translate('operations.store.errors.fetchOrder500')
+                : (error?.message ?? error));
             loading.value = false;
         });
     }
 
     // --- Mutation actions ---
 
-    function serializeOrderDishes(dishes) {
-        return (dishes || []).map(function (d) {
-            return {
-                id: d.id,
-                code: d.code,
-                name: d.name,
-                description: d.description,
-                quantity: d.quantity,
-                price: d.price,
-                active: d.active,
-                outstanding: d.outstanding,
-                dishCategoryId: d.dishCategoryId
-            };
-        });
-    }
-
     function createKitchenOrder() {
         if (newOrderDishes.value.length === 0) {
             errors.value.push(translate('operations.store.validation.minItems'));
-            return null;
+            return Promise.reject(new Error(translate('operations.store.validation.minItems')));
         }
         if (newOrderServiceType.value === 'table_service' && !newOrderTableId.value) {
             errors.value.push(translate('operations.store.validation.selectTable'));
-            return null;
+            return Promise.reject(new Error(translate('operations.store.validation.selectTable')));
         }
 
         const selectedTable = newOrderServiceType.value === 'table_service'
@@ -213,21 +199,52 @@ const useOperationsStore = defineStore('operations', () => {
             number: `C${String(kitchenOrders.value.length + 1).padStart(3, '0')}`,
             table: selectedTable,
             typeService: newOrderServiceType.value,
-            state: 'pending',
-            dishes: serializeOrderDishes(newOrderDishes.value),
             observations: newOrderObservations.value,
-            dateCreated: new Date().toISOString(),
-            totalPrice: totalNewOrder.value
+            dateCreated: new Date().toISOString()
         };
 
         loading.value = true;
         return operationsApi.createKitchenOrder(orderData).then(response => {
-            const newOrder = KitchenOrderAssembler.toEntityFromResource(response.data);
-            kitchenOrders.value.push(newOrder);
+            const data = response.data ?? response;
+            const newOrderId = data.id ?? data.kitchenOrderId;
+            if (newOrderId && newOrderDishes.value.length > 0) {
+                const dishPromises = newOrderDishes.value.map(function(dish) {
+                    return operationsApi.addDishToKitchenOrder(newOrderId, {
+                        id: dish.id,
+                        quantity: dish.quantity
+                    });
+                });
+                return Promise.allSettled(dishPromises).then(function(results) {
+                    const failed = results.filter(r => r.status === 'rejected');
+                    if (failed.length > 0) {
+                        errors.value.push(
+                            translate('operations.store.validation.dishAddFailed')
+                                .replace('{n}', failed.length)
+                        );
+                    }
+                    return operationsApi.getKitchenOrderById(newOrderId).then(function(fullOrderResponse) {
+                        const newOrder = KitchenOrderAssembler.toEntityFromResource(fullOrderResponse.data);
+                        kitchenOrders.value.push(newOrder);
+                        initNewKitchenOrder(null, 'to_take_home');
+                        loading.value = false;
+                        return newOrder;
+                    }).catch(function() {
+                        const basicOrder = KitchenOrderAssembler.toEntityFromResource(data);
+                        kitchenOrders.value.push(basicOrder);
+                        initNewKitchenOrder(null, 'to_take_home');
+                        loading.value = false;
+                        return basicOrder;
+                    });
+                });
+            }
+            const basicOrder = KitchenOrderAssembler.toEntityFromResource(data);
+            kitchenOrders.value.push(basicOrder);
             initNewKitchenOrder(null, 'to_take_home');
-            return newOrder;
+            loading.value = false;
+            return basicOrder;
         }).catch(error => {
-            errors.value.push(error);
+            errors.value.push(error?.message ?? error);
+            loading.value = false;
             return null;
         });
     }
@@ -273,28 +290,17 @@ const useOperationsStore = defineStore('operations', () => {
     function updateKitchenOrder(orderId, orderData) {
         loading.value = true;
         const existing = kitchenOrders.value.find(o => o.id === orderId);
-        const dateCreated = existing?.dateCreated
-            ? (existing.dateCreated instanceof Date ? existing.dateCreated.toISOString() : existing.dateCreated)
-            : new Date().toISOString();
 
-        const selectedTable = orderData.tableId
-            ? tables.value.find(t => t.id === orderData.tableId) || null
-            : existing?.table || null;
-
-        const fullData = {
-            id: orderId,
+        const payload = {
             number: existing?.number || '',
-            dateCreated,
-            state: existing?.state || 'pending',
-            table: selectedTable,
-            dishes: serializeOrderDishes(orderData.dishes || existing?.dishes || []),
-            observations: orderData.observations ?? existing?.observations ?? '',
+            tableId: orderData.tableId ?? existing?.tableId ?? existing?.table?.id ?? null,
             typeService: orderData.typeService ?? existing?.typeService ?? '',
-            totalPrice: orderData.dishes
-                ? (orderData.dishes || []).reduce((sum, d) => sum + (d.quantity || 0) * (d.price || 0), 0)
-                : existing?.totalPrice ?? 0
+            observations: orderData.observations ?? existing?.observations ?? '',
+            dateCreated: existing?.dateCreated
+                ? (existing.dateCreated instanceof Date ? existing.dateCreated.toISOString() : existing.dateCreated)
+                : new Date().toISOString()
         };
-        return operationsApi.updateKitchenOrder(orderId, fullData).then(response => {
+        return operationsApi.updateKitchenOrder(orderId, payload).then(response => {
             const updated = KitchenOrderAssembler.toEntityFromResource(response.data);
             const index = kitchenOrders.value.findIndex(o => o.id === orderId);
             if (index !== -1) kitchenOrders.value[index] = updated;
@@ -302,7 +308,7 @@ const useOperationsStore = defineStore('operations', () => {
             loading.value = false;
             return updated;
         }).catch(error => {
-            errors.value.push(error);
+            errors.value.push(translate('operations.store.errors.updateFailed'));
             loading.value = false;
             return null;
         });
@@ -317,7 +323,7 @@ const useOperationsStore = defineStore('operations', () => {
             loading.value = false;
             return true;
         }).catch(error => {
-            errors.value.push(error);
+            errors.value.push(translate('operations.store.errors.deleteFailed'));
             loading.value = false;
             return false;
         });
@@ -325,7 +331,7 @@ const useOperationsStore = defineStore('operations', () => {
 
     function updateKitchenOrderStatus(orderId, newState, observations) {
         const order = kitchenOrders.value.find(o => o.id === orderId);
-        if (!order) return null;
+        if (!order) return Promise.reject(new Error(translate('operations.store.errors.orderNotFound')));
 
         const transitions = {
             pending: ['in_preparation', 'cancelled'],
@@ -335,7 +341,7 @@ const useOperationsStore = defineStore('operations', () => {
             cancelled: []
         };
         const allowed = transitions[order.state] || [];
-        if (!allowed.includes(newState)) return null;
+        if (!allowed.includes(newState)) return Promise.reject(new Error(translate('operations.store.errors.invalidTransition')));
 
         loading.value = true;
         return operationsApi.updateKitchenOrderStatus(orderId, newState, observations).then(response => {
@@ -346,10 +352,14 @@ const useOperationsStore = defineStore('operations', () => {
             loading.value = false;
             return updated;
         }).catch(error => {
-            errors.value.push(error);
+            errors.value.push(translate('operations.store.errors.statusUpdateFailed'));
             loading.value = false;
             return null;
         });
+    }
+
+    function clearErrors() {
+        errors.value = [];
     }
 
     function resetStore() {
@@ -378,7 +388,7 @@ const useOperationsStore = defineStore('operations', () => {
         fetchTables, fetchDishes, fetchDishCategories, fetchKitchenOrders,
         fetchKitchenOrderById,
         createKitchenOrder, updateKitchenOrderStatus, updateKitchenOrder, deleteKitchenOrder,
-        addTable, updateTable, deleteTable, resetStore
+        addTable, updateTable, deleteTable, resetStore, clearErrors
     };
 });
 

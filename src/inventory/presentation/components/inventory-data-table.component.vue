@@ -88,9 +88,9 @@ function openDeleteItem(row) {
   }
 }
 
-onMounted(async () => {
+onMounted(() => {
   if (!store.suppliesLoaded) {
-    await store.fetchAll();
+    store.fetchAll();
   }
 });
 </script>

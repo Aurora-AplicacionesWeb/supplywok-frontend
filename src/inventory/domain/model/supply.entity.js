@@ -7,6 +7,7 @@ export class Supply {
     minimumStockLevel = 0,
     category = 'UNCATEGORIZED',
     supplierId = null,
+    supplierName = '',
     movements = []
   })
   {
@@ -17,6 +18,7 @@ export class Supply {
     this.minimumStockLevel = minimumStockLevel;
     this.category = category;
     this.supplierId = supplierId;
+    this.supplierName = supplierName;
     this.movements = movements;
   }
 }

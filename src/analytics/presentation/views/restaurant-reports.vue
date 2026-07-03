@@ -12,10 +12,25 @@ const { fetchReportsData } = store;
 
 // ── Dynamic Mapping Computeds ──
 
-const inventoryDataList = computed(() => reportsData.value?.inventoryTrend || []);
-const weeklyConsumptionList = computed(() => reportsData.value?.weeklyConsumption || []);
+const inventoryDataList = computed(() => {
+    const trend = reportsData.value?.inventoryTrend;
+    if (!trend?.labels || !trend?.data) return [];
+    return trend.labels.map((label, i) => ({ month: label, value: trend.data[i] }));
+});
+
+const weeklyConsumptionList = computed(() => {
+    const wc = reportsData.value?.weeklyConsumption;
+    if (!wc?.labels || !wc?.data) return [];
+    return wc.labels.map((label, i) => ({ week: label, value: wc.data[i] }));
+});
+
 const topSuppliersList = computed(() => reportsData.value?.topSuppliersOrders || []);
-const tempFluctuationsList = computed(() => reportsData.value?.temperatureFluctuations || []);
+
+const tempFluctuationsList = computed(() => {
+    const tf = reportsData.value?.temperatureFluctuations;
+    if (!tf?.labels || !tf?.data) return [];
+    return tf.labels.map((label, i) => ({ day: label, value: tf.data[i] }));
+});
 
 // Chart JS Data Configurations
 const inventoryChartData = computed(() => ({

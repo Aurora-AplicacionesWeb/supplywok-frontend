@@ -10,6 +10,7 @@ import TableCard from '../components/table-card.vue';
 import AddTableDialog from '../components/add-table-dialog.vue';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
+import Message from 'primevue/message';
 
 const { t } = useI18n();
 const store = useOperationsStore();
@@ -17,7 +18,7 @@ const route = useRoute();
 const router = useRouter();
 
 const {
-  tables, tablesByLocation, freeTables, occupiedTables, loading
+  tables, tablesByLocation, freeTables, occupiedTables, loading, errors
 } = storeToRefs(store);
 
 const { fetchTables } = store;
@@ -85,6 +86,15 @@ onMounted(() => {
       </div>
       <AddTableDialog />
     </div>
+    <Message
+        v-for="(err, i) in errors"
+        :key="i"
+        severity="error"
+        :closable="true"
+        :life="6000"
+        class="w-full"
+    >{{ err?.message ?? err?.toString?.() ?? err }}</Message>
+
     <TableStatCards
         :total-tables="totalTables"
         :free-count="freeCount"

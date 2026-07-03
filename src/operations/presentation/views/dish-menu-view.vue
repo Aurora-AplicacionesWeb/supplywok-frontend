@@ -7,12 +7,13 @@ import { useRouter } from 'vue-router';
 import useOperationsStore from '../../application/operations.store.js';
 import DishCard from '../components/dish-card.vue';
 import InputText from 'primevue/inputtext';
+import Message from 'primevue/message';
 
 const { t } = useI18n();
 const router = useRouter();
 const store = useOperationsStore();
 
-const { dishes, dishCategories, dishesByCategory, loading } = storeToRefs(store);
+const { dishes, dishCategories, dishesByCategory, loading, errors } = storeToRefs(store);
 const { fetchDishes, fetchDishCategories, addItemToOrder } = store;
 
 const searchQuery = ref('');
@@ -61,6 +62,15 @@ onMounted(() => {
         <p class="mt-2 page-desc">{{ t('operations.dishMenuPage.description') }}</p>
       </div>
     </div>
+
+    <Message
+        v-for="(err, i) in errors"
+        :key="i"
+        severity="error"
+        :closable="true"
+        :life="6000"
+        class="w-full"
+    >{{ err?.message ?? err?.toString?.() ?? err }}</Message>
 
     <div class="flex align-items-center gap-2 flex-wrap">
             <span class="flex align-items-center gap-1 p-2 border-1 bg-white border-round flex-1 search-box">

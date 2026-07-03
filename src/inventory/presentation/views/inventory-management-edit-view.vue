@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import useInventoryManagementStore from '../../application/inventory-management.store.js';
@@ -21,28 +21,35 @@ const form = ref({
   category: ''
 });
 
-onMounted(async () => {
-  if (!store.suppliesLoaded) {
-    await store.fetchAll();
-  }
-  if (supply.value) {
+watch(supply, (newVal) => {
+  if (newVal) {
     form.value = {
-      name: supply.value.name,
-      unitOfMeasure: supply.value.unitOfMeasure,
-      currentStock: supply.value.currentStock,
-      minimumStockLevel: supply.value.minimumStockLevel,
-      category: supply.value.category
+      name: newVal.name,
+      unitOfMeasure: newVal.unitOfMeasure,
+      currentStock: newVal.currentStock,
+      minimumStockLevel: newVal.minimumStockLevel,
+      category: newVal.category
     };
+  }
+}, { immediate: true });
+
+onMounted(() => {
+  if (!store.suppliesLoaded) {
+    store.fetchAll();
   }
 });
 
 const saving = ref(false);
 
 function handleSave() {
+  if (!form.value.name || !form.value.unitOfMeasure) return;
   saving.value = true;
-  store.updateSupply(itemId, { ...form.value });
-  saving.value = false;
-  router.push('/inventory/items');
+  store.updateSupply(itemId, { ...form.value }).then(function () {
+    saving.value = false;
+    router.push('/inventory/items');
+  }).catch(function () {
+    saving.value = false;
+  });
 }
 
 function handleCancel() {
@@ -79,7 +86,10 @@ function handleCancel() {
         <div class="inventory-edit-form__row">
           <label class="inventory-edit-form__field">
             <span>Current Stock</span>
-            <input v-model.number="form.currentStock" type="number" min="0" required />
+            <input v-model.number="form.currentStock" type="number" min="0" disabled />
+            <small class="inventory-edit-form__hint">
+              {{ t('inventoryManagement.form.currentStockHint') }}
+            </small>
           </label>
 
           <label class="inventory-edit-form__field">
@@ -189,6 +199,12 @@ function handleCancel() {
   color: #221b2a;
   font-size: 1rem;
   outline: none;
+}
+
+.inventory-edit-form__hint {
+  color: #a07832;
+  font-size: 0.82rem;
+  margin-top: 4px;
 }
 
 .inventory-edit-form__field input:focus {

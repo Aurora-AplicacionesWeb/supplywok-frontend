@@ -7,6 +7,7 @@ import useOperationsStore from '../../application/operations.store.js';
 import DishMenuPanel from '../components/dish-menu-panel.vue';
 import Button from 'primevue/button';
 import Textarea from 'primevue/textarea';
+import Message from 'primevue/message';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -17,7 +18,7 @@ const {
   tables, freeTables, dishes, dishCategories, dishesByCategory,
   newOrderServiceType, newOrderTableId,
   newOrderDishes, newOrderObservations,
-  totalItemsNewOrder, totalNewOrder, loading
+  totalItemsNewOrder, totalNewOrder, loading, errors
 } = storeToRefs(store);
 
 const {
@@ -25,7 +26,7 @@ const {
   selectServiceType, setNewOrderObservations, setNewOrderDishes,
   addItemToOrder, removeItemFromOrder,
   updateItemQuantity, createKitchenOrder, updateKitchenOrder,
-  fetchKitchenOrderById, initNewKitchenOrder, clearCurrentOrder
+  fetchKitchenOrderById
 } = store;
 
 const showMenu = ref(false);
@@ -85,7 +86,7 @@ onMounted(function() {
     if (dishCategories.value.length === 0) return fetchDishCategories();
   }).then(function () {
     if (editId.value) loadEditOrder(editId.value);
-  });
+  }).catch(function () {});
 });
 </script>
 
@@ -108,6 +109,15 @@ onMounted(function() {
         </div>
       </div>
     </div>
+
+    <Message
+        v-for="(err, i) in errors"
+        :key="i"
+        severity="error"
+        :closable="true"
+        :life="6000"
+        class="w-full"
+    >{{ err?.message ?? err?.toString?.() ?? err }}</Message>
 
     <div class="grid">
       <div class="col-12 lg:col-7">

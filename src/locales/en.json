@@ -599,6 +599,9 @@
       "warning": "Low",
       "healthy": "Healthy"
     },
+    "form": {
+      "currentStockHint": "Stock is modified via Entry/Exit transactions"
+    },
     "units": {
       "kilograms": "Kilograms",
       "liters": "Liters",
@@ -930,6 +933,20 @@
         "special_dishes": "Special Dishes",
         "desserts": "Desserts",
         "drinks": "Drinks"
+      }
+    },
+    "store": {
+      "validation": {
+        "minItems": "You must add at least one dish before creating the order.",
+        "selectTable": "You must select a table before creating the order.",
+        "dishAddFailed": "{n} dish(es) could not be added to the order."
+      },
+      "errors": {
+        "fetchOrders500": "Could not load kitchen orders - the server is experiencing a backend error.",
+        "fetchOrder500": "Could not load order details - the server is experiencing a backend error.",
+        "updateFailed": "Could not update the kitchen order.",
+        "deleteFailed": "Could not delete the kitchen order.",
+        "statusUpdateFailed": "Could not update the order status."
       }
     },
     "createKitchenOrderPage": {
