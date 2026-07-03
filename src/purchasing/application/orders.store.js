@@ -34,8 +34,9 @@ export const useOrdersStore = defineStore('orders', () => {
         return suppliers.value.map((supplier) => ({
             ...supplier,
             id: String(supplier.id),
-            name: supplier.name ?? '',
-            contactName: supplier.contactName ?? '',
+            name: supplier.businessName ?? '',
+            contactName: [supplier.firstName, supplier.lastName].filter(Boolean).join(' '),
+            email: supplier.contactEmail ?? '',
             phone: supplier.phone ?? '',
             category: supplier.category ?? ''
         }));

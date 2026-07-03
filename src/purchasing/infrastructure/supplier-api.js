@@ -1,18 +1,17 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js';
 import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
-const suppliersApiUrl = import.meta.env.VITE_SUPPLIERS_API_URL || import.meta.env.VITE_SUPPLYWOK_API_URL || '';
-const suppliersEndpointPath = import.meta.env.VITE_SUPPLIERS_ENDPOINT_PATH ?? '';
+const supplierProfilesEndpointPath = import.meta.env.VITE_SUPPLIER_PROFILES_ENDPOINT_PATH ?? '/supplier-profiles';
 
 export class SupplierApi extends BaseApi {
-    #suppliersEndpoint;
+    #supplierProfilesEndpoint;
 
     constructor() {
-        super(suppliersApiUrl || undefined);
-        this.#suppliersEndpoint = new BaseEndpoint(this, suppliersEndpointPath);
+        super();
+        this.#supplierProfilesEndpoint = new BaseEndpoint(this, supplierProfilesEndpointPath);
     }
 
     getSuppliers() {
-        return this.#suppliersEndpoint.getAll();
+        return this.#supplierProfilesEndpoint.getAll();
     }
 }
