@@ -4,7 +4,7 @@ import {BaseEndpoint} from "../../shared/infrastructure/base-endpoint.js";
 const supplierId = import.meta.env.VITE_SUPPLIER_ID ?? '1';
 const ordersEndpointPath = import.meta.env.VITE_PURCHASE_ORDERS_ENDPOINT_PATH ?? '/purchase-orders';
 const catalogItemsEndpointPath = import.meta.env.VITE_CATALOG_ITEMS_ENDPOINT_PATH ?? '/suppliers/{supplierId}/catalog-items';
-const clientsEndpointPath = import.meta.env.VITE_CLIENTS_ENDPOINT_PATH ?? '/suppliers/{supplierId}/clients';
+const clientsEndpointPath = import.meta.env.VITE_CLIENTS_ENDPOINT_PATH ?? '/suppliers/{supplierId}/restaurants';
 const alertsEndpointPath = import.meta.env.VITE_ALERTS_ENDPOINT_PATH ?? '/supplier/alerts';
 
 const localSupplierState = {
