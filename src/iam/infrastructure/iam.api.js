@@ -20,8 +20,8 @@ export class IamApi extends BaseApi {
     return response.data;
   }
 
-  async signUp(email, password) {
-    const response = await this.http.post(`${this.#authEndpointPath}/sign-up`, { email, password });
+  async signUp(email, password, role = 'restaurant') {
+    const response = await this.http.post(`${this.#authEndpointPath}/sign-up`, { email, password, role });
     return response.data;
   }
 
