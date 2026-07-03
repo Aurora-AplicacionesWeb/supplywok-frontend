@@ -3,10 +3,12 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import useProfilesStore from '../../../profiles/application/profiles.store.js';
 import { useIamStore } from '../../../iam/application/iam-store.js';
+import useSessionStore from '../../application/session.store.js';
 
 const { t } = useI18n();
 const profilesStore = useProfilesStore();
 const iamStore = useIamStore();
+const sessionStore = useSessionStore();
 
 const restaurantProfile = ref('');
 const contactName = ref('');
@@ -24,16 +26,32 @@ const demoState = ref('Inactive');
 const profileLoading = ref(true);
 
 onMounted(async () => {
-    await profilesStore.fetchRestaurantProfiles();
+    const userRole = sessionStore.userRole;
     const userId = iamStore.currentUser?.id;
-    if (userId) {
-        const profile = profilesStore.restaurantProfiles.find(p => p.userId === userId);
-        if (profile) {
-            restaurantProfile.value = profile.businessName || '';
-            contactName.value = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
-            contactEmail.value = profile.contactEmail || '';
-            address.value = [profile.street, profile.district, profile.city, profile.country].filter(Boolean).join(', ');
-            supportContact.value = profile.contactEmail || '';
+
+    if (userRole === 'supplier') {
+        await profilesStore.fetchSupplierProfiles();
+        if (userId) {
+            const profile = profilesStore.supplierProfiles.find(p => p.userId === userId);
+            if (profile) {
+                restaurantProfile.value = profile.businessName || '';
+                contactName.value = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
+                contactEmail.value = profile.contactEmail || '';
+                address.value = [profile.street, profile.district, profile.city, profile.country].filter(Boolean).join(', ');
+                supportContact.value = profile.phone || profile.contactEmail || '';
+            }
+        }
+    } else {
+        await profilesStore.fetchRestaurantProfiles();
+        if (userId) {
+            const profile = profilesStore.restaurantProfiles.find(p => p.userId === userId);
+            if (profile) {
+                restaurantProfile.value = profile.businessName || '';
+                contactName.value = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
+                contactEmail.value = profile.contactEmail || '';
+                address.value = [profile.street, profile.district, profile.city, profile.country].filter(Boolean).join(', ');
+                supportContact.value = profile.contactEmail || '';
+            }
         }
     }
     profileLoading.value = false;
