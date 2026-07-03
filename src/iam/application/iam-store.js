@@ -48,7 +48,7 @@ export const useIamStore = defineStore('iam', () => {
     try {
       const data = await api.signIn(email, password);
       if (data && data.token) {
-        currentUser.value = { id: data.id, email: data.email, token: data.token };
+        currentUser.value = { id: data.id, email: data.email, token: data.token, role: data.role };
         localStorage.setItem('token', data.token);
         return true;
       } else {
@@ -71,8 +71,9 @@ export const useIamStore = defineStore('iam', () => {
     loading.value = true;
     error.value = null;
     try {
-      await api.signUp(userData.email, userData.password);
-      return true;
+      await api.signUp(userData.email, userData.password, userData.role);
+      const loginSuccess = await login(userData.email, userData.password);
+      return loginSuccess;
     } catch (err) {
       error.value = 'Registration failed';
       return false;
