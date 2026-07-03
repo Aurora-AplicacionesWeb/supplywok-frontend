@@ -1,18 +1,43 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import useProfilesStore from '../../../profiles/application/profiles.store.js';
+import { useIamStore } from '../../../iam/application/iam-store.js';
 
 const { t } = useI18n();
-const restaurantProfile = ref('La Cucina Bella');
+const profilesStore = useProfilesStore();
+const iamStore = useIamStore();
+
+const restaurantProfile = ref('');
+const contactName = ref('');
+const contactEmail = ref('');
+const address = ref('');
 const operatingHours = ref('11:00 AM - 10:00 PM');
 const minimumThreshold = ref('15%');
-const supportContact = ref('+(555) 123-4567');
+const supportContact = ref('');
 const employeeLockPassword = ref('********');
 const notificationEmail = ref(true);
 const notificationSms = ref(false);
 const restrictedMode = ref(true);
 const selectedDays = ref(['M', 'T', 'W', 'T2', 'F', 'S']);
 const demoState = ref('Inactive');
+const profileLoading = ref(true);
+
+onMounted(async () => {
+    await profilesStore.fetchRestaurantProfiles();
+    const userId = iamStore.currentUser?.id;
+    if (userId) {
+        const profile = profilesStore.restaurantProfiles.find(p => p.userId === userId);
+        if (profile) {
+            restaurantProfile.value = profile.businessName || '';
+            contactName.value = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
+            contactEmail.value = profile.contactEmail || '';
+            address.value = [profile.street, profile.district, profile.city, profile.country].filter(Boolean).join(', ');
+            supportContact.value = profile.contactEmail || '';
+        }
+    }
+    profileLoading.value = false;
+});
 
 const dayChips = [
   { id: 'M', label: 'M' },
