@@ -36,9 +36,9 @@ const handleLogin = async () => {
   const success = await iamStore.login(email.value, password.value);
   
   if (success) {
-    const role = normalizeRole(iamStore.currentUserRole);
-    sessionStore.setUserRole(role);
-    router.push(getHomeByRole(role));
+    const userRole = normalizeRole(iamStore.currentUser?.role);
+    sessionStore.setUserRole(userRole);
+    router.push(getHomeByRole(userRole));
   } else {
     errorMessage.value = iamStore.error || t('access.validation.invalid-credentials');
   }
