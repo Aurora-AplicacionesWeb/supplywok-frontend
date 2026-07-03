@@ -37,25 +37,19 @@ export const useIamStore = defineStore('iam', () => {
   };
 
   /**
-   * Simulates a login process by fetching all users and matching credentials locally.
-   * @param {string} email 
-   * @param {string} password 
+   * Authenticates a user against the backend sign-in endpoint.
+   * @param {string} email
+   * @param {string} password
    * @returns {Promise<boolean>} True if login is successful.
    */
   const login = async (email, password) => {
     loading.value = true;
     error.value = null;
     try {
-      // Since there is no specific login endpoint, we fetch all and find the match
-      const allUsers = await api.getUsers();
-      const user = allUsers.find(u => u.email === email && u.password === password);
-      
-      if (user) {
-        currentUser.value = user;
-        const sessionStore = useSessionStore();
-        if (user.subscription) {
-          sessionStore.setSubscriptionPlan(user.subscription);
-        }
+      const data = await api.signIn(email, password);
+      if (data && data.token) {
+        currentUser.value = { id: data.id, email: data.email, token: data.token };
+        localStorage.setItem('token', data.token);
         return true;
       } else {
         error.value = 'Invalid email or password';
@@ -70,20 +64,15 @@ export const useIamStore = defineStore('iam', () => {
   };
 
   /**
-   * Registers a new user.
-   * @param {User} userData 
+   * Registers a new user against the backend sign-up endpoint.
+   * @param {Object} userData
    */
   const registerUser = async (userData) => {
     loading.value = true;
     error.value = null;
     try {
-      const newUser = await api.createUser(userData);
-      if (newUser) {
-        users.value.push(newUser);
-        currentUser.value = newUser;
-        return true;
-      }
-      return false;
+      await api.signUp(userData.email, userData.password);
+      return true;
     } catch (err) {
       error.value = 'Registration failed';
       return false;
@@ -98,6 +87,7 @@ export const useIamStore = defineStore('iam', () => {
   const logout = () => {
     const sessionStore = useSessionStore();
     currentUser.value = null;
+    localStorage.removeItem('token');
     sessionStore.clearUserRole();
   };
 
