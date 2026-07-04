@@ -1,12 +1,15 @@
 import {defineStore} from "pinia";
 import {computed, ref} from "vue";
 import { SupplyManagementApi } from "../infrastructure/supply-management-api.js";
+import { ProfilesApi } from "../../profiles/infrastructure/profiles-api.js";
+import { useIamStore } from "../../iam/application/iam-store.js";
 
 import {CatalogItemAssembler} from "../infrastructure/catalog-item.assembler.js";
 import {ClientAssembler} from "../infrastructure/client.assembler.js";
 import {DeliveryRouteAssembler} from "../infrastructure/delivery-route.assembler.js";
 import {SupplierSettingsAssembler} from "../infrastructure/supplier-settings.assembler.js";
 const supplierManagementApi = new SupplyManagementApi();
+const profilesApi = new ProfilesApi();
 
 /**
  * Application service store for the `Supply Management` bounded context.
@@ -16,6 +19,32 @@ const supplierManagementApi = new SupplyManagementApi();
  */
 const useSupplierManagementStore = defineStore('supplierManagement', () => {
     const errors=ref([]);
+    const supplierProfileId = ref(null);
+    const initialized = ref(false);
+
+    /**
+     * Fetches the current user's supplier profile from the backend
+     * and configures the API with the real supplier profile id.
+     * Must be called before any supplier-scoped operation.
+     */
+    async function initializeForCurrentUser() {
+        if (initialized.value) return;
+        const iamStore = useIamStore();
+        const userId = iamStore.currentUser?.id;
+        if (!userId) {
+            errors.value.push(new Error('No authenticated user found'));
+            return;
+        }
+        try {
+            const response = await profilesApi.getSupplierProfileByUserId(userId);
+            const profile = response.data;
+            supplierProfileId.value = profile.id;
+            supplierManagementApi.setSupplierId(profile.id);
+            initialized.value = true;
+        } catch (error) {
+            errors.value.push(error);
+        }
+    }
 
     // ── Catalog Supplier section ──────────────────────────────────────────────
     // State and use cases for the supplier's product catalog (CatalogItem aggregate).
@@ -53,7 +82,8 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
      *
      * @returns {void}
      */
-    function fetchCatalogItems(){
+    async function fetchCatalogItems(){
+        await initializeForCurrentUser();
         supplierManagementApi.getCatalogItems().then(response=>{
             catalogItems.value = CatalogItemAssembler.toEntitiesFromResponse(response);
             catalogItemsLoaded.value = true;
@@ -67,7 +97,8 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
      *
      * @returns {void}
      */
-    function fetchClients(){
+    async function fetchClients(){
+        await initializeForCurrentUser();
         supplierManagementApi.getClients().then(response=>{
             clients.value = ClientAssembler.toEntitiesFromResponse(response);
             clientsLoaded.value = true;
@@ -146,6 +177,7 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
      * @returns {void}
      */
     async function addCatalogItem(item){
+        await initializeForCurrentUser();
         try {
             const response = await supplierManagementApi.createCatalogItem(
                 CatalogItemAssembler.toResourceFromEntity(item)
@@ -167,6 +199,7 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
      * @returns {void}
      */
     async function updateCatalogItem(item){
+        await initializeForCurrentUser();
         try {
             const response = await supplierManagementApi.updateCatalogItem(
                 item.id,
@@ -192,6 +225,7 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
      * @returns {void}
      */
     async function deleteCatalogItem(id){
+        await initializeForCurrentUser();
         try {
             await supplierManagementApi.deleteCatalogItem(id);
             const idNum = parseInt(id);
@@ -209,6 +243,9 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
 
     return{
         errors,
+        supplierProfileId,
+        initialized,
+        initializeForCurrentUser,
         // ── Catalog Supplier exports ──
         catalogItems,
         catalogItemsLoaded,
