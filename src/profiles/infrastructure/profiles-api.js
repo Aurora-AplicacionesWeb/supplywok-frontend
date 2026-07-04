@@ -36,6 +36,14 @@ export class ProfilesApi extends BaseApi {
         return this.#supplierProfilesEndpoint.delete(id);
     }
 
+    getSupplierProfileByUserId(userId) {
+        return this.http.get(`/users/${userId}/supplier-profiles`);
+    }
+
+    getRestaurantProfileByUserId(userId) {
+        return this.http.get(`/users/${userId}/restaurant-profiles`);
+    }
+
     // ── Restaurant Profiles ───────────────────────────────────────────────
 
     getRestaurantProfiles() {
