@@ -10,10 +10,17 @@ const profilesStore = useProfilesStore();
 const iamStore = useIamStore();
 const sessionStore = useSessionStore();
 
-const restaurantProfile = ref('');
-const contactName = ref('');
+const currentProfile = ref(null);
+const businessName = ref('');
+const firstName = ref('');
+const lastName = ref('');
 const contactEmail = ref('');
-const address = ref('');
+const street = ref('');
+const district = ref('');
+const city = ref('');
+const country = ref('');
+const phone = ref('');
+const category = ref('');
 const operatingHours = ref('11:00 AM - 10:00 PM');
 const minimumThreshold = ref('15%');
 const supportContact = ref('');
@@ -24,6 +31,8 @@ const restrictedMode = ref(true);
 const selectedDays = ref(['M', 'T', 'W', 'T2', 'F', 'S']);
 const demoState = ref('Inactive');
 const profileLoading = ref(true);
+const saving = ref(false);
+const saveSuccess = ref(false);
 
 onMounted(async () => {
     const userRole = sessionStore.userRole;
@@ -34,10 +43,17 @@ onMounted(async () => {
         if (userId) {
             const profile = profilesStore.supplierProfiles.find(p => p.userId === userId);
             if (profile) {
-                restaurantProfile.value = profile.businessName || '';
-                contactName.value = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
+                currentProfile.value = profile;
+                businessName.value = profile.businessName || '';
+                firstName.value = profile.firstName || '';
+                lastName.value = profile.lastName || '';
                 contactEmail.value = profile.contactEmail || '';
-                address.value = [profile.street, profile.district, profile.city, profile.country].filter(Boolean).join(', ');
+                street.value = profile.street || '';
+                district.value = profile.district || '';
+                city.value = profile.city || '';
+                country.value = profile.country || '';
+                phone.value = profile.phone || '';
+                category.value = profile.category || '';
                 supportContact.value = profile.phone || profile.contactEmail || '';
             }
         }
@@ -46,16 +62,66 @@ onMounted(async () => {
         if (userId) {
             const profile = profilesStore.restaurantProfiles.find(p => p.userId === userId);
             if (profile) {
-                restaurantProfile.value = profile.businessName || '';
-                contactName.value = [profile.firstName, profile.lastName].filter(Boolean).join(' ');
+                currentProfile.value = profile;
+                businessName.value = profile.businessName || '';
+                firstName.value = profile.firstName || '';
+                lastName.value = profile.lastName || '';
                 contactEmail.value = profile.contactEmail || '';
-                address.value = [profile.street, profile.district, profile.city, profile.country].filter(Boolean).join(', ');
+                street.value = profile.street || '';
+                district.value = profile.district || '';
+                city.value = profile.city || '';
+                country.value = profile.country || '';
                 supportContact.value = profile.contactEmail || '';
             }
         }
     }
     profileLoading.value = false;
 });
+
+async function saveProfile() {
+    if (!currentProfile.value || saving.value) return;
+
+    saving.value = true;
+    saveSuccess.value = false;
+    const userRole = sessionStore.userRole;
+    const profileId = currentProfile.value.id;
+
+    try {
+        if (userRole === 'supplier') {
+            await profilesStore.updateSupplierProfile({
+                id: profileId,
+                businessName: businessName.value,
+                firstName: firstName.value,
+                lastName: lastName.value,
+                street: street.value,
+                district: district.value,
+                city: city.value,
+                country: country.value,
+                contactEmail: contactEmail.value,
+                phone: phone.value,
+                category: category.value,
+            });
+        } else {
+            await profilesStore.updateRestaurantProfile({
+                id: profileId,
+                businessName: businessName.value,
+                firstName: firstName.value,
+                lastName: lastName.value,
+                street: street.value,
+                district: district.value,
+                city: city.value,
+                country: country.value,
+                contactEmail: contactEmail.value,
+            });
+        }
+        saveSuccess.value = true;
+        setTimeout(() => { saveSuccess.value = false; }, 3000);
+    } catch (err) {
+        console.error('Failed to save profile:', err);
+    } finally {
+        saving.value = false;
+    }
+}
 
 const dayChips = [
   { id: 'M', label: 'M' },
@@ -97,38 +163,63 @@ function toggleDay(dayId) {
       <article class="settings-card settings-card--profile">
         <div class="settings-card__header">
           <h2>{{ t('shared.configurationPage.profile.title') }}</h2>
-          <button type="button">{{ t('shared.configurationPage.profile.save') }}</button>
+          <button type="button" :disabled="saving || !currentProfile" @click="saveProfile">
+            {{ saving ? 'Saving...' : saveSuccess ? 'Saved!' : t('shared.configurationPage.profile.save') }}
+          </button>
         </div>
 
         <label class="settings-field">
           <span>{{ t('shared.configurationPage.profile.fields.name') }}</span>
-          <input v-model="restaurantProfile" type="text">
+          <input v-model="businessName" type="text">
         </label>
 
-        <label class="settings-field">
-          <span>{{ t('shared.configurationPage.profile.fields.hours') }}</span>
-          <input v-model="operatingHours" type="text">
-        </label>
-
-        <label class="settings-field">
-          <span>{{ t('shared.configurationPage.profile.fields.thresholds') }}</span>
-          <input v-model="minimumThreshold" type="text">
-        </label>
-
-        <div class="settings-field">
-          <span>{{ t('shared.configurationPage.profile.fields.days') }}</span>
-          <div class="settings-day-list">
-            <button
-              v-for="day in dayChips"
-              :key="day.id"
-              type="button"
-              :class="{ 'settings-day-list__day--active': selectedDays.includes(day.id) }"
-              @click="toggleDay(day.id)"
-            >
-              {{ day.label }}
-            </button>
-          </div>
+        <div class="settings-field-row">
+          <label class="settings-field">
+            <span>First Name</span>
+            <input v-model="firstName" type="text">
+          </label>
+          <label class="settings-field">
+            <span>Last Name</span>
+            <input v-model="lastName" type="text">
+          </label>
         </div>
+
+        <label class="settings-field">
+          <span>Email</span>
+          <input v-model="contactEmail" type="email">
+        </label>
+
+        <div class="settings-field-row">
+          <label class="settings-field">
+            <span>Street</span>
+            <input v-model="street" type="text">
+          </label>
+          <label class="settings-field">
+            <span>District</span>
+            <input v-model="district" type="text">
+          </label>
+        </div>
+
+        <div class="settings-field-row">
+          <label class="settings-field">
+            <span>City</span>
+            <input v-model="city" type="text">
+          </label>
+          <label class="settings-field">
+            <span>Country</span>
+            <input v-model="country" type="text">
+          </label>
+        </div>
+
+        <label v-if="sessionStore.userRole === 'supplier'" class="settings-field">
+          <span>Phone</span>
+          <input v-model="phone" type="text">
+        </label>
+
+        <label v-if="sessionStore.userRole === 'supplier'" class="settings-field">
+          <span>Category</span>
+          <input v-model="category" type="text">
+        </label>
 
         <label class="settings-field">
           <span>{{ t('shared.configurationPage.profile.fields.contact') }}</span>
@@ -298,6 +389,17 @@ function toggleDay(dayId) {
   color: #ffffff;
   font-weight: 600;
   cursor: pointer;
+}
+
+.settings-card__header button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.settings-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
 .settings-field {
