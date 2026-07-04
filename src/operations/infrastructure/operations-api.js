@@ -114,8 +114,8 @@ export class OperationsApi extends BaseApi {
 
     updateKitchenOrderStatus(id, newState, observation) {
         const resource = { status: toBackendKitchenOrderStatus(newState), observations: observation };
-        return this.#kitchenOrdersEndpoint.http.put(
-            `${this.#kitchenOrdersEndpoint.endpointPath}/status/${id}`,
+        return this.#kitchenOrdersEndpoint.http.patch(
+            `${this.#kitchenOrdersEndpoint.endpointPath}/${id}`,
             resource
         );
     }
