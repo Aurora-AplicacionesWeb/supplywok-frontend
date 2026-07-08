@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { SupplierSettings } from '../../domain/model/supplier-settings.entity.js';
@@ -7,48 +7,37 @@ import useSupplierManagementStore from '../../application/supply-management.stor
 
 const { t } = useI18n();
 const store = useSupplierManagementStore();
-const { supplierSettings, supplierSettingsLoaded } = storeToRefs(store);
+const { supplierSettings, supplierSettingsLoaded, settingsError } = storeToRefs(store);
 const { fetchSupplierSettings, updateSupplierSettings } = store;
 
-const supplierName = ref('Golden Wok Produce');
-const supportContact = ref('soporte@goldenwok.pe');
-const notifyEmail = ref(true);
-const notifySms = ref(true);
-const serviceZones = ref([]);
-const contacts = ref([]);
+const form = reactive({
+    supplierName: '',
+    supportContact: '',
+    notifyEmail: false,
+    notifySms: false,
+    serviceZones: [],
+    contacts: []
+});
 const newZone = ref('');
 const isSaving = ref(false);
 const saveMessage = ref('');
 
 const canAddZone = computed(() => newZone.value.trim().length > 0);
 
-function syncDraft(settings) {
-    if (!settings) {
-        return;
-    }
-
-    supplierName.value = settings.supplierName;
-    supportContact.value = settings.supportContact;
-    notifyEmail.value = Boolean(settings.notifications?.email);
-    notifySms.value = Boolean(settings.notifications?.sms);
-    serviceZones.value = [...(settings.serviceZones ?? [])];
-    contacts.value = [...(settings.contacts ?? [])];
-}
-
 function addZone() {
     const zone = newZone.value.trim();
 
-    if (!zone || serviceZones.value.includes(zone)) {
+    if (!zone || form.serviceZones.includes(zone)) {
         newZone.value = '';
         return;
     }
 
-    serviceZones.value = [...serviceZones.value, zone];
+    form.serviceZones = [...form.serviceZones, zone];
     newZone.value = '';
 }
 
 function removeZone(zone) {
-    serviceZones.value = serviceZones.value.filter((currentZone) => currentZone !== zone);
+    form.serviceZones = form.serviceZones.filter((currentZone) => currentZone !== zone);
 }
 
 async function saveSettings() {
@@ -58,27 +47,38 @@ async function saveSettings() {
 
     isSaving.value = true;
     saveMessage.value = '';
-
-    await updateSupplierSettings(new SupplierSettings({
+    const saved = await updateSupplierSettings(new SupplierSettings({
         id: supplierSettings.value.id,
-        supplierName: supplierName.value,
-        supportContact: supportContact.value,
+        supplierName: form.supplierName,
+        supportContact: form.supportContact,
         notifications: {
-            email: notifyEmail.value,
-            sms: notifySms.value
+            email: form.notifyEmail,
+            sms: form.notifySms
         },
-        serviceZones: serviceZones.value,
-        contacts: contacts.value
+        serviceZones: form.serviceZones,
+        contacts: form.contacts
     }));
 
     isSaving.value = false;
-    saveMessage.value = t('supplier-management.settings.profile.saved');
+    if (saved) {
+        saveMessage.value = t('supplier-management.settings.profile.saved');
+    } else {
+        saveMessage.value = t('supplier-management.settings.profile.error');
+    }
 }
 
-watch(supplierSettings, syncDraft, { immediate: true });
+watch(supplierSettings, (settings) => {
+    if (!settings) return;
+    form.supplierName = settings.supplierName;
+    form.supportContact = settings.supportContact;
+    form.notifyEmail = Boolean(settings.notifications?.email);
+    form.notifySms = Boolean(settings.notifications?.sms);
+    form.serviceZones = [...(settings.serviceZones ?? [])];
+    form.contacts = [...(settings.contacts ?? [])];
+}, { immediate: true });
 
 onMounted(() => {
-    if (!supplierSettingsLoaded.value) {
+    if (!supplierSettingsLoaded.value && !settingsError.value) {
         fetchSupplierSettings();
     }
 });
@@ -92,29 +92,37 @@ onMounted(() => {
             <p class="settings-page__subtitle">{{ t('supplier-management.settings.subtitle') }}</p>
         </header>
 
-        <div class="settings-page__grid">
+        <div v-if="!supplierSettingsLoaded && !settingsError" class="settings-page__status">
+            {{ t('supplier-management.settings.loading') }}
+        </div>
+
+        <div v-else-if="settingsError" class="settings-page__status settings-page__status--error">
+            {{ settingsError }}
+        </div>
+
+        <div v-else class="settings-page__grid">
             <article class="settings-card">
                 <h2 class="settings-card__title">{{ t('supplier-management.settings.profile.title') }}</h2>
 
                 <label class="settings-field">
                     <span>{{ t('supplier-management.settings.profile.supplier-name') }}</span>
-                    <input v-model="supplierName" type="text">
+                    <input v-model="form.supplierName" type="text">
                 </label>
 
                 <label class="settings-field">
                     <span>{{ t('supplier-management.settings.profile.support-contact') }}</span>
-                    <input v-model="supportContact" type="text">
+                    <input v-model="form.supportContact" type="text">
                 </label>
 
                 <label class="settings-toggle">
                     <span>{{ t('supplier-management.settings.profile.email') }}</span>
-                    <input v-model="notifyEmail" type="checkbox">
+                    <input v-model="form.notifyEmail" type="checkbox">
                     <span class="settings-toggle__slider"></span>
                 </label>
 
                 <label class="settings-toggle">
                     <span>{{ t('supplier-management.settings.profile.sms') }}</span>
-                    <input v-model="notifySms" type="checkbox">
+                    <input v-model="form.notifySms" type="checkbox">
                     <span class="settings-toggle__slider"></span>
                 </label>
 
@@ -127,14 +135,14 @@ onMounted(() => {
                     {{ isSaving ? t('supplier-management.settings.profile.saving') : t('supplier-management.settings.profile.save') }}
                 </button>
 
-                <p v-if="saveMessage" class="settings-message">{{ saveMessage }}</p>
+                <p v-if="saveMessage" class="settings-message" :class="{ 'settings-message--error': saveMessage === t('supplier-management.settings.profile.error') }">{{ saveMessage }}</p>
             </article>
 
             <article class="settings-card">
                 <h2 class="settings-card__title">{{ t('supplier-management.settings.zones.title') }}</h2>
 
                 <div class="zones-list">
-                    <span v-for="zone in serviceZones" :key="zone" class="zone-chip">
+                    <span v-for="zone in form.serviceZones" :key="zone" class="zone-chip">
                         {{ zone }}
                         <button type="button" :aria-label="t('supplier-management.settings.zones.remove')" @click="removeZone(zone)">
                             <i class="pi pi-times"></i>
@@ -150,7 +158,7 @@ onMounted(() => {
                 </form>
 
                 <div class="contacts-list">
-                    <div v-for="contact in contacts" :key="contact.name" class="contacts-row">
+                    <div v-for="contact in form.contacts" :key="contact.name" class="contacts-row">
                         <span class="contacts-row__name">{{ contact.name }}</span>
                         <span class="contacts-row__state">{{ t(`supplier-management.settings.zones.${contact.state}`) }}</span>
                     </div>
@@ -296,6 +304,22 @@ onMounted(() => {
     color: #238148;
     font-size: 13px;
     font-weight: 700;
+}
+
+.settings-message--error {
+    color: #c21204;
+}
+
+.settings-page__status {
+    padding: 40px 22px;
+    text-align: center;
+    color: #6f665d;
+    font-size: 14px;
+}
+
+.settings-page__status--error {
+    color: #c21204;
+    font-weight: 600;
 }
 
 .zones-list {

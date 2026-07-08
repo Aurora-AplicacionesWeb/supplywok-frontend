@@ -440,6 +440,7 @@
       "breadcrumb": "SUPPLIER",
       "title": "Supplier settings",
       "subtitle": "Commercial profile, zones, contacts, and operating preferences.",
+      "loading": "Loading settings...",
       "profile": {
         "title": "Supplier profile",
         "supplier-name": "Supplier profile",
@@ -448,7 +449,8 @@
         "sms": "SMS",
         "save": "Save",
         "saving": "Saving...",
-        "saved": "Settings saved."
+        "saved": "Settings saved.",
+        "error": "Could not save settings."
       },
       "zones": {
         "title": "Service zones",

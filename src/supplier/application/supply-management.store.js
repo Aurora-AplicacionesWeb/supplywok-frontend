@@ -57,6 +57,7 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
     const deliveryRoutesLoaded = ref(false);
     const supplierSettings = ref(null);
     const supplierSettingsLoaded = ref(false);
+    const settingsError = ref('');
 
     /**
      * Number of loaded catalog items.
@@ -128,12 +129,13 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
      * @returns {void}
      */
     async function fetchSupplierSettings(){
+        settingsError.value = '';
         await initializeForCurrentUser();
         supplierManagementApi.getSupplierSettings().then(response=>{
             supplierSettings.value = SupplierSettingsAssembler.toEntityFromResponse(response);
             supplierSettingsLoaded.value = true;
         }).catch(error=>{
-            errors.value.push(error);
+            settingsError.value = error.message || String(error);
         });
     }
 
@@ -145,7 +147,7 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
      */
     async function updateSupplierSettings(settings){
         if (!settings?.id) {
-            return;
+            return false;
         }
 
         try {
@@ -155,8 +157,10 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
             );
             supplierSettings.value = SupplierSettingsAssembler.toEntityFromResource(response.data);
             supplierSettingsLoaded.value = true;
+            return true;
         } catch (error) {
-            errors.value.push(error);
+            settingsError.value = error.message || String(error);
+            return false;
         }
     }
 
@@ -259,6 +263,7 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
         deliveryRoutesCount,
         supplierSettings,
         supplierSettingsLoaded,
+        settingsError,
         fetchCatalogItems,
         fetchClients,
         fetchDeliveryRoutes,
