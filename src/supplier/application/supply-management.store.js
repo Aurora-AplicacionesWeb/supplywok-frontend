@@ -127,7 +127,8 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
      *
      * @returns {void}
      */
-    function fetchSupplierSettings(){
+    async function fetchSupplierSettings(){
+        await initializeForCurrentUser();
         supplierManagementApi.getSupplierSettings().then(response=>{
             supplierSettings.value = SupplierSettingsAssembler.toEntityFromResponse(response);
             supplierSettingsLoaded.value = true;
