@@ -24,6 +24,10 @@ function getActiveRole() {
     return normalizeRole(iamStore.currentUserRole) ?? normalizeRole(sessionStore.userRole);
 }
 
+function isPublicRoute(to) {
+    return ['login', 'register', 'register-complete', 'not-found'].includes(String(to.name ?? ''));
+}
+
 const legacyRedirectRoutes = [
     { path: '/dashboard', name: 'dashboard', redirect: () => getHomeByRole(getActiveRole() ?? 'restaurant') },
     { path: '/alerts', name: 'alerts', redirect: () => getScopedPathByRole(getActiveRole() ?? 'restaurant', 'alerts') },
@@ -89,13 +93,20 @@ router.beforeEach((to, from, next) => {
     const pageTitle = to.meta?.i18nKey ? i18n.global.t(to.meta.i18nKey) : (to.meta?.title || '');
     document.title = pageTitle ? `${baseTitle} - ${pageTitle}` : baseTitle;
 
+    const iamStore = useIamStore();
+    const sessionStore = useSessionStore();
     const currentRole = getActiveRole();
     const requiredRole = getRoleFromPath(to.path);
+    const isAuthenticated = iamStore.isAuthenticated;
+    const publicRoute = isPublicRoute(to);
 
-    if (!currentRole && requiredRole) {
-        const sessionStore = useSessionStore();
-        sessionStore.setUserRole(requiredRole);
-        return next();
+    if (!isAuthenticated && !publicRoute) {
+        if (requiredRole) sessionStore.clearUserRole();
+        return next({ name: 'login', query: { redirect: to.fullPath } });
+    }
+
+    if (isAuthenticated && to.name === 'login') {
+        return next(getHomeByRole(currentRole));
     }
 
     if (currentRole && requiredRole && currentRole !== requiredRole) {

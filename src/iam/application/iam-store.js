@@ -1,80 +1,100 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { IamApi } from '../infrastructure/iam.api.js';
-import useSessionStore from '../../shared/application/session.store.js';
 
-/**
- * Pinia store for managing Identity and Access Management state.
- */
+const AUTH_STORAGE_KEY = 'supplywok:auth-user';
+
+function readStoredUser() {
+  const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed?.token && parsed?.email
+      ? {
+          id: parsed.id ?? 0,
+          email: parsed.email,
+          token: parsed.token,
+          role: parsed.role ?? null
+        }
+      : null;
+  } catch {
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    return null;
+  }
+}
+
 export const useIamStore = defineStore('iam', () => {
   const api = new IamApi();
 
-  // --- State ---
   const users = ref([]);
-  const currentUser = ref(null);
+  const currentUser = ref(readStoredUser());
   const loading = ref(false);
   const error = ref(null);
 
-  // --- Computed (Getters) ---
-  const isAuthenticated = computed(() => currentUser.value !== null);
-  const currentUserRole = computed(() => currentUser.value?.role || null);
+  const isAuthenticated = computed(() => Boolean(currentUser.value?.token));
+  const currentUserRole = computed(() => currentUser.value?.role ?? null);
 
-  // --- Actions ---
+  function persistUser(user) {
+    currentUser.value = user;
+    window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+    window.localStorage.setItem('token', user.token);
+  }
 
-  /**
-   * Loads all users from the API.
-   */
+  function clearPersistedSession() {
+    currentUser.value = null;
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    window.localStorage.removeItem('token');
+  }
+
   const loadUsers = async () => {
     loading.value = true;
     error.value = null;
     try {
       users.value = await api.getUsers();
-    } catch (err) {
+    } catch {
       error.value = 'Failed to load users';
     } finally {
       loading.value = false;
     }
   };
 
-  /**
-   * Authenticates a user against the backend sign-in endpoint.
-   * @param {string} email
-   * @param {string} password
-   * @returns {Promise<boolean>} True if login is successful.
-   */
   const login = async (email, password) => {
     loading.value = true;
     error.value = null;
+
     try {
       const data = await api.signIn(email, password);
-      if (data && data.token) {
-        currentUser.value = { id: data.id, email: data.email, token: data.token, role: data.role };
-        localStorage.setItem('token', data.token);
-        return true;
-      } else {
+      if (!data?.token) {
         error.value = 'Invalid email or password';
+        clearPersistedSession();
         return false;
       }
-    } catch (err) {
+
+      persistUser({
+        id: data.id,
+        email: data.email,
+        token: data.token,
+        role: data.role
+      });
+      return true;
+    } catch {
       error.value = 'Login process failed';
+      clearPersistedSession();
       return false;
     } finally {
       loading.value = false;
     }
   };
 
-  /**
-   * Registers a new user against the backend sign-up endpoint.
-   * @param {Object} userData
-   */
   const registerUser = async (userData) => {
     loading.value = true;
     error.value = null;
+
     try {
       await api.signUp(userData.email, userData.password, userData.role);
-      const loginSuccess = await login(userData.email, userData.password);
-      return loginSuccess;
-    } catch (err) {
+      return await login(userData.email, userData.password);
+    } catch {
       error.value = 'Registration failed';
       return false;
     } finally {
@@ -82,14 +102,8 @@ export const useIamStore = defineStore('iam', () => {
     }
   };
 
-  /**
-   * Clears the current user session.
-   */
   const logout = () => {
-    const sessionStore = useSessionStore();
-    currentUser.value = null;
-    localStorage.removeItem('token');
-    sessionStore.clearUserRole();
+    clearPersistedSession();
   };
 
   return {
@@ -105,3 +119,5 @@ export const useIamStore = defineStore('iam', () => {
     logout
   };
 });
+
+export default useIamStore;
