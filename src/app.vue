@@ -9,7 +9,7 @@ const route = useRoute();
  * Authentication screens must bypass the shell layout.
  * Otherwise the auth cards render inside the application chrome and break navigation.
  */
-const isAuthRoute = computed(() => ['login', 'register'].includes(String(route.name ?? '')));
+const isAuthRoute = computed(() => ['login', 'register', 'register-complete'].includes(String(route.name ?? '')));
 </script>
 
 <template>

@@ -52,6 +52,7 @@ const legacyRedirectRoutes = [
 
 const loginPage = () => import('./iam/presentation/views/login-view.vue');
 const registerPage = () => import('./iam/presentation/views/register-view.vue');
+const registerCompletePage = () => import('./subscriptions/presentation/views/register-complete-view.vue');
 
 const routes = [
     ...operationsRoutes,
@@ -63,6 +64,7 @@ const routes = [
     { path: '/', redirect: '/login' },
     { path: '/login', name: 'login', component: loginPage, meta: { i18nKey: 'shared.titles.login' } },
     { path: '/register', name: 'register', component: registerPage, meta: { i18nKey: 'shared.titles.register' } },
+    { path: '/register/complete', name: 'register-complete', component: registerCompletePage, meta: { title: 'Complete registration' } },
     ...legacyRedirectRoutes,
     { path: '/:pathMatch(.*)*', name: 'not-found', component: pageNotFound, meta: { i18nKey: 'shared.titles.not-found' } }
 ];
