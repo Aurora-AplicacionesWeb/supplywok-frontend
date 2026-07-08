@@ -4,19 +4,12 @@ import {BaseEndpoint} from "../../shared/infrastructure/base-endpoint.js";
 const ordersEndpointPath = import.meta.env.VITE_PURCHASE_ORDERS_ENDPOINT_PATH ?? '/purchase-orders';
 const catalogItemsTemplate = import.meta.env.VITE_CATALOG_ITEMS_ENDPOINT_PATH ?? '/suppliers/{supplierId}/catalog-items';
 const clientsTemplate = import.meta.env.VITE_CLIENTS_ENDPOINT_PATH ?? '/suppliers/{supplierId}/restaurants';
+const settingsTemplate = import.meta.env.VITE_SUPPLIER_SETTINGS_ENDPOINT_PATH ?? '/suppliers/{supplierId}/settings';
 const alertsEndpointPath = import.meta.env.VITE_ALERTS_ENDPOINT_PATH ?? '/supplier/alerts';
 
 const localSupplierState = {
     deliveryRoutes: [],
     demandForecast: { aggregate: [], clients: [] },
-    supplierSettings: {
-        id: null,
-        supplierName: '',
-        supportContact: '',
-        notifications: { email: true, sms: false },
-        serviceZones: [],
-        contacts: []
-    },
     supplierSubscription: []
 };
 
@@ -30,6 +23,7 @@ export class SupplyManagementApi extends BaseApi {
     #supplyManagementEndpoint;
     #catalogItemsEndpoint;
     #clientsEndpoint;
+    #settingsEndpoint;
     #alertsEndpoint;
     #supplierId = null;
 
@@ -41,6 +35,7 @@ export class SupplyManagementApi extends BaseApi {
         // Scoped endpoints are built once setSupplierId() is called
         this.#catalogItemsEndpoint = null;
         this.#clientsEndpoint = null;
+        this.#settingsEndpoint = null;
     }
 
     /**
@@ -52,7 +47,7 @@ export class SupplyManagementApi extends BaseApi {
         this.#supplierId = id;
         this.#catalogItemsEndpoint = new BaseEndpoint(this, resolveSupplierScopedPath(catalogItemsTemplate, id));
         this.#clientsEndpoint = new BaseEndpoint(this, resolveSupplierScopedPath(clientsTemplate, id));
-        localSupplierState.supplierSettings.id = Number(id);
+        this.#settingsEndpoint = new BaseEndpoint(this, resolveSupplierScopedPath(settingsTemplate, id));
     }
 
     /** @returns {number|string|null} */
@@ -80,7 +75,7 @@ export class SupplyManagementApi extends BaseApi {
     // Endpoints for the supplier's product catalog (CatalogItem aggregate).
 
     #requireSupplierId() {
-        if (!this.#catalogItemsEndpoint || !this.#clientsEndpoint) {
+        if (!this.#catalogItemsEndpoint || !this.#clientsEndpoint || !this.#settingsEndpoint) {
             throw new Error('Supplier profile id not set. Call setSupplierId() first.');
         }
     }
@@ -137,23 +132,13 @@ export class SupplyManagementApi extends BaseApi {
     }
 
     getSupplierSettings(){
-        return Promise.resolve({
-            status: 200,
-            statusText: 'OK',
-            data: localSupplierState.supplierSettings
-        });
+        this.#requireSupplierId();
+        return this.#settingsEndpoint.getAll();
     }
 
     updateSupplierSettings(id, settings){
-        localSupplierState.supplierSettings = {
-            ...settings,
-            id: Number(id ?? settings?.id ?? supplierId)
-        };
-        return Promise.resolve({
-            status: 200,
-            statusText: 'OK',
-            data: localSupplierState.supplierSettings
-        });
+        this.#requireSupplierId();
+        return this.http.put(this.#settingsEndpoint.endpointPath, settings);
     }
 
     getSupplierSubscription(){
