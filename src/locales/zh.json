@@ -440,6 +440,7 @@
       "breadcrumb": "供应商",
       "title": "供应商设置",
       "subtitle": "商业资料、服务区域、联系人和运营偏好。",
+      "loading": "正在加载设置...",
       "profile": {
         "title": "供应商资料",
         "supplier-name": "供应商资料",
@@ -448,7 +449,8 @@
         "sms": "短信",
         "save": "保存",
         "saving": "保存中...",
-        "saved": "设置已保存。"
+        "saved": "设置已保存。",
+        "error": "无法保存设置。"
       },
       "zones": {
         "title": "服务区域",
