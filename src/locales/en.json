@@ -73,6 +73,7 @@
       "kitchen-tickets": "Kitchen Tickets",
       "tables": "Tables",
       "alerts": "Alerts",
+      "sensors": "Sensors",
       "reports": "Reports",
       "configuration": "Configuration",
       "subscription": "Subscription",
@@ -825,12 +826,33 @@
       }
     },
     "sensors": {
+      "title": "Sensors Overview",
+      "description": "Manage and monitor all installed devices and IoT sensors in your facilities in real-time.",
       "create-button": "Create Sensor",
+      "view-button": "View Sensors",
       "types": {
         "kitchen-temperature": "Kitchen Temperature",
         "storage-temperature": "Cold Storage Temperature",
         "table-pressure": "Table Pressure (Occupancy)",
-        "storage-pressure": "Storage Pressure (Stock)"
+        "storage-pressure": "Storage Pressure (Inventory)",
+        "Temperature": "Temperature",
+        "Weight": "Weight"
+      },
+      "table": {
+        "id": "ID",
+        "name": "Name",
+        "type": "Sensor Type",
+        "min": "Min Value",
+        "max": "Max Value",
+        "last": "Last Value",
+        "status": "Status",
+        "enabled": "Active",
+        "disabled": "Inactive",
+        "search-label": "Search Sensors",
+        "search-placeholder": "Type sensor name...",
+        "filter-type-label": "Filter by Type",
+        "filter-all-types": "All Types",
+        "empty": "No registered sensors found."
       },
       "create-dialog": {
         "title": "Create New IoT Sensor",

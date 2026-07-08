@@ -7,11 +7,13 @@ import LanguageSwitcher from './language-switcher.vue';
 import HeaderAlertsPopup from '../../../iot/presentation/components/alerts/header-alerts-popup.vue';
 import useSessionStore from '../../application/session.store.js';
 import { normalizeRole } from '../../application/role-routing.js';
+import { useIamStore } from '../../../iam/application/iam-store.js';
 
 const router = useRouter();
 const { t } = useI18n();
 const profileMenu = ref(null);
 const sessionStore = useSessionStore();
+const iamStore = useIamStore();
 
 const currentRole = () => normalizeRole(sessionStore.userRole) ?? 'restaurant';
 const getConfigurationPath = () => (currentRole() === 'supplier' ? '/supplier/configuration' : '/operations/configuration');
@@ -25,7 +27,11 @@ const profileMenuOptions = ref([
   {
     label: () => t('header.logout'),
     icon: 'pi pi-sign-out',
-    command: () => router.push('/login')
+    command: () => {
+      iamStore.logout();
+      sessionStore.clearUserRole();
+      router.push('/login');
+    }
   }
 ]);
 

@@ -73,6 +73,7 @@
       "kitchen-tickets": "Comandas",
       "tables": "Mesas",
       "alerts": "Alertas",
+      "sensors": "Sensores",
       "reports": "Reportes",
       "configuration": "Configuración",
       "subscription": "Suscripción",
@@ -825,12 +826,33 @@
       }
     },
     "sensors": {
+      "title": "Supervisión de Sensores",
+      "description": "Administra y supervisa en tiempo real los dispositivos y sensores IoT instalados en tu local.",
       "create-button": "Crear Sensor",
+      "view-button": "Ver Sensores",
       "types": {
         "kitchen-temperature": "Temperatura de Cocina",
         "storage-temperature": "Temperatura de Almacén",
         "table-pressure": "Presión de Mesa (Ocupación)",
-        "storage-pressure": "Presión de Almacén (Stock)"
+        "storage-pressure": "Presión de Almacén (Stock)",
+        "Temperature": "Temperatura",
+        "Weight": "Peso"
+      },
+      "table": {
+        "id": "ID",
+        "name": "Nombre",
+        "type": "Tipo de Sensor",
+        "min": "Valor Mínimo",
+        "max": "Valor Máximo",
+        "last": "Último Valor",
+        "status": "Estado",
+        "enabled": "Activo",
+        "disabled": "Inactivo",
+        "search-label": "Buscar Sensores",
+        "search-placeholder": "Escribe el nombre del sensor...",
+        "filter-type-label": "Filtrar por Tipo",
+        "filter-all-types": "Todos los Tipos",
+        "empty": "No se encontraron sensores registrados."
       },
       "create-dialog": {
         "title": "Crear Nuevo Sensor IoT",

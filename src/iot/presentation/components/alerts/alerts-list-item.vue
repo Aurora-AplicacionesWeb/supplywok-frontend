@@ -85,7 +85,12 @@ const canAcknowledge = computed(() => {
     <td v-if="showSensor">
       <span class="alerts-list-item__sensor">
         <i class="pi pi-compass mr-1"></i>
-        {{ alert.source || t('iot.alerts.defaultTitle') }} ({{ t('iot.alerts-page.dialog.meta.sensor-id') }}: {{ alert.sensorId || t('iot.alerts-page.table.na') }})
+        <template v-if="alert.source && alert.source !== 'Unknown'">
+          {{ alert.source }} ({{ t('iot.alerts-page.dialog.meta.sensor-id') }}: {{ alert.sensorId || t('iot.alerts-page.table.na') }})
+        </template>
+        <template v-else>
+          {{ t('iot.alerts-page.dialog.meta.sensor-id') }}: {{ alert.sensorId || t('iot.alerts-page.table.na') }}
+        </template>
       </span>
     </td>
     <td>

@@ -73,6 +73,7 @@
       "kitchen-tickets": "廚房票據",
       "tables": "桌子",
       "alerts": "警報",
+      "sensors": "傳感器",
       "reports": "報告",
       "configuration": "配置",
       "subscription": "訂閱",
@@ -822,12 +823,33 @@
       }
     },
     "sensors": {
+      "title": "傳感器概述",
+      "description": "實時管理和監控您設施中安裝的所有設備和物聯網傳感器。",
       "create-button": "創建傳感器",
+      "view-button": "查看傳感器",
       "types": {
         "kitchen-temperature": "廚房溫度",
         "storage-temperature": "冷庫溫度",
-        "table-pressure": "餐桌壓力 (佔用)",
-        "storage-pressure": "倉庫壓力 (庫存)"
+        "table-pressure": "餐桌壓力 (佔用情況)",
+        "storage-pressure": "庫存壓力 (庫存量)",
+        "Temperature": "溫度",
+        "Weight": "重量"
+      },
+      "table": {
+        "id": "ID",
+        "name": "名稱",
+        "type": "傳感器類型",
+        "min": "最小值",
+        "max": "最大值",
+        "last": "最新讀數",
+        "status": "狀態",
+        "enabled": "已啟用",
+        "disabled": "已禁用",
+        "search-label": "搜索傳感器",
+        "search-placeholder": "輸入傳感器名稱...",
+        "filter-type-label": "按類型篩選",
+        "filter-all-types": "所有類型",
+        "empty": "未找到註冊的傳感器。"
       },
       "create-dialog": {
         "title": "創建新 IoT 傳感器",

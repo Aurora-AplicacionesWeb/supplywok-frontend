@@ -27,14 +27,22 @@ export class IotMonitoringApi {
     }
   }
 
-  /**
-   * Creates a new sensor on the API.
-   * @param {Object} sensorData - The raw sensor data.
-   * @returns {Promise<Sensor|null>}
-   */
   async createSensor(sensorData) {
+    let backendType = 0;
+    switch (sensorData.type) {
+      case 'kitchen-temperature': backendType = 0; break;
+      case 'storage-temperature': backendType = 1; break;
+      case 'table-pressure': backendType = 2; break;
+      case 'storage-pressure': backendType = 3; break;
+      default: backendType = 0;
+    }
+
     try {
-      const response = await this.sensorsEndpoint.create(sensorData);
+      const payload = {
+        ...sensorData,
+        type: backendType
+      };
+      const response = await this.sensorsEndpoint.create(payload);
       return SensorAssembler.toEntityFromResource(response.data ?? response);
     } catch (error) {
       console.error('Failed to create sensor:', error);

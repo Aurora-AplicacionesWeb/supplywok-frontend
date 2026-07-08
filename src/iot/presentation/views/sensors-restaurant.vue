@@ -1,12 +1,11 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { iotStore } from '../../application/iot-store.js';
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
-import AlertsList from '../components/alerts/alerts-list.vue';
-import AlertDetails from '../components/alerts/alert-details.vue';
+import { useRouter } from 'vue-router';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
+import Tag from 'primevue/tag';
 import Dialog from 'primevue/dialog';
 import Select from 'primevue/select';
 import InputNumber from 'primevue/inputnumber';
@@ -14,11 +13,13 @@ import Checkbox from 'primevue/checkbox';
 
 const store = iotStore();
 const { t } = useI18n();
-const route = useRoute();
 const router = useRouter();
 
-const selectedAlert = ref(null);
 const showCreateDialog = ref(false);
+const isEditing = ref(false);
+const searchQuery = ref('');
+const typeFilter = ref('all');
+
 const newSensor = ref({
     name: '',
     type: 'kitchen-temperature',
@@ -35,178 +36,161 @@ const typeOptions = computed(() => [
     { label: t('iot.sensors.types.storage-pressure'), value: 'storage-pressure' }
 ]);
 
-const handleCreateSensor = () => {
+const filterTypeOptions = computed(() => [
+    { label: t('iot.sensors.table.filter-all-types'), value: 'all' },
+    ...typeOptions.value
+]);
+
+const handleSaveSensor = () => {
     if (!newSensor.value.name || !newSensor.value.type) return;
-    store.addSensor({
+    
+    const sensorData = {
         name: newSensor.value.name,
         type: newSensor.value.type,
         minValue: Number(newSensor.value.minValue),
         maxValue: Number(newSensor.value.maxValue),
         lastValue: Number(newSensor.value.lastValue),
         enabled: Boolean(newSensor.value.enabled)
-    }).then(() => {
-        showCreateDialog.value = false;
-        newSensor.value = {
-            name: '',
-            type: 'kitchen-temperature',
-            minValue: 0,
-            maxValue: 100,
-            lastValue: 25,
-            enabled: true
-        };
-    }).catch(err => {
-        console.error('Failed to create sensor:', err);
-    });
-};
-const isDetailsVisible = computed({
-    get: () => /\/iot\/alerts\/\d+\/view$/.test(route.path),
-    set: (visible) => {
-        if (!visible && /\/iot\/alerts\/\d+\/view$/.test(route.path)) {
-            router.push('/iot/alerts');
-        }
+    };
+
+    if (isEditing.value) {
+        store.updateSensor({ ...newSensor.value, ...sensorData }).then(() => {
+            showCreateDialog.value = false;
+        });
+    } else {
+        store.addSensor(sensorData).then(() => {
+            showCreateDialog.value = false;
+            resetForm();
+        }).catch(err => {
+            console.error('Failed to create sensor:', err);
+        });
     }
-});
+};
 
-const searchQuery = ref('');
-const priorityFilter = ref('all');
+const resetForm = () => {
+    isEditing.value = false;
+    newSensor.value = {
+        name: '',
+        type: 'kitchen-temperature',
+        minValue: 0,
+        maxValue: 100,
+        lastValue: 25,
+        enabled: true
+    };
+};
 
-const priorityOptions = computed(() => [
-    { label: t('iot.alerts-page.severity-placeholder'), value: 'all' },
-    { label: `${t('iot.alerts.severity-critical')} / ${t('iot.alerts.severity-high')}`, value: 'high' },
-    { label: t('iot.alerts.severity-medium'), value: 'medium' },
-    { label: t('iot.alerts.severity-low'), value: 'low' }
-]);
+const openCreateDialog = () => {
+    resetForm();
+    showCreateDialog.value = true;
+};
 
-const filteredAlerts = computed(() => {
+const openEditDialog = (sensor) => {
+    isEditing.value = true;
+    newSensor.value = { ...sensor };
+    showCreateDialog.value = true;
+};
+
+const filteredSensors = computed(() => {
     const q = searchQuery.value.trim().toLowerCase();
-    const p = priorityFilter.value.toLowerCase();
+    const tFilter = typeFilter.value;
 
-    return store.allAlerts.filter(alert => {
-        // Priority filter
-        if (p !== 'all') {
-            const severity = String(alert.severity || '').toLowerCase();
-            if (p === 'high') {
-                if (severity !== 'critical' && severity !== 'high') return false;
-            } else if (p === 'medium') {
-                if (severity !== 'medium') return false;
-            } else if (p === 'low') {
-                if (severity !== 'low' && severity !== 'info' && severity !== 'success') return false;
-            }
+    return store.sensors.filter(sensor => {
+        // Filter by type
+        if (tFilter !== 'all' && sensor.type !== tFilter) {
+            return false;
         }
 
-        // Search query filter
+        // Filter by query
         if (!q) return true;
-        const title = alert.titleKey ? t(alert.titleKey, alert.messageParams) : (alert.detailText || alert.detail || '');
-        const msg = alert.messageKey ? t(alert.messageKey, alert.messageParams) : '';
-        const source = alert.source || '';
-        return title.toLowerCase().includes(q) || 
-               msg.toLowerCase().includes(q) || 
-               source.toLowerCase().includes(q);
+        return sensor.name.toLowerCase().includes(q) || 
+               t(`iot.sensors.types.${sensor.type}`).toLowerCase().includes(q);
     });
 });
-
-const acknowledgeAlert = (id) => {
-    store.acknowledgeAlert(id);
-    if (selectedAlert.value && selectedAlert.value.id === id) {
-        isDetailsVisible.value = false;
-    }
-};
-
-const openDetails = (alert) => {
-    router.push(`/iot/alerts/${alert.id}/view`);
-};
 
 onMounted(() => {
     store.loadSensors();
-    store.fetchRestaurantAlerts();
 });
-
-watch(
-    [() => route.path, () => store.allAlerts],
-    () => {
-        const match = route.path.match(/^\/iot\/alerts\/(\d+)\/view$/);
-        if (!match) {
-            selectedAlert.value = null;
-            return;
-        }
-        const id = Number(match[1]);
-        const alert = store.allAlerts.find((item) => Number(item.id) === id);
-        if (alert) {
-            selectedAlert.value = alert;
-        } else if (store.allAlerts.length > 0) {
-            router.push('/iot/alerts');
-        }
-    },
-    { immediate: true }
-);
 </script>
 
 <template>
-    <div class="alerts-page">
-        <header class="alerts-header">
-            <div class="alerts-header__left">
-                <span class="alerts-header__kicker">{{ t('iot.alerts-page.kicker') }}</span>
-                <h1 class="alerts-header__title">{{ t('iot.alerts-page.title') }}</h1>
-                <p class="alerts-header__description">{{ t('iot.alerts-page.description') }}</p>
+    <div class="sensors-page">
+        <header class="sensors-header">
+            <div class="sensors-header__left">
+                <div class="flex align-items-center gap-2 mb-2">
+                    <Button icon="pi pi-arrow-left" text rounded @click="router.push('/iot/alerts')" />
+                    <span class="sensors-header__kicker">{{ t('iot.alerts-page.kicker') }}</span>
+                </div>
+                <h1 class="sensors-header__title">{{ t('iot.sensors.title') }}</h1>
+                <p class="sensors-header__description">{{ t('iot.sensors.description') }}</p>
             </div>
-            <div class="alerts-header__right">
+            <div class="sensors-header__right">
                 <Button
                     :label="t('iot.sensors.create-button')"
                     icon="pi pi-plus"
-                    @click="showCreateDialog = true"
+                    @click="openCreateDialog"
                     class="create-sensor-btn"
                 />
             </div>
         </header>
 
-        <div class="alerts-filters card">
+        <div class="sensors-filters card">
             <div class="filter-group">
-                <label>{{ t('iot.alerts-page.search-label') }}</label>
+                <label>{{ t('iot.sensors.table.search-label') }}</label>
                 <div class="p-input-icon-left w-full">
                     <i class="pi pi-search" />
-                    <InputText v-model="searchQuery" :placeholder="t('iot.alerts-page.search-placeholder')" class="w-full" />
+                    <InputText v-model="searchQuery" :placeholder="t('iot.sensors.table.search-placeholder')" class="w-full" />
                 </div>
             </div>
             <div class="filter-group">
-                <label>{{ t('iot.alerts-page.severity-label') }}</label>
-                <select v-model="priorityFilter" class="alerts-filters__select">
-                    <option v-for="option in priorityOptions" :key="option.value" :value="option.value">
+                <label>{{ t('iot.sensors.table.filter-type-label') }}</label>
+                <select v-model="typeFilter" class="sensors-filters__select">
+                    <option v-for="option in filterTypeOptions" :key="option.value" :value="option.value">
                         {{ option.label }}
                     </option>
                 </select>
             </div>
         </div>
 
-        <div class="alerts-table-container">
-            <AlertsList
-                :alerts="filteredAlerts"
-                show-sensor
-                @acknowledge="acknowledgeAlert"
-                @view="openDetails"
-            />
-            <div class="view-sensors-action">
-                <Button
-                    :label="t('iot.sensors.view-button')"
-                    icon="pi pi-eye"
-                    @click="router.push('/iot/sensors')"
-                    class="create-sensor-btn"
-                />
-            </div>
-        </div>
-
-        <AlertDetails
-            v-if="selectedAlert"
-            :alert="selectedAlert"
-            :visible="isDetailsVisible"
-            @update:visible="(val) => isDetailsVisible = val"
-            show-sensor
-            @close="isDetailsVisible = false"
-        />
+        <section class="sensors-table-wrap card">
+            <pv-datatable
+                class="sensors-table"
+                :loading="store.loading"
+                :value="filteredSensors"
+                responsive-layout="scroll"
+            >
+                <pv-column field="id" :header="t('iot.sensors.table.id')" />
+                <pv-column field="name" :header="t('iot.sensors.table.name')" />
+                <pv-column :header="t('iot.sensors.table.type')">
+                    <template #body="{ data }">
+                        {{ t(`iot.sensors.types.${data.type}`) }}
+                    </template>
+                </pv-column>
+                <pv-column field="minValue" :header="t('iot.sensors.table.min')" />
+                <pv-column field="maxValue" :header="t('iot.sensors.table.max')" />
+                <pv-column field="lastValue" :header="t('iot.sensors.table.last')" />
+                <pv-column :header="t('iot.sensors.table.status')">
+                    <template #body="{ data }">
+                        <Tag 
+                            :value="data.enabled ? t('iot.sensors.table.enabled') : t('iot.sensors.table.disabled')" 
+                            :severity="data.enabled ? 'success' : 'danger'" 
+                        />
+                    </template>
+                </pv-column>
+                <pv-column>
+                    <template #body="{ data }">
+                        <Button icon="pi pi-pencil" text rounded @click="openEditDialog(data)" />
+                    </template>
+                </pv-column>
+                <template #empty>
+                    <span class="sensors-empty-text">{{ t('iot.sensors.table.empty') }}</span>
+                </template>
+            </pv-datatable>
+        </section>
 
         <pv-dialog
             v-model:visible="showCreateDialog"
             modal
-            :header="t('iot.sensors.create-dialog.title')"
+            :header="isEditing ? 'Editar Sensor' : t('iot.sensors.create-dialog.title')"
             :style="{ width: 'min(420px, calc(100vw - 32px))' }"
             :draggable="false"
         >
@@ -253,8 +237,8 @@ watch(
                         @click="showCreateDialog = false"
                     />
                     <Button
-                        :label="t('iot.sensors.create-dialog.submit')"
-                        @click="handleCreateSensor"
+                        :label="isEditing ? 'Guardar Cambios' : t('iot.sensors.create-dialog.submit')"
+                        @click="handleSaveSensor"
                         :disabled="!newSensor.name || !newSensor.type"
                         class="create-sensor-submit"
                     />
@@ -265,26 +249,26 @@ watch(
 </template>
 
 <style scoped>
-.alerts-page {
+.sensors-page {
     display: flex;
     flex-direction: column;
     gap: 24px;
     font-family: 'Montserrat', system-ui, sans-serif;
 }
 
-.alerts-header {
+.sensors-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 20px;
 }
 
-.alerts-header__left {
+.sensors-header__left {
     display: flex;
     flex-direction: column;
 }
 
-.alerts-header__kicker {
+.sensors-header__kicker {
     color: #b56a16;
     font-size: 12px;
     font-weight: 700;
@@ -292,7 +276,7 @@ watch(
     text-transform: uppercase;
 }
 
-.alerts-header__title {
+.sensors-header__title {
     margin: 8px 0 4px;
     font-size: 32px;
     font-weight: 700;
@@ -300,7 +284,7 @@ watch(
     font-family: 'Poppins', system-ui, sans-serif;
 }
 
-.alerts-header__description {
+.sensors-header__description {
     margin: 0;
     color: #7f7064;
     font-size: 16px;
@@ -360,13 +344,13 @@ watch(
     box-shadow: 0 10px 25px rgba(58, 42, 20, 0.04);
 }
 
-.alerts-filters {
+.sensors-filters {
     display: grid;
     grid-template-columns: 1fr 240px;
     gap: 20px;
 }
 
-.alerts-filters__select {
+.sensors-filters__select {
     width: 100%;
     min-height: 40px;
     border: 1px solid #efe4d4;
@@ -379,7 +363,7 @@ watch(
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.alerts-filters__select:focus {
+.sensors-filters__select:focus {
     border-color: #b56a16;
     box-shadow: 0 0 0 2px rgba(181, 106, 22, 0.1);
 }
@@ -414,22 +398,48 @@ watch(
     width: 100%;
 }
 
+.sensors-table-wrap {
+    padding: 0;
+    overflow: hidden;
+}
+
+.sensors-table :deep(.p-datatable-thead > tr > th) {
+    background-color: #fffaf0 !important;
+    color: #4b3e34 !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid #efe4d4 !important;
+    font-family: 'Poppins', system-ui, sans-serif;
+}
+
+.sensors-table :deep(.p-datatable-tbody > tr) {
+    background-color: #ffffff !important;
+    color: #5a4f43 !important;
+    border-bottom: 1px solid #f6f0e6 !important;
+    transition: background-color 0.2s !important;
+}
+
+.sensors-table :deep(.p-datatable-tbody > tr:hover) {
+    background-color: #fffdf9 !important;
+}
+
+.sensors-empty-text {
+    display: block;
+    text-align: center;
+    padding: 24px;
+    color: #9b8c7e;
+    font-style: italic;
+}
+
 @media (max-width: 768px) {
-    .alerts-header {
+    .sensors-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 16px;
     }
     
-    .alerts-filters {
+    .sensors-filters {
         grid-template-columns: 1fr;
         gap: 16px;
     }
-}
-
-.view-sensors-action {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
 }
 </style>
