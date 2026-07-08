@@ -1,29 +1,31 @@
-import { User } from '../../domain/model/user.entity.js';
+import {User} from "../domain/user.entity.js";
 
+/**
+ * Maps IAM infrastructure resources into domain entities.
+ *
+ * @class UserAssembler
+ */
 export class UserAssembler {
-  static toEntitiesFromResponse(response) {
-    const usersArray = Array.isArray(response) ? response : (response.users || []);
-    return usersArray.map(resource => this.toEntityFromResource(resource));
-  }
-
+  /**
+   * Maps one user resource into a User entity.
+   * @param {{id: number|string, username: string}} resource - User resource payload.
+   * @returns {User} User entity.
+   */
   static toEntityFromResource(resource) {
-    return new User({
-      id: resource.id,
-      email: resource.email,
-      password: resource.password,
-      phoneNumber: resource.phoneNumber,
-      role: resource.role,
-      subscription: resource.subscription,
-    });
+    return new User({...resource});
   }
 
-  static toResourceFromEntity(user) {
-    return {
-      email: user.email,
-      password: user.password,
-      phoneNumber: user.phoneNumber,
-      role: user.role,
-      subscription: user.subscription,
-    };
+  /**
+   * @param {import('axios').AxiosResponse<Array<{id: number|string, username: string}>|{users:Array<{id: number|string, username: string}>}>} response - HTTP response containing user resources.
+   * @returns {User[]} Collection of user entities.
+   */
+  static toEntitiesFromResponse(response) {
+    if (response.status !== 200) {
+      console.error(`${response.status}, ${response.statusText}`);
+      return [];
+    }
+    let resources = response.data instanceof Array ? response.data : response.data['users'];
+
+    return resources.map(resource => this.toEntityFromResource(resource));
   }
 }
