@@ -24,6 +24,10 @@ function getActiveRole() {
     return normalizeRole(iamStore.currentUserRole) ?? normalizeRole(sessionStore.userRole);
 }
 
+function isPublicRoute(to) {
+    return ['login', 'register', 'register-complete', 'not-found'].includes(String(to.name ?? ''));
+}
+
 const legacyRedirectRoutes = [
     { path: '/dashboard', name: 'dashboard', redirect: () => getHomeByRole(getActiveRole() ?? 'restaurant') },
     { path: '/alerts', name: 'alerts', redirect: () => getScopedPathByRole(getActiveRole() ?? 'restaurant', 'alerts') },
@@ -52,6 +56,7 @@ const legacyRedirectRoutes = [
 
 const loginPage = () => import('./iam/presentation/views/login-view.vue');
 const registerPage = () => import('./iam/presentation/views/register-view.vue');
+const registerCompletePage = () => import('./subscriptions/presentation/views/register-complete-view.vue');
 
 const routes = [
     ...operationsRoutes,
@@ -63,6 +68,7 @@ const routes = [
     { path: '/', redirect: '/login' },
     { path: '/login', name: 'login', component: loginPage, meta: { i18nKey: 'shared.titles.login' } },
     { path: '/register', name: 'register', component: registerPage, meta: { i18nKey: 'shared.titles.register' } },
+    { path: '/register/complete', name: 'register-complete', component: registerCompletePage, meta: { title: 'Complete registration' } },
     ...legacyRedirectRoutes,
     { path: '/:pathMatch(.*)*', name: 'not-found', component: pageNotFound, meta: { i18nKey: 'shared.titles.not-found' } }
 ];
@@ -87,13 +93,20 @@ router.beforeEach((to, from, next) => {
     const pageTitle = to.meta?.i18nKey ? i18n.global.t(to.meta.i18nKey) : (to.meta?.title || '');
     document.title = pageTitle ? `${baseTitle} - ${pageTitle}` : baseTitle;
 
+    const iamStore = useIamStore();
+    const sessionStore = useSessionStore();
     const currentRole = getActiveRole();
     const requiredRole = getRoleFromPath(to.path);
+    const isAuthenticated = iamStore.isAuthenticated;
+    const publicRoute = isPublicRoute(to);
 
-    if (!currentRole && requiredRole) {
-        const sessionStore = useSessionStore();
-        sessionStore.setUserRole(requiredRole);
-        return next();
+    if (!isAuthenticated && !publicRoute) {
+        if (requiredRole) sessionStore.clearUserRole();
+        return next({ name: 'login', query: { redirect: to.fullPath } });
+    }
+
+    if (isAuthenticated && to.name === 'login') {
+        return next(getHomeByRole(currentRole));
     }
 
     if (currentRole && requiredRole && currentRole !== requiredRole) {

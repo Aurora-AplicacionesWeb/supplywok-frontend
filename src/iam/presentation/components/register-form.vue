@@ -1,21 +1,24 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useIamStore } from '../../application/iam-store.js';
 import { useI18n } from 'vue-i18n';
-import useSessionStore from '../../../shared/application/session.store.js';
-import { getHomeByRole, normalizeRole } from '../../../shared/application/role-routing.js';
+import { useSubscriptionsStore } from '../../../subscriptions/application/subscriptions.store.js';
 
 const { t } = useI18n();
-const router = useRouter();
-const iamStore = useIamStore();
-const sessionStore = useSessionStore();
+const subscriptionsStore = useSubscriptionsStore();
 
 const email = ref('');
 const password = ref('');
+const businessName = ref('');
+const firstName = ref('');
+const lastName = ref('');
+const street = ref('');
+const district = ref('');
+const city = ref('');
+const contactEmail = ref('');
 const phone = ref('');
+const category = ref('');
 const role = ref(null);
-const subscription = ref(null);
+const planCode = ref(null);
 const termsAccepted = ref(false);
 
 const loading = ref(false);
@@ -23,8 +26,8 @@ const errorMessage = ref('');
 const submitted = ref(false);
 
 const roles = computed(() => [
-  { label: t('access.register.role-restaurant'), value: 'Restaurant' },
-  { label: t('access.register.role-supplier'), value: 'Supplier' }
+  { label: t('access.register.role-restaurant'), value: 'restaurant' },
+  { label: t('access.register.role-supplier'), value: 'supplier' }
 ]);
 
 const subscriptions = computed(() => [
@@ -32,24 +35,44 @@ const subscriptions = computed(() => [
   { label: t('access.register.subscription-enterprise'), value: 'Enterprise' }
 ]);
 
+const isSupplier = computed(() => role.value === 'supplier');
+
 const errors = computed(() => {
   return {
     email: !email.value.includes('@') && submitted.value,
     password: password.value.length < 8 && submitted.value,
-    phone: !phone.value && submitted.value,
+    businessName: !businessName.value && submitted.value,
+    firstName: !firstName.value && submitted.value,
+    lastName: !lastName.value && submitted.value,
+    street: !street.value && submitted.value,
+    district: !district.value && submitted.value,
+    city: !city.value && submitted.value,
+    contactEmail: !contactEmail.value.includes('@') && submitted.value,
+    phone: isSupplier.value && !phone.value && submitted.value,
+    category: isSupplier.value && !category.value && submitted.value,
     role: !role.value && submitted.value,
-    subscription: !subscription.value && submitted.value,
+    subscription: !planCode.value && submitted.value,
     terms: !termsAccepted.value && submitted.value
   };
 });
 
 const isFormValid = computed(() => {
-  return email.value.includes('@') && 
-         password.value.length >= 8 && 
-         phone.value.length > 0 && 
-         role.value && 
-         subscription.value && 
-         termsAccepted.value;
+  const baseValid = email.value.includes('@') &&
+    password.value.length >= 8 &&
+    businessName.value.length > 0 &&
+    firstName.value.length > 0 &&
+    lastName.value.length > 0 &&
+    street.value.length > 0 &&
+    district.value.length > 0 &&
+    city.value.length > 0 &&
+    contactEmail.value.includes('@') &&
+    role.value &&
+    planCode.value &&
+    termsAccepted.value;
+
+  if (!baseValid) return false;
+  if (!isSupplier.value) return true;
+  return phone.value.length > 0 && category.value.length > 0;
 });
 
 const handleRegister = async () => {
@@ -61,22 +84,29 @@ const handleRegister = async () => {
   loading.value = true;
   errorMessage.value = '';
 
-  const userData = {
+  const registrationData = {
     email: email.value,
     password: password.value,
-    phoneNumber: phone.value,
+    businessName: businessName.value,
+    firstName: firstName.value,
+    lastName: lastName.value,
+    street: street.value,
+    district: district.value,
+    city: city.value,
+    country: 'Peru',
+    contactEmail: contactEmail.value,
+    phone: phone.value || null,
+    category: category.value || null,
     role: role.value,
-    subscription: subscription.value
+    planCode: planCode.value
   };
 
-  const success = await iamStore.registerUser(userData);
-  
-  if (success) {
-    const normalizedRole = normalizeRole(role.value);
-    sessionStore.setUserRole(normalizedRole);
-    router.push(getHomeByRole(normalizedRole));
+  const registration = await subscriptionsStore.startRegistration(registrationData);
+
+  if (registration?.checkoutUrl) {
+    window.location.href = registration.checkoutUrl;
   } else {
-    errorMessage.value = iamStore.error || t('access.register.registration-failed');
+    errorMessage.value = subscriptionsStore.error || t('access.register.registration-failed');
   }
   
   loading.value = false;
@@ -98,6 +128,54 @@ const landingUrl = 'https://aurora-aplicacionesweb.github.io/SupplyWok-Landing-P
     <h1 class="welcome-text">{{ t('access.register.get-started') }}</h1>
 
     <form @submit.prevent="handleRegister" class="form-container">
+      <div class="field-grid">
+        <div class="field">
+          <label for="businessName">Business name</label>
+          <pv-input-text
+            id="businessName"
+            v-model="businessName"
+            type="text"
+            :invalid="errors.businessName"
+            fluid
+          />
+        </div>
+
+        <div class="field">
+          <label for="contactEmail">Contact email</label>
+          <pv-input-text
+            id="contactEmail"
+            v-model="contactEmail"
+            type="email"
+            :invalid="errors.contactEmail"
+            fluid
+          />
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field">
+          <label for="firstName">First name</label>
+          <pv-input-text
+            id="firstName"
+            v-model="firstName"
+            type="text"
+            :invalid="errors.firstName"
+            fluid
+          />
+        </div>
+
+        <div class="field">
+          <label for="lastName">Last name</label>
+          <pv-input-text
+            id="lastName"
+            v-model="lastName"
+            type="text"
+            :invalid="errors.lastName"
+            fluid
+          />
+        </div>
+      </div>
+
       <div class="field">
         <label for="email">{{ t('access.log-in.email') }}</label>
         <pv-input-text 
@@ -124,47 +202,97 @@ const landingUrl = 'https://aurora-aplicacionesweb.github.io/SupplyWok-Landing-P
         <small v-if="errors.password" class="error-msg">{{ t('access.validation.password-min') }}</small>
       </div>
 
-      <div class="field">
-        <label for="phone">{{ t('access.register.phone') }}</label>
-        <pv-input-text 
-          id="phone" 
-          v-model="phone" 
-          type="text" 
-          :placeholder="t('access.register.phone-example')" 
-          :invalid="errors.phone"
-          fluid 
-        />
-        <small v-if="errors.phone" class="error-msg">{{ t('access.validation.phone-invalid') }}</small>
+      <div class="field-grid">
+        <div class="field">
+          <label for="street">Street</label>
+          <pv-input-text
+            id="street"
+            v-model="street"
+            type="text"
+            :invalid="errors.street"
+            fluid
+          />
+        </div>
+
+        <div class="field">
+          <label for="district">District</label>
+          <pv-input-text
+            id="district"
+            v-model="district"
+            type="text"
+            :invalid="errors.district"
+            fluid
+          />
+        </div>
       </div>
 
       <div class="field">
-        <label for="role">{{ t('access.register.role') }}</label>
-        <pv-select 
-          id="role" 
-          v-model="role" 
-          :options="roles" 
-          optionLabel="label" 
-          optionValue="value"
-          :placeholder="t('access.register.select-one')" 
-          :invalid="errors.role"
-          panelClass="custom-select-panel"
-          fluid 
+        <label for="city">City</label>
+        <pv-input-text
+          id="city"
+          v-model="city"
+          type="text"
+          :invalid="errors.city"
+          fluid
         />
       </div>
 
-      <div class="field">
-        <label for="subscription">{{ t('access.register.subscription') }}</label>
-        <pv-select 
-          id="subscription" 
-          v-model="subscription" 
-          :options="subscriptions" 
-          optionLabel="label" 
-          optionValue="value"
-          :placeholder="t('access.register.select-one')" 
-          :invalid="errors.subscription"
-          panelClass="custom-select-panel"
-          fluid 
-        />
+      <div class="field-grid">
+        <div class="field">
+          <label for="role">{{ t('access.register.role') }}</label>
+          <pv-select
+            id="role"
+            v-model="role"
+            :options="roles"
+            optionLabel="label"
+            optionValue="value"
+            :placeholder="t('access.register.select-one')"
+            :invalid="errors.role"
+            panelClass="custom-select-panel"
+            fluid
+          />
+        </div>
+
+        <div class="field">
+          <label for="subscription">{{ t('access.register.subscription') }}</label>
+          <pv-select
+            id="subscription"
+            v-model="planCode"
+            :options="subscriptions"
+            optionLabel="label"
+            optionValue="value"
+            :placeholder="t('access.register.select-one')"
+            :invalid="errors.subscription"
+            panelClass="custom-select-panel"
+            fluid
+          />
+        </div>
+      </div>
+
+      <div v-if="isSupplier" class="field-grid">
+        <div class="field">
+          <label for="phone">{{ t('access.register.phone') }}</label>
+          <pv-input-text
+            id="phone"
+            v-model="phone"
+            type="text"
+            :placeholder="t('access.register.phone-example')"
+            :invalid="errors.phone"
+            fluid
+          />
+          <small v-if="errors.phone" class="error-msg">{{ t('access.validation.phone-invalid') }}</small>
+        </div>
+
+        <div class="field">
+          <label for="category">Category</label>
+          <pv-input-text
+            id="category"
+            v-model="category"
+            type="text"
+            :invalid="errors.category"
+            fluid
+          />
+        </div>
       </div>
 
       <p class="plans-help">
@@ -201,7 +329,7 @@ const landingUrl = 'https://aurora-aplicacionesweb.github.io/SupplyWok-Landing-P
   padding: 2rem 2.5rem;
   border-radius: 40px;
   width: 100%;
-  max-width: 450px;
+  max-width: 760px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   text-align: center;
   color: #1a1a1a !important;
@@ -251,6 +379,12 @@ const landingUrl = 'https://aurora-aplicacionesweb.github.io/SupplyWok-Landing-P
   flex-direction: column;
   gap: 0.5rem;
   text-align: left;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
 }
 
 .field {
@@ -338,6 +472,12 @@ const landingUrl = 'https://aurora-aplicacionesweb.github.io/SupplyWok-Landing-P
   color: #e74c3c;
   font-size: 0.8rem;
   text-align: center;
+}
+
+@media (max-width: 640px) {
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 
