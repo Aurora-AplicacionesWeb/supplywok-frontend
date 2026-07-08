@@ -7,7 +7,6 @@ import { useIamStore } from "../../iam/application/iam-store.js";
 import {CatalogItemAssembler} from "../infrastructure/catalog-item.assembler.js";
 import {ClientAssembler} from "../infrastructure/client.assembler.js";
 import {DeliveryRouteAssembler} from "../infrastructure/delivery-route.assembler.js";
-import {SupplierSettingsAssembler} from "../infrastructure/supplier-settings.assembler.js";
 const supplierManagementApi = new SupplyManagementApi();
 const profilesApi = new ProfilesApi();
 
@@ -55,9 +54,6 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
     const clientsLoaded = ref(false);
     const deliveryRoutes = ref([]);
     const deliveryRoutesLoaded = ref(false);
-    const supplierSettings = ref(null);
-    const supplierSettingsLoaded = ref(false);
-    const settingsError = ref('');
 
     /**
      * Number of loaded catalog items.
@@ -121,47 +117,6 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
         }).catch(error=>{
             errors.value.push(error);
         });
-    }
-
-    /**
-     * Loads supplier settings from infrastructure and updates local state.
-     *
-     * @returns {void}
-     */
-    async function fetchSupplierSettings(){
-        settingsError.value = '';
-        await initializeForCurrentUser();
-        supplierManagementApi.getSupplierSettings().then(response=>{
-            supplierSettings.value = SupplierSettingsAssembler.toEntityFromResponse(response);
-            supplierSettingsLoaded.value = true;
-        }).catch(error=>{
-            settingsError.value = error.message || String(error);
-        });
-    }
-
-    /**
-     * Persists supplier settings and replaces the local state with the saved entity.
-     *
-     * @param {import('../domain/model/supplier-settings.entity.js').SupplierSettings} settings - Settings to persist.
-     * @returns {Promise<void>}
-     */
-    async function updateSupplierSettings(settings){
-        if (!settings?.id) {
-            return false;
-        }
-
-        try {
-            const response = await supplierManagementApi.updateSupplierSettings(
-                settings.id,
-                SupplierSettingsAssembler.toResourceFromEntity(settings)
-            );
-            supplierSettings.value = SupplierSettingsAssembler.toEntityFromResource(response.data);
-            supplierSettingsLoaded.value = true;
-            return true;
-        } catch (error) {
-            settingsError.value = error.message || String(error);
-            return false;
-        }
     }
 
     /**
@@ -261,14 +216,9 @@ const useSupplierManagementStore = defineStore('supplierManagement', () => {
         deliveryRoutes,
         deliveryRoutesLoaded,
         deliveryRoutesCount,
-        supplierSettings,
-        supplierSettingsLoaded,
-        settingsError,
         fetchCatalogItems,
         fetchClients,
         fetchDeliveryRoutes,
-        fetchSupplierSettings,
-        updateSupplierSettings,
         getCatalogItemById,
         addCatalogItem,
         updateCatalogItem,
