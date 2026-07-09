@@ -237,7 +237,7 @@ onMounted(function() {
 
 <style scoped>
 .kicker-text { color: #a07832; font-size: 12px; letter-spacing: 0.08em; }
-.page-title { color: #342923; font-size: clamp(2rem, 2.2vw, 2.4rem); font-family: 'Poppins', system-ui, sans-serif; }
+.page-title { color: #221b2a; font-size: clamp(2.6rem, 4vw, 3.3rem); line-height: 1; letter-spacing: -0.04em; font-family: 'Poppins', system-ui, sans-serif; }
 .page-desc { color: #65594f; font-size: 14px; }
 .card-title { color: #40342d; font-size: 16px; font-family: 'Poppins', system-ui, sans-serif; }
 .tables-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; }

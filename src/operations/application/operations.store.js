@@ -150,6 +150,20 @@ const useOperationsStore = defineStore('operations', () => {
         });
     }
 
+    function createDish(dishData) {
+        loading.value = true;
+        return operationsApi.createDish(dishData).then(response => {
+            const createdDish = DishAssembler.toEntityFromResource(response.data);
+            dishes.value.push(createdDish);
+            loading.value = false;
+            return createdDish;
+        }).catch(() => {
+            errors.value.push(translate('operations.store.errors.createDishFailed'));
+            loading.value = false;
+            return null;
+        });
+    }
+
     function fetchKitchenOrders() {
         loading.value = true;
         return operationsApi.getKitchenOrders().then(ordersResponse => {
@@ -387,6 +401,7 @@ const useOperationsStore = defineStore('operations', () => {
         addItemToOrder, removeItemFromOrder, updateItemQuantity, clearCurrentOrder,
         fetchTables, fetchDishes, fetchDishCategories, fetchKitchenOrders,
         fetchKitchenOrderById,
+        createDish,
         createKitchenOrder, updateKitchenOrderStatus, updateKitchenOrder, deleteKitchenOrder,
         addTable, updateTable, deleteTable, resetStore, clearErrors
     };

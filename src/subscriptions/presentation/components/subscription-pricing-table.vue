@@ -156,10 +156,11 @@ function handlePricingTableError(error) {
 }
 
 .subscription-page__title {
-    margin: 8px 0 10px;
-    color: #2f241d;
-    font-size: 2.35rem;
-    line-height: 1.1;
+    margin: 10px 0 8px;
+    color: #221b2a;
+    font-size: clamp(2.6rem, 4vw, 3.3rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
 }
 
 .subscription-page__description {
@@ -291,7 +292,7 @@ function handlePricingTableError(error) {
     }
 
     .subscription-page__title {
-        font-size: 2rem;
+        font-size: clamp(2.2rem, 8vw, 2.8rem);
     }
 
     .checkout-panel__header {

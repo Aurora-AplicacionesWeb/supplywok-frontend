@@ -51,6 +51,19 @@ export class OperationsApi extends BaseApi {
         return this.#dishesCategoriesEndpoint.getAll();
     }
 
+    createDish(resource) {
+        return this.#dishesEndpoint.create({
+            code: resource.code,
+            name: resource.name,
+            quantity: Number(resource.quantity ?? 0),
+            description: resource.description ?? '',
+            price: Number(resource.price ?? 0),
+            active: resource.active ?? true,
+            outstanding: resource.outstanding ?? false,
+            dishCategoryId: Number(resource.dishCategoryId)
+        });
+    }
+
     getTables() {
         return this.#tablesEndpoint.getAll();
     }

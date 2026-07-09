@@ -192,9 +192,11 @@ onMounted(loadProfile);
 
 .settings-page__title {
     margin: 0;
+    color: #221b2a;
     font-family: 'Poppins', system-ui, sans-serif;
-    font-size: 48px;
+    font-size: clamp(2.6rem, 4vw, 3.3rem);
     line-height: 1;
+    letter-spacing: -0.04em;
 }
 
 .settings-page__subtitle {
@@ -296,7 +298,7 @@ onMounted(loadProfile);
     }
 
     .settings-page__title {
-        font-size: 34px;
+        font-size: clamp(2.2rem, 8vw, 2.8rem);
     }
 }
 </style>

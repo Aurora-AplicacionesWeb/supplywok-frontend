@@ -17,6 +17,6 @@ export class RestaurantAlertsApi extends BaseApi {
     }
 
     acknowledgeAlert(id) {
-        return this.http.post(`${this.#alertsEndpoint.endpointPath}/${id}/acknowledge`);
+        return this.http.patch(`${this.#alertsEndpoint.endpointPath}/${id}`);
     }
 }

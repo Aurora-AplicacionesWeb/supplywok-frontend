@@ -8,7 +8,6 @@ const alertsEndpointPath = import.meta.env.VITE_ALERTS_ENDPOINT_PATH ?? '/suppli
 
 const localSupplierState = {
     deliveryRoutes: [],
-    demandForecast: { aggregate: [], clients: [] },
     supplierSubscription: []
 };
 
@@ -110,15 +109,6 @@ export class SupplyManagementApi extends BaseApi {
     updateAlert(id, alert){
         return this.#alertsEndpoint.update(id, alert);
     }
-
-    getDemandForecast(){
-        return Promise.resolve({
-            status: 200,
-            statusText: 'OK',
-            data: localSupplierState.demandForecast
-        });
-    }
-
     getDeliveryRoutes(){
         return Promise.resolve({
             status: 200,

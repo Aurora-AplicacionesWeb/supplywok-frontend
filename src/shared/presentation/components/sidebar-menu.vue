@@ -77,6 +77,9 @@ const activeRole = computed(() => {
 const visibleMenuItems = computed(() => menuItems[activeRole.value] ?? []);
 
 const activeItem = computed(() => {
+  if (route.path.startsWith('/iot/')) {
+    return 'alerts';
+  }
   const currentItem = visibleMenuItems.value.find((item) => route.path.startsWith(item.path));
   return currentItem?.id ?? 'dashboard';
 });

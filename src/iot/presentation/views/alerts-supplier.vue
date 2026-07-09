@@ -13,7 +13,7 @@ const route = useRoute();
 const router = useRouter();
 const store = iotStore();
 const { supplierAlerts: alerts, supplierAlertsLoaded: alertsLoaded } = storeToRefs(store);
-const { fetchSupplierAlerts: fetchAlerts, acknowledgeAlert } = store;
+const { fetchSupplierAlerts: fetchAlerts, acknowledgeSupplierAlert } = store;
 
 const searchQuery = ref('');
 const priorityFilter = ref('all');
@@ -67,7 +67,7 @@ function openDetails(alert) {
 }
 
 async function handleAcknowledge(id) {
-    await acknowledgeAlert(id);
+    await acknowledgeSupplierAlert(id);
     if (selectedAlert.value?.id === id) {
         selectedAlert.value = alerts.value.find(alert => alert.id === id) ?? selectedAlert.value;
     }
@@ -168,10 +168,12 @@ watch(
 }
 
 .alerts-header__title {
-    margin: 8px 0 4px;
-    font-size: 32px;
+    margin: 10px 0 8px;
+    color: #221b2a;
+    font-size: clamp(2.6rem, 4vw, 3.3rem);
     font-weight: 700;
-    color: #2f241d;
+    line-height: 1;
+    letter-spacing: -0.04em;
     font-family: 'Poppins', system-ui, sans-serif;
 }
 

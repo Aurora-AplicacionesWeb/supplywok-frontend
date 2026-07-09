@@ -27,19 +27,30 @@ export class IotMonitoringApi {
     }
   }
 
-  /**
-   * Creates a new sensor on the API.
-   * @param {Object} sensorData - The raw sensor data.
-   * @returns {Promise<Sensor|null>}
-   */
   async createSensor(sensorData) {
     try {
-      const response = await this.sensorsEndpoint.create(sensorData);
+      const payload = this.#toBackendSensorPayload(sensorData);
+      const response = await this.sensorsEndpoint.create(payload);
       return SensorAssembler.toEntityFromResource(response.data ?? response);
     } catch (error) {
       console.error('Failed to create sensor:', error);
       return null;
     }
+  }
+
+  async updateSensor(sensorData) {
+    try {
+      const payload = this.#toBackendSensorPayload(sensorData);
+      const response = await this.sensorsEndpoint.update(sensorData.id, payload);
+      return SensorAssembler.toEntityFromResource(response.data ?? response);
+    } catch (error) {
+      console.error('Failed to update sensor:', error);
+      return null;
+    }
+  }
+
+  async deleteSensor(sensorId) {
+    return this.sensorsEndpoint.delete(sensorId);
   }
 
   /**
@@ -69,5 +80,25 @@ export class IotMonitoringApi {
   /** Retrieves storage inventory sensors. */
   async getStoragePressureSensors() {
     return this._getSensorsByType('storage-pressure');
+  }
+
+  #toBackendSensorPayload(sensorData) {
+    let backendType = 0;
+    switch (sensorData.type) {
+      case 'kitchen-temperature': backendType = 0; break;
+      case 'table-pressure': backendType = 1; break;
+      case 'storage-temperature': backendType = 2; break;
+      case 'storage-pressure': backendType = 3; break;
+      default: backendType = 0;
+    }
+
+    return {
+      name: sensorData.name,
+      minValue: Number(sensorData.minValue ?? 0),
+      maxValue: Number(sensorData.maxValue ?? 0),
+      enabled: Boolean(sensorData.enabled),
+      lastValue: Number(sensorData.lastValue ?? 0),
+      type: backendType
+    };
   }
 }
