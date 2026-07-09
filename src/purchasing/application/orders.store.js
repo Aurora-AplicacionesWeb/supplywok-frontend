@@ -38,7 +38,8 @@ export const useOrdersStore = defineStore('orders', () => {
             contactName: [supplier.firstName, supplier.lastName].filter(Boolean).join(' '),
             email: supplier.contactEmail ?? '',
             phone: supplier.phone ?? '',
-            category: supplier.category ?? ''
+            category: supplier.category ?? '',
+            street: supplier.street ?? ''
         }));
     });
 

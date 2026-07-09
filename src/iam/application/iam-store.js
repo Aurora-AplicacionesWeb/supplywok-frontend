@@ -27,7 +27,6 @@ function readStoredUser() {
 export const useIamStore = defineStore('iam', () => {
   const api = new IamApi();
 
-  const users = ref([]);
   const currentUser = ref(readStoredUser());
   const loading = ref(false);
   const error = ref(null);
@@ -46,18 +45,6 @@ export const useIamStore = defineStore('iam', () => {
     window.localStorage.removeItem(AUTH_STORAGE_KEY);
     window.localStorage.removeItem('token');
   }
-
-  const loadUsers = async () => {
-    loading.value = true;
-    error.value = null;
-    try {
-      users.value = await api.getUsers();
-    } catch {
-      error.value = 'Failed to load users';
-    } finally {
-      loading.value = false;
-    }
-  };
 
   const login = async (email, password) => {
     loading.value = true;
@@ -107,13 +94,11 @@ export const useIamStore = defineStore('iam', () => {
   };
 
   return {
-    users,
     currentUser,
     loading,
     error,
     isAuthenticated,
     currentUserRole,
-    loadUsers,
     login,
     registerUser,
     logout

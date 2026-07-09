@@ -133,12 +133,6 @@ const dayChips = [
   { id: 'S2', label: 'S' }
 ];
 
-const users = [
-  { initials: 'LZ', name: 'Lucia Zhao', role: 'Manager' },
-  { initials: 'MH', name: 'Marco Huaman', role: 'Chef' },
-  { initials: 'AW', name: 'Ana Wong', role: 'Inventory' }
-];
-
 function toggleDay(dayId) {
   if (selectedDays.value.includes(dayId)) {
     selectedDays.value = selectedDays.value.filter((value) => value !== dayId);
@@ -164,7 +158,7 @@ function toggleDay(dayId) {
         <div class="settings-card__header">
           <h2>{{ t('shared.configurationPage.profile.title') }}</h2>
           <button type="button" :disabled="saving || !currentProfile" @click="saveProfile">
-            {{ saving ? 'Saving...' : saveSuccess ? 'Saved!' : t('shared.configurationPage.profile.save') }}
+            {{ saving ? t('shared.configurationPage.profile.saving') : saveSuccess ? t('shared.configurationPage.profile.saved') : t('shared.configurationPage.profile.save') }}
           </button>
         </div>
 
@@ -175,49 +169,49 @@ function toggleDay(dayId) {
 
         <div class="settings-field-row">
           <label class="settings-field">
-            <span>First Name</span>
+            <span>{{ t('shared.configurationPage.profile.fields.firstName') }}</span>
             <input v-model="firstName" type="text">
           </label>
           <label class="settings-field">
-            <span>Last Name</span>
+            <span>{{ t('shared.configurationPage.profile.fields.lastName') }}</span>
             <input v-model="lastName" type="text">
           </label>
         </div>
 
         <label class="settings-field">
-          <span>Email</span>
+          <span>{{ t('shared.configurationPage.profile.fields.contactEmail') }}</span>
           <input v-model="contactEmail" type="email">
         </label>
 
         <div class="settings-field-row">
           <label class="settings-field">
-            <span>Street</span>
+            <span>{{ t('shared.configurationPage.profile.fields.street') }}</span>
             <input v-model="street" type="text">
           </label>
           <label class="settings-field">
-            <span>District</span>
+            <span>{{ t('shared.configurationPage.profile.fields.district') }}</span>
             <input v-model="district" type="text">
           </label>
         </div>
 
         <div class="settings-field-row">
           <label class="settings-field">
-            <span>City</span>
+            <span>{{ t('shared.configurationPage.profile.fields.city') }}</span>
             <input v-model="city" type="text">
           </label>
           <label class="settings-field">
-            <span>Country</span>
+            <span>{{ t('shared.configurationPage.profile.fields.country') }}</span>
             <input v-model="country" type="text">
           </label>
         </div>
 
         <label v-if="sessionStore.userRole === 'supplier'" class="settings-field">
-          <span>Phone</span>
+          <span>{{ t('shared.configurationPage.profile.fields.phone') }}</span>
           <input v-model="phone" type="text">
         </label>
 
         <label v-if="sessionStore.userRole === 'supplier'" class="settings-field">
-          <span>Category</span>
+          <span>{{ t('shared.configurationPage.profile.fields.category') }}</span>
           <input v-model="category" type="text">
         </label>
 
@@ -243,31 +237,12 @@ function toggleDay(dayId) {
 
       <div class="configuration-page__side">
         <article class="settings-card">
-          <div class="settings-card__header settings-card__header--simple">
-            <h2>{{ t('shared.configurationPage.users.title') }}</h2>
-          </div>
-
-          <div class="user-list">
-            <article v-for="user in users" :key="user.name" class="user-list__row">
-              <div class="user-list__identity">
-                <span class="user-list__avatar">{{ user.initials }}</span>
-                <div>
-                  <strong>{{ user.name }}</strong>
-                  <small>{{ user.role }}</small>
-                </div>
-              </div>
-              <span class="user-list__badge">{{ t('shared.configurationPage.users.status.active') }}</span>
-            </article>
-          </div>
-        </article>
-
-        <article class="settings-card">
           <label class="settings-field settings-field--select">
             <span>{{ t('shared.configurationPage.demo.state') }}</span>
             <div class="settings-field__select-shell">
               <select v-model="demoState">
-                <option>Inactive</option>
-                <option>Active</option>
+                <option :value="t('shared.configurationPage.demo.options.inactive')">{{ t('shared.configurationPage.demo.options.inactive') }}</option>
+                <option :value="t('shared.configurationPage.demo.options.active')">{{ t('shared.configurationPage.demo.options.active') }}</option>
               </select>
               <i class="pi pi-chevron-down"></i>
             </div>
@@ -306,6 +281,18 @@ function toggleDay(dayId) {
 
 <style scoped>
 .configuration-page {
+  --configuration-accent: var(--secondary-color);
+  --configuration-title: var(--text-h);
+  --configuration-body: var(--text-color);
+  --configuration-muted: var(--text);
+  --configuration-surface: var(--bg);
+  --configuration-surface-subtle: var(--bg-color);
+  --configuration-border: var(--border);
+  --configuration-shadow: var(--shadow);
+  --configuration-action-bg: var(--text-color);
+  --configuration-action-fg: var(--bg);
+  --configuration-track: var(--border);
+  --configuration-checked: var(--primary-color);
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -317,7 +304,7 @@ function toggleDay(dayId) {
 
 .configuration-page__kicker {
   display: inline-block;
-  color: #a07832;
+  color: var(--configuration-accent);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -326,14 +313,14 @@ function toggleDay(dayId) {
 
 .configuration-page__title {
   margin: 10px 0 8px;
-  color: #221b2a;
-  font-size: clamp(2.5rem, 4vw, 3.2rem);
+  color: var(--configuration-title);
+  font-size: clamp(2.6rem, 4vw, 3.3rem);
   line-height: 1;
   letter-spacing: -0.04em;
 }
 
 .configuration-page__description {
-  color: #5b5247;
+  color: var(--configuration-body);
   font-size: 1.03rem;
 }
 
@@ -350,10 +337,10 @@ function toggleDay(dayId) {
 }
 
 .settings-card {
-  background: #ffffff;
-  border: 1px solid #e3d4c5;
+  background: var(--configuration-surface);
+  border: 1px solid var(--configuration-border);
   border-radius: 18px;
-  box-shadow: 0 16px 34px rgba(47, 36, 29, 0.1);
+  box-shadow: var(--configuration-shadow);
   padding: 18px 20px;
 }
 
@@ -375,7 +362,7 @@ function toggleDay(dayId) {
 
 .settings-card__header h2 {
   margin: 0;
-  color: #2c2328;
+  color: var(--configuration-title);
   font-size: 1.1rem;
   font-weight: 700;
 }
@@ -385,8 +372,8 @@ function toggleDay(dayId) {
   padding: 0 16px;
   border: none;
   border-radius: 6px;
-  background: #2d241e;
-  color: #ffffff;
+  background: var(--configuration-action-bg);
+  color: var(--configuration-action-fg);
   font-weight: 600;
   cursor: pointer;
 }
@@ -409,7 +396,7 @@ function toggleDay(dayId) {
 }
 
 .settings-field span {
-  color: #584f46;
+  color: var(--configuration-body);
   font-size: 0.95rem;
 }
 
@@ -417,14 +404,14 @@ function toggleDay(dayId) {
 .settings-field__select-shell,
 .settings-field__password-shell {
   min-height: 50px;
-  border: 1px solid #e2d4c5;
+  border: 1px solid var(--configuration-border);
   border-radius: 10px;
-  background: #ffffff;
+  background: var(--configuration-surface);
 }
 
 .settings-field input {
   padding: 0 12px;
-  color: #433a31;
+  color: var(--configuration-body);
 }
 
 .settings-day-list {
@@ -438,14 +425,14 @@ function toggleDay(dayId) {
   height: 34px;
   border: none;
   border-radius: 8px;
-  background: #d7d0ca;
-  color: #ffffff;
+  background: var(--configuration-track);
+  color: var(--configuration-action-fg);
   font-weight: 700;
   cursor: pointer;
 }
 
 .settings-day-list__day--active {
-  background: #2d241e !important;
+  background: var(--configuration-action-bg) !important;
 }
 
 .settings-toggles {
@@ -458,7 +445,7 @@ function toggleDay(dayId) {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  color: #52483f;
+  color: var(--configuration-body);
   cursor: pointer;
 }
 
@@ -471,7 +458,7 @@ function toggleDay(dayId) {
   width: 32px;
   height: 20px;
   border-radius: 999px;
-  background: #d8d4d0;
+  background: var(--configuration-track);
   transition: background 0.2s ease;
 }
 
@@ -483,70 +470,16 @@ function toggleDay(dayId) {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--configuration-surface);
   transition: transform 0.2s ease;
 }
 
 .settings-toggle input:checked + .settings-toggle__slider {
-  background: #c21204;
+  background: var(--configuration-checked);
 }
 
 .settings-toggle input:checked + .settings-toggle__slider::after {
   transform: translateX(12px);
-}
-
-.user-list {
-  display: grid;
-  gap: 14px;
-}
-
-.user-list__row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-  padding: 14px;
-  border: 1px solid #e6d9cc;
-  border-radius: 12px;
-}
-
-.user-list__identity {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-list__avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #f5dcc9;
-  color: #513824;
-  font-weight: 700;
-}
-
-.user-list__identity strong {
-  display: block;
-  color: #2c2328;
-}
-
-.user-list__identity small {
-  color: #796f65;
-}
-
-.user-list__badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 28px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: #def4df;
-  color: #238148;
-  font-size: 0.84rem;
 }
 
 .settings-field__select-shell,
@@ -562,19 +495,19 @@ function toggleDay(dayId) {
   border: none;
   outline: none;
   background: transparent;
-  color: #433a31;
+  color: var(--configuration-body);
   font-size: 1rem;
 }
 
 .settings-field__select-shell i,
 .settings-field__password-shell i {
-  color: #7e756b;
+  color: var(--configuration-muted);
 }
 
 .settings-card__divider {
   height: 1px;
   margin: 8px 0 18px;
-  background: #ece4db;
+  background: var(--configuration-border);
 }
 
 .settings-toggle--full {
@@ -590,8 +523,8 @@ function toggleDay(dayId) {
   margin-top: 14px;
   padding: 14px;
   border-radius: 10px;
-  background: #f4ece5;
-  color: #5f564d;
+  background: var(--configuration-surface-subtle);
+  color: var(--configuration-body);
 }
 
 @media (max-width: 1120px) {
@@ -601,8 +534,7 @@ function toggleDay(dayId) {
 }
 
 @media (max-width: 640px) {
-  .settings-toggles,
-  .user-list__row {
+  .settings-toggles {
     flex-direction: column;
     align-items: flex-start;
   }

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
@@ -9,6 +9,11 @@ import KpiCardsRow from '../components/kpi-cards-row.vue';
 import StatusBadge from '../components/status-badge.vue';
 import Button from 'primevue/button';
 import ConfirmDialog from 'primevue/confirmdialog';
+import Dialog from 'primevue/dialog';
+import InputText from 'primevue/inputtext';
+import InputNumber from 'primevue/inputnumber';
+import Select from 'primevue/select';
+import Checkbox from 'primevue/checkbox';
 import Message from 'primevue/message';
 import { useConfirm } from 'primevue/useconfirm';
 
@@ -16,14 +21,16 @@ const { t } = useI18n();
 const router = useRouter();
 const store = useOperationsStore();
 const confirm = useConfirm();
+const showCreateDishDialog = ref(false);
+const newDish = ref(createEmptyDish());
 
 const {
-  kitchenOrders, tables, pendingKitchenOrders, inPreparationKitchenOrders,
+  kitchenOrders, tables, dishCategories, pendingKitchenOrders, inPreparationKitchenOrders,
   readyKitchenOrders, loading, errors
 } = storeToRefs(store);
 
 const {
-  fetchKitchenOrders, fetchTables, updateKitchenOrderStatus, deleteKitchenOrder
+  fetchKitchenOrders, fetchTables, fetchDishCategories, createDish, updateKitchenOrderStatus, deleteKitchenOrder
 } = store;
 
 const openCount = computed(() => pendingKitchenOrders.value.length);
@@ -91,9 +98,46 @@ function goToNewTicket() {
   router.push('/operations/kitchen/new');
 }
 
+function createEmptyDish() {
+  return {
+    code: '',
+    name: '',
+    description: '',
+    price: 0,
+    quantity: 0,
+    dishCategoryId: null,
+    active: true,
+    outstanding: false
+  };
+}
+
+const dishCategoryOptions = computed(() =>
+    dishCategories.value.map((category) => ({
+      label: category.name,
+      value: category.id
+    }))
+);
+
+function openCreateDishDialog() {
+  if (dishCategories.value.length === 0) {
+    fetchDishCategories();
+  }
+  newDish.value = createEmptyDish();
+  showCreateDishDialog.value = true;
+}
+
+async function handleCreateDish() {
+  const created = await createDish(newDish.value);
+  if (created) {
+    showCreateDishDialog.value = false;
+    newDish.value = createEmptyDish();
+  }
+}
+
 onMounted(() => {
   fetchKitchenOrders();
   fetchTables();
+  fetchDishCategories();
 });
 </script>
 
@@ -105,12 +149,21 @@ onMounted(() => {
         <h1 class="font-bold m-0 page-title">{{ t('operations.kitchenTicketsPage.title') }}</h1>
         <p class="mt-2 page-desc">{{ t('operations.kitchenTicketsPage.description') }}</p>
       </div>
-      <Button
-          :label="t('operations.kitchenTicketsPage.newTicket')"
-          icon="pi pi-plus"
-          severity="danger"
-          @click="goToNewTicket"
-      />
+      <div class="flex gap-2 flex-wrap justify-content-end">
+        <Button
+            :label="t('operations.kitchenTicketsPage.addDishes')"
+            icon="pi pi-plus"
+            severity="secondary"
+            outlined
+            @click="openCreateDishDialog"
+        />
+        <Button
+            :label="t('operations.kitchenTicketsPage.newTicket')"
+            icon="pi pi-plus"
+            severity="danger"
+            @click="goToNewTicket"
+        />
+      </div>
     </div>
 
     <Message
@@ -189,12 +242,80 @@ onMounted(() => {
       </div>
     </template>
     <ConfirmDialog />
+    <Dialog
+        v-model:visible="showCreateDishDialog"
+        modal
+        :header="t('operations.kitchenTicketsPage.createDishDialog.title')"
+        :style="{ width: 'min(480px, calc(100vw - 32px))' }"
+        :draggable="false"
+    >
+      <div class="flex flex-column gap-3 p-2">
+        <div class="flex flex-column gap-1">
+          <label class="dialog-label">{{ t('operations.kitchenTicketsPage.createDishDialog.code') }}</label>
+          <InputText v-model="newDish.code" :placeholder="t('operations.kitchenTicketsPage.createDishDialog.codePlaceholder')" />
+        </div>
+        <div class="flex flex-column gap-1">
+          <label class="dialog-label">{{ t('operations.kitchenTicketsPage.createDishDialog.name') }}</label>
+          <InputText v-model="newDish.name" :placeholder="t('operations.kitchenTicketsPage.createDishDialog.namePlaceholder')" />
+        </div>
+        <div class="flex flex-column gap-1">
+          <label class="dialog-label">{{ t('operations.kitchenTicketsPage.createDishDialog.description') }}</label>
+          <InputText v-model="newDish.description" :placeholder="t('operations.kitchenTicketsPage.createDishDialog.descriptionPlaceholder')" />
+        </div>
+        <div class="flex gap-3">
+          <div class="flex flex-column gap-1 flex-1">
+            <label class="dialog-label">{{ t('operations.kitchenTicketsPage.createDishDialog.price') }}</label>
+            <InputNumber v-model="newDish.price" mode="currency" currency="PEN" locale="es-PE" :min="0" class="w-full" />
+          </div>
+          <div class="flex flex-column gap-1 flex-1">
+            <label class="dialog-label">{{ t('operations.kitchenTicketsPage.createDishDialog.quantity') }}</label>
+            <InputNumber v-model="newDish.quantity" :min="0" class="w-full" />
+          </div>
+        </div>
+        <div class="flex flex-column gap-1">
+          <label class="dialog-label">{{ t('operations.kitchenTicketsPage.createDishDialog.category') }}</label>
+          <Select
+              v-model="newDish.dishCategoryId"
+              :options="dishCategoryOptions"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full"
+          />
+        </div>
+        <div class="flex gap-4 flex-wrap">
+          <div class="flex align-items-center gap-2">
+            <Checkbox v-model="newDish.active" binary inputId="dish-active" />
+            <label for="dish-active" class="dialog-label cursor-pointer">{{ t('operations.kitchenTicketsPage.createDishDialog.active') }}</label>
+          </div>
+          <div class="flex align-items-center gap-2">
+            <Checkbox v-model="newDish.outstanding" binary inputId="dish-outstanding" />
+            <label for="dish-outstanding" class="dialog-label cursor-pointer">{{ t('operations.kitchenTicketsPage.createDishDialog.outstanding') }}</label>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <div class="flex justify-content-end gap-2">
+          <Button
+              :label="t('operations.kitchenTicketsPage.createDishDialog.cancel')"
+              severity="secondary"
+              outlined
+              @click="showCreateDishDialog = false"
+          />
+          <Button
+              :label="t('operations.kitchenTicketsPage.createDishDialog.submit')"
+              severity="danger"
+              :disabled="!newDish.code || !newDish.name || !newDish.dishCategoryId"
+              @click="handleCreateDish"
+          />
+        </div>
+      </template>
+    </Dialog>
   </section>
 </template>
 
 <style scoped>
 .kicker-text { color: #a07832; font-size: 12px; letter-spacing: 0.08em; }
-.page-title { color: #342923; font-size: clamp(2rem, 2.2vw, 2.4rem); font-family: 'Poppins', system-ui, sans-serif; }
+.page-title { color: #221b2a; font-size: clamp(2.6rem, 4vw, 3.3rem); line-height: 1; letter-spacing: -0.04em; font-family: 'Poppins', system-ui, sans-serif; }
 .page-desc { color: #65594f; font-size: 14px; }
 .loading-spinner { font-size: 24px; color: #a07832; }
 .table-wrapper { border: 1px solid #f0e8dd; }
@@ -209,6 +330,7 @@ onMounted(() => {
 .time-cell { color: #7d7065; font-size: 12px; white-space: nowrap; text-align: center; }
 .actions-cell { white-space: nowrap; }
 .empty-state { color: #7d7065; font-size: 13px; }
+.dialog-label { color: #40342d; font-size: 13px; font-weight: 600; }
 @media (max-width: 768px) { .hide-md { display: none; } }
 @media (max-width: 640px) { .hide-sm { display: none; } }
 </style>

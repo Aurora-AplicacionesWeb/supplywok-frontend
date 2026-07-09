@@ -101,8 +101,19 @@
       "profile": {
         "title": "Restaurant profile",
         "save": "Save",
+        "saving": "Saving...",
+        "saved": "Saved!",
         "fields": {
           "name": "Restaurant profile",
+          "firstName": "First name",
+          "lastName": "Last name",
+          "contactEmail": "Email",
+          "street": "Street",
+          "district": "District",
+          "city": "City",
+          "country": "Country",
+          "phone": "Phone",
+          "category": "Category",
           "hours": "Operating hours",
           "thresholds": "Minimum stock thresholds",
           "days": "Operating days",
@@ -118,7 +129,11 @@
         }
       },
       "demo": {
-        "state": "Demo state"
+        "state": "Demo state",
+        "options": {
+          "inactive": "Inactive",
+          "active": "Active"
+        }
       },
       "lock": {
         "title": "Employee lock mode",
@@ -647,8 +662,7 @@
           "supplier": "SUPPLIER",
           "contact": "CONTACT",
           "categories": "SUPPLIED CATEGORIES",
-          "history": "LINKED HISTORY",
-          "responseTime": "RESPONSE TIME"
+          "street": "STREET"
         },
         "categories": {
           "grains": "Grains",
@@ -659,6 +673,7 @@
       },
       "noContact": "No contact",
       "noEmail": "No email",
+      "noStreet": "No street",
       "noPhone": "No phone",
       "footer": {
         "showing": "Showing {count} of {total} total items",
@@ -865,6 +880,10 @@
         "enabled": "Sensor Enabled / Active",
         "cancel": "Cancel",
         "submit": "Confirm Creation"
+      },
+      "edit-dialog": {
+        "title": "Edit Sensor",
+        "submit": "Save Changes"
       }
     }
   },
@@ -968,6 +987,7 @@
       "errors": {
         "fetchOrders500": "Could not load kitchen orders - the server is experiencing a backend error.",
         "fetchOrder500": "Could not load order details - the server is experiencing a backend error.",
+        "createDishFailed": "Could not create the dish.",
         "updateFailed": "Could not update the kitchen order.",
         "deleteFailed": "Could not delete the kitchen order.",
         "statusUpdateFailed": "Could not update the order status."
@@ -1013,6 +1033,7 @@
       "markReady": "Mark as Ready",
       "markDelivered": "Mark as Delivered",
       "cancel": "Cancel",
+      "addDishes": "Add Dishes",
       "newTicket": "New Ticket",
       "noOrders": "No orders in this status",
       "orderNumber": "Order",
@@ -1024,7 +1045,23 @@
       "edit": "Edit",
       "delete": "Delete",
       "confirmDelete": "Are you sure you want to delete this order?",
-      "confirmHeader": "Confirm deletion"
+      "confirmHeader": "Confirm deletion",
+      "createDishDialog": {
+        "title": "Create Dish",
+        "code": "Code",
+        "codePlaceholder": "Example: DISH-001",
+        "name": "Name",
+        "namePlaceholder": "Dish name",
+        "description": "Description",
+        "descriptionPlaceholder": "Short description",
+        "price": "Price",
+        "quantity": "Quantity",
+        "category": "Category",
+        "active": "Active",
+        "outstanding": "Featured",
+        "cancel": "Cancel",
+        "submit": "Save Dish"
+      }
     },
     "tablesAndOccupancyPage": {
       "kicker": "Tables",

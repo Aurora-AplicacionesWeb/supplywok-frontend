@@ -20,6 +20,6 @@ export class SupplierAlertsApi extends BaseApi {
     }
 
     acknowledgeAlert(id) {
-        return this.#alertsEndpoint.http.post(`${this.#alertsEndpoint.endpointPath}/${id}/acknowledge`);
+        return this.#alertsEndpoint.http.patch(`${this.#alertsEndpoint.endpointPath}/${id}`);
     }
 }

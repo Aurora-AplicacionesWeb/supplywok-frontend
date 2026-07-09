@@ -41,7 +41,7 @@ const filterTypeOptions = computed(() => [
     ...typeOptions.value
 ]);
 
-const handleSaveSensor = () => {
+const handleSaveSensor = async () => {
     if (!newSensor.value.name || !newSensor.value.type) return;
     
     const sensorData = {
@@ -54,16 +54,13 @@ const handleSaveSensor = () => {
     };
 
     if (isEditing.value) {
-        store.updateSensor({ ...newSensor.value, ...sensorData }).then(() => {
-            showCreateDialog.value = false;
-        });
+        await store.updateSensor({ ...newSensor.value, ...sensorData });
+        showCreateDialog.value = false;
+        resetForm();
     } else {
-        store.addSensor(sensorData).then(() => {
-            showCreateDialog.value = false;
-            resetForm();
-        }).catch(err => {
-            console.error('Failed to create sensor:', err);
-        });
+        await store.addSensor(sensorData);
+        showCreateDialog.value = false;
+        resetForm();
     }
 };
 
@@ -237,7 +234,7 @@ onMounted(() => {
                         @click="showCreateDialog = false"
                     />
                     <Button
-                        :label="isEditing ? 'Guardar Cambios' : t('iot.sensors.create-dialog.submit')"
+                        :label="isEditing ? t('iot.sensors.edit-dialog.submit') : t('iot.sensors.create-dialog.submit')"
                         @click="handleSaveSensor"
                         :disabled="!newSensor.name || !newSensor.type"
                         class="create-sensor-submit"

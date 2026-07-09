@@ -29,9 +29,7 @@ const supplierRows = computed(() => {
     email: supplier.email || t('supply-and-purchasing.suppliers-page.noEmail'),
     phone: supplier.phone || t('supply-and-purchasing.suppliers-page.noPhone'),
     category: normalizeCategory(supplier.category),
-    linkedDate: supplier.linkedDate || supplier.createdAt?.slice(0, 10) || '--',
-    sla: supplier.sla || '--',
-    responseTime: supplier.responseTime || '--'
+    street: supplier.street || t('supply-and-purchasing.suppliers-page.noStreet')
   }));
 });
 
@@ -114,8 +112,7 @@ watch(totalPages, (nextTotalPages) => {
               <th>{{ t('supply-and-purchasing.suppliers-page.table.headers.supplier') }}</th>
               <th>{{ t('supply-and-purchasing.suppliers-page.table.headers.contact') }}</th>
               <th>{{ t('supply-and-purchasing.suppliers-page.table.headers.categories') }}</th>
-              <th>{{ t('supply-and-purchasing.suppliers-page.table.headers.history') }}</th>
-              <th>{{ t('supply-and-purchasing.suppliers-page.table.headers.responseTime') }}</th>
+              <th>{{ t('supply-and-purchasing.suppliers-page.table.headers.street') }}</th>
             </tr>
           </thead>
 
@@ -133,12 +130,8 @@ watch(totalPages, (nextTotalPages) => {
                 <span class="suppliers-table__tag">{{ getCategoryLabel(row.category) }}</span>
               </td>
               <td>
-                <div class="suppliers-table__history">
-                  <strong>{{ row.linkedDate }}</strong>
-                  <small>{{ row.sla }}</small>
-                </div>
+                <span class="suppliers-table__street">{{ row.street }}</span>
               </td>
-              <td class="suppliers-table__time">{{ row.responseTime }}</td>
             </tr>
           </tbody>
         </table>
@@ -232,19 +225,16 @@ watch(totalPages, (nextTotalPages) => {
   }
 
 .suppliers-table__contact,
-.suppliers-table__contact,
-.suppliers-table__history {
+.suppliers-table__contact {
   display: grid;
   gap: 2px;
 }
 
-.suppliers-table__contact strong,
-.suppliers-table__history strong {
+.suppliers-table__contact strong {
   color: #31272f;
 }
 
-.suppliers-table__contact small,
-.suppliers-table__history small {
+.suppliers-table__contact small {
   color: #7e756b;
   font-size: 0.92rem;
 }
@@ -262,7 +252,7 @@ watch(totalPages, (nextTotalPages) => {
   font-weight: 700;
 }
 
-.suppliers-table__time {
+.suppliers-table__street {
   color: #5a5249;
   font-weight: 600;
 }
@@ -307,7 +297,7 @@ watch(totalPages, (nextTotalPages) => {
   }
 
   .suppliers-table {
-    min-width: 930px;
+    min-width: 780px;
   }
 }
 

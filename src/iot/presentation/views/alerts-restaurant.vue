@@ -105,8 +105,8 @@ const filteredAlerts = computed(() => {
     });
 });
 
-const acknowledgeAlert = (id) => {
-    store.acknowledgeAlert(id);
+const acknowledgeAlert = async (id) => {
+    await store.acknowledgeRestaurantAlert(id);
     if (selectedAlert.value && selectedAlert.value.id === id) {
         isDetailsVisible.value = false;
     }
@@ -293,10 +293,12 @@ watch(
 }
 
 .alerts-header__title {
-    margin: 8px 0 4px;
-    font-size: 32px;
+    margin: 10px 0 8px;
+    color: #221b2a;
+    font-size: clamp(2.6rem, 4vw, 3.3rem);
     font-weight: 700;
-    color: #2f241d;
+    line-height: 1;
+    letter-spacing: -0.04em;
     font-family: 'Poppins', system-ui, sans-serif;
 }
 

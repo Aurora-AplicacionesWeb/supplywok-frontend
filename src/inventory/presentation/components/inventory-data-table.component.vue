@@ -25,7 +25,6 @@ const filteredRows = computed(() => {
     const matchesQuery = !normalizedQuery || [
       item.name,
       item.category,
-      item.supplierName,
       String(item.id)
     ].some((value) => String(value ?? '').toLowerCase().includes(normalizedQuery));
 
@@ -143,7 +142,6 @@ onMounted(() => {
             <th>{{ t('inventoryManagement.table.columns.product') }}</th>
             <th>{{ t('inventoryManagement.table.columns.stockLevels') }}</th>
             <th>{{ t('inventoryManagement.table.columns.category') }}</th>
-            <th>{{ t('inventoryManagement.table.columns.supplier') }}</th>
             <th>{{ t('inventoryManagement.table.columns.actions') }}</th>
           </tr>
         </thead>
@@ -177,13 +175,6 @@ onMounted(() => {
 
             <td>
               <span class="inventory-table__tag">{{ row.category }}</span>
-            </td>
-
-            <td>
-              <span class="inventory-table__supplier">
-                <i class="pi pi-building"></i>
-                {{ row.supplierName || t('inventoryManagement.table.unassignedSupplier') }}
-              </span>
             </td>
 
             <td>
@@ -402,13 +393,6 @@ onMounted(() => {
   font-weight: 700;
 }
 
-.inventory-table__supplier {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #5e564d;
-}
-
 .inventory-table__actions {
   display: flex;
   gap: 16px;
@@ -472,7 +456,7 @@ onMounted(() => {
   }
 
   .inventory-table {
-    min-width: 860px;
+    min-width: 720px;
   }
 }
 

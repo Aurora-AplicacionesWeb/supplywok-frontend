@@ -167,8 +167,10 @@ export const iotStore = defineStore('iot', () => {
       if (index !== -1) {
         restaurantAlerts.value[index] = persisted;
       }
+      return persisted;
     } catch (err) {
       error.value = formatError(err, 'Failed to acknowledge restaurant alert');
+      return null;
     } finally {
       loading.value = false;
     }
@@ -188,8 +190,10 @@ export const iotStore = defineStore('iot', () => {
       if (index !== -1) {
         supplierAlerts.value[index] = persisted;
       }
+      return persisted;
     } catch (err) {
       error.value = formatError(err, 'Failed to acknowledge supplier alert');
+      return null;
     } finally {
       loading.value = false;
     }
@@ -232,12 +236,18 @@ export const iotStore = defineStore('iot', () => {
     loading.value = true;
     error.value = null;
     try {
+      const persisted = await api.updateSensor(updatedSensor);
+      if (!persisted) {
+        throw new Error('Failed to update sensor');
+      }
       const index = sensors.value.findIndex(s => s.id === updatedSensor.id);
       if (index !== -1) {
-        sensors.value.splice(index, 1, updatedSensor);
+        sensors.value.splice(index, 1, persisted);
       }
+      return persisted;
     } catch (err) {
       error.value = formatError(err, 'Failed to update sensor');
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -251,9 +261,11 @@ export const iotStore = defineStore('iot', () => {
     loading.value = true;
     error.value = null;
     try {
+      await api.deleteSensor(id);
       sensors.value = sensors.value.filter(s => s.id !== id);
     } catch (err) {
       error.value = formatError(err, 'Failed to delete sensor');
+      throw err;
     } finally {
       loading.value = false;
     }
