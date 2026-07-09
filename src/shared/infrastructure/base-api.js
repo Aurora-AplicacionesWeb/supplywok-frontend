@@ -1,6 +1,34 @@
 import axios from 'axios';
 
-const platformApi = import.meta.env.VITE_SUPPLYWOK_API_URL;
+const localOrigins = new Set(['localhost', '127.0.0.1']);
+
+function isLocalUrl(value) {
+    if (!value) return false;
+
+    try {
+        const parsed = new URL(value);
+        return localOrigins.has(parsed.hostname);
+    } catch {
+        return false;
+    }
+}
+
+function resolvePlatformApi() {
+    const configuredUrl = import.meta.env.VITE_SUPPLY_WOK_API_URL
+        ?? import.meta.env.VITE_PLATFORM_API_URL
+        ?? import.meta.env.VITE_SUPPLYWOK_API_URL
+        ?? '';
+
+    if (typeof window !== 'undefined' &&
+        !localOrigins.has(window.location.hostname) &&
+        (!configuredUrl || isLocalUrl(configuredUrl))) {
+        return 'https://supply-wok-platform-cgbs.onrender.com/api/v1';
+    }
+
+    return configuredUrl;
+}
+
+const platformApi = resolvePlatformApi();
 
 /**
  * Shared infrastructure base class that owns the configured Axios client.
