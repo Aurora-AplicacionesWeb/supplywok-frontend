@@ -1,7 +1,9 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js';
 import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
-const platformApiUrl = import.meta.env.VITE_SUPPLY_WOK_API_URL;
+const platformApiUrl =
+  import.meta.env.VITE_SUPPLYWOK_API_URL ??
+  import.meta.env.VITE_SUPPLY_WOK_API_URL;
 const restaurantAlertsEndpointPath = import.meta.env.VITE_RESTAURANT_ALERTS_ENDPOINT_PATH || '/restaurant/alerts';
 
 export class RestaurantAlertsApi extends BaseApi {
